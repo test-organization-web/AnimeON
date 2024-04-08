@@ -1,4 +1,4 @@
-PG_USER ?= user
+PG_USER ?= user_test
 PG_PASSWORD ?= Qwerty123
 PG_DB ?= anime_on
 
@@ -30,5 +30,11 @@ bash:
 
 create-db:
 	docker-compose up -d db
-	docker-compose exec db sh -c 'psql --username=postgres --dbname=postgres -c "CREATE $(PG_USER) postgres WITH PASSWORD '"'$(PG_PASSWORD)'"'; CREATE DATABASE $(PG_DB);"'
+	docker-compose exec db sh \
+			-c 'psql --username=postgres --dbname=postgres -c "CREATE USER $(PG_USER) WITH PASSWORD '"'$(PG_PASSWORD)'"';"'
+	docker-compose exec db sh -c 'psql --username=postgres --dbname=postgres -c "CREATE DATABASE $(PG_DB);"'
 	docker-compose rm -s -f db
+
+rm-db:
+	docker-compose exec db sh \
+			-c "psql --username=postgres --dbname=postgres -c 'drop database if exists $(PG_DB);'"
