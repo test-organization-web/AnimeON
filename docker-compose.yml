@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres
+    ports:
+      - ${PG_PORT}
+    volumes:
+      - pgdbdata:/var/lib/postgresql/data/
+    env_file:
+      - .env
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ["runserver", "0.0.0.0:8000" ]
+    volumes:
+      - .:/code
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    depends_on:
+      - db
+
+volumes:
+  pgdbdata:
