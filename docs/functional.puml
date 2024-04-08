@@ -1,0 +1,37 @@
+@startmindmap
+
+* Client
+** Home page
+*** list of manga
+*** last release
+*** Top users (feature)
+*** News
+** Player page
+*** streaming video
+*** manga info
+*** list of series or opening
+*** list of voiceover
+*** list of the same manga
+*** rating of imdb
+*** schedule of series
+*** comments
+*** хронологія з АПІ/ реліз нових з АПІ
+** Profile page
+*** viewed / початок-кінець всі серії / обговоримо
+*** favorite / по тайтлу
+*** count of comments
+*** last seen / некритично
+*** list of comments / некритично
+*** list of complaints
+** Profile settings page
+*** settings ...
+** Tpo 100 page (перше показуєм наш рейтинг, потім вибираємо) / List of manga
+*** list of manga (paginated)
+*** filters
+** Holders page
+*** complaint form
+** Support page
+*** support form
+** Privacy page
+*** test
+@endmindmap

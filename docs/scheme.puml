@@ -1,0 +1,160 @@
+@startuml
+
+package user {
+	object _user
+		_user : id
+		_user : username
+		_user : email
+		_user : password
+		_user : is_subscribed
+		_user : hours on the site
+		_user : avatar file
+		_user : status
+		_user : last seen
+		_user : telegram
+
+	object _setting
+		_setting : who see status
+		_setting : who see friends
+		_setting : who see subscribe
+		_setting : who see goals
+		_setting : other settings ...
+
+	object _team
+		_team : id
+		_team : name
+		_team : logo
+		_team : background
+		_team : description
+		_team : telegram
+		_team : email
+		_team : is_verified
+		_team : other sites ...
+
+	object _favorite
+		_favorite : manga_id
+		_favorite : user_id
+
+	object _viewed
+		_viewed : manga_id
+		_viewed : user_id
+}
+
+package support {
+	object _helpdesk
+		_helpdesk : id
+		_helpdesk : type (типи звернень)
+		_helpdesk : user_id
+		_helpdesk : email
+		_helpdesk : text
+
+	object _complaints
+		_complaints : id
+		_complaints : user_id
+		_complaints : name organization
+		_complaints : contact person
+		_complaints : email
+		_complaints : explanation text (Текст-пояснення, який ви хотіли залишити в оголошенні факту видалення публікації)
+		_complaints : content (Прямі посилання на сторінки ресурсу, інформація з яких потребує видалення)
+		_complaints : document (Посилання на документ, який є доказом наявності у Вас прав на матеріал, розміщений на сайті)
+		_complaints : comment
+}
+
+package manga {
+	object _category
+		_category : id
+		_category : name
+
+	object _manga
+		_manga : id
+		_manga : title
+		_manga : created
+		_manga : short_description
+		_manga : description
+		_manga : like (список користуваців)
+		_manga : dislike (список користуваців)
+		_manga : status
+		_manga : country
+		_manga : start_release
+		_manga : end_release
+		_manga : director
+		_manga : slug (коротка назва для створення урла)
+		_manga : url (для IMDb)
+		_manga : url (для MyAnimeList)
+		_manga : type (фільм, серіал)
+		_manga : age rating
+		_manga : year
+		_manga : viewed (скільки переглянуто)
+		_manga : studio_id
+
+	object _season
+		_season : name
+		_season : series_id
+
+	object _image
+		_image : id
+		_image : file
+		_image : manga_id
+		_image : is_main
+
+	object _comment
+		_comment : id
+		_comment : text
+		_comment : user_id
+		_comment : manga_id
+		_comment : created
+		_comment : like (список користуваців)
+		_comment : dislike (список користуваців)
+		_comment : comment_id (якщо є відповіть на коммент / аля інста)
+
+	object _series
+		_series : id
+		_series : name
+		_series : status
+		_series : order (номер серії)
+		_series : start_release
+		_series : opening_id
+
+	object _voiceover
+		_voiceover : id
+		_voiceover : team_id
+		_voiceover : user_id
+		_voiceover : series_id
+		_voiceover : url
+		_voiceover : status
+		_voiceover : created
+
+	object _genre
+		_genre : id
+		_genre : name
+
+}
+
+_helpdesk }|--|| _user
+_complaints }|--|| _user
+
+_team ||--|{ _user
+
+_season ||--|| _series
+_series }|--|| _manga
+
+_image }|--|| _manga
+
+_comment }|--|| _manga
+_comment ||--|| _user
+_comment ||--|| _comment
+
+_voiceover ||--|| _series
+_voiceover ||--|| _team
+_voiceover ||--|| _user
+_category }|--|| _manga
+_genre }|--|| _manga
+
+_user ||--|{ _favorite
+_user ||--|{ _viewed
+_user ||--|| _setting
+
+_viewed ||--|| _manga
+_favorite ||--|| _manga
+
+@enduml
