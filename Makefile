@@ -1,6 +1,6 @@
-PG_USER ?= user_test
+PG_USER ?= user_test_8
 PG_PASSWORD ?= Qwerty123
-PG_DB ?= anime_on
+PG_DB ?= anime_on_8
 
 run:
 	docker-compose up
@@ -15,13 +15,13 @@ build:
 	docker-compose build
 
 mm:
-	docker-compose run --rm api migrate
+	docker-compose run --rm web migrate
 
 mm-fake:
-	docker-compose run --rm api migrate --fake
+	docker-compose run --rm web migrate --fake
 
 mkm:
-	docker-compose run --rm api makemigrations
+	docker-compose run --rm web makemigrations
 
 mkm-m: mkm mm
 
@@ -30,9 +30,10 @@ bash:
 
 create-db:
 	docker-compose up -d db
-	docker-compose exec db sh \
-			-c 'psql --username=postgres --dbname=postgres -c "CREATE USER $(PG_USER) WITH PASSWORD '"'$(PG_PASSWORD)'"';"'
 	docker-compose exec db sh -c 'psql --username=postgres --dbname=postgres -c "CREATE DATABASE $(PG_DB);"'
+	docker-compose exec db sh \
+			-c 'psql --username=postgres --dbname=postgres -c "CREATE USER $(PG_USER) WITH PASSWORD '"'$(PG_PASSWORD)'"' SUPERUSER;"'
+	docker-compose exec db sh -c 'psql --username=postgres --dbname=postgres -c "GRANT ALL PRIVILEGES ON DATABASE $(PG_DB) to $(PG_USER);"'
 	docker-compose rm -s -f db
 
 rm-db:
