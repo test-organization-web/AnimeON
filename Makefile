@@ -26,7 +26,7 @@ mkm:
 mkm-m: mkm mm
 
 bash:
-	docker-compose run --rm --entrypoint="" api sh
+	docker-compose run --rm --entrypoint="" web sh
 
 create-db:
 	docker-compose up -d db
