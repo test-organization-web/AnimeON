@@ -13,18 +13,18 @@ build:
 	docker-compose build
 
 mm:
-	docker-compose run --rm web migrate
+	docker-compose run --rm api migrate
 
 mm-fake:
-	docker-compose run --rm web migrate --fake
+	docker-compose run --rm api migrate --fake
 
 mkm:
-	docker-compose run --rm web makemigrations
+	docker-compose run --rm api makemigrations
 
 mkm-m: mkm mm
 
 bash:
-	docker-compose run --rm --entrypoint="" web sh
+	docker-compose run --rm --entrypoint="" api sh
 
 create-db:
 	docker-compose up -d db

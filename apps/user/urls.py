@@ -1,7 +1,8 @@
-from django.contrib import admin
-from django.urls import path, include
+from django.urls import path
 from .views import CustomAuthToken
 
+app_name = 'user'
+
 urlpatterns = [
-    path('token/', CustomAuthToken.as_view()),
+    path('token/', CustomAuthToken.as_view(), name='crate-auth-token'),
 ]
