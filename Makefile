@@ -1,6 +1,4 @@
-PG_USER ?= user_test_8
-PG_PASSWORD ?= Qwerty123
-PG_DB ?= anime_on_8
+include .env
 
 run:
 	docker-compose up
