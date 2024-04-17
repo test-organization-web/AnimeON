@@ -1,8 +1,8 @@
 from django.urls import path
-from .views import CustomAuthToken
+from apps.user.views import UserAPI
 
 app_name = 'user'
 
 urlpatterns = [
-    path('token/', CustomAuthToken.as_view(), name='crate-auth-token'),
+    path('', UserAPI.as_view()),
 ]

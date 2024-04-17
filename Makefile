@@ -37,3 +37,11 @@ create-db:
 rm-db:
 	docker-compose exec db sh \
 			-c "psql --username=postgres --dbname=postgres -c 'drop database if exists $(PG_DB);'"
+
+create-app:
+	docker-compose up -d api
+	docker-compose exec api sh -c 'python manage.py startapp $(app_name) apps/$(app_name)'
+
+path = apps
+test:
+	docker-compose run --rm api test --keepdb -v 2 $(path)

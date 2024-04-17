@@ -14,6 +14,9 @@ from pathlib import Path
 import os
 import sys
 from anime_on.utils import to_bool
+from datetime import timedelta
+from rest_framework.settings import api_settings
+
 
 PROJECT_VERSION = '##VERSION##'
 
@@ -48,11 +51,14 @@ INSTALLED_APPS = [
     'django.contrib.postgres',
 
     # app
+    'apps.authentication',
     'apps.user',
     # libraries
     'rest_framework',
-    'rest_framework.authtoken',
+    'knox',
     'drf_yasg',
+    'rest_framework.authtoken',
+    'rest_framework_simplejwt',
 ]
 
 MIDDLEWARE = [
@@ -68,9 +74,14 @@ MIDDLEWARE = [
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.BasicAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
-    ]
+        'knox.auth.TokenAuthentication',
+    ],
+    'TEST_REQUEST_DEFAULT_FORMAT': 'json',
+    'DEFAULT_PARSER_CLASSES': [
+        'apps.core.parsers.JSONParser',           # overridden
+        'rest_framework.parsers.FormParser',      # by default
+        'rest_framework.parsers.MultiPartParser'  # by default
+    ],
 }
 
 ROOT_URLCONF = 'anime_on.urls'
@@ -154,6 +165,21 @@ AUTH_USER_MODEL = 'user.User'
 
 SWAGGER_ENABLED = to_bool(os.environ.get('SWAGGER_ENABLED'))  # turned off by default
 
+SWAGGER_SETTINGS = {
+    # https://drf-yasg.readthedocs.io/en/stable/settings.html#default-model-rendering
+    'DEFAULT_MODEL_RENDERING': 'example',
+    'DEFAULT_MODEL_DEPTH': 4,
+    'DEEP_LINKING': True,
+    'USE_SESSION_AUTH': False,
+    'SECURITY_DEFINITIONS': {
+        'api_key': {
+            'type': 'apiKey',
+            'in': 'header',
+            'name': 'Authorization'
+        }
+    }
+}
+
 if DEBUG_TOOLBAR_ENABLED:
     import socket
 
@@ -162,3 +188,7 @@ if DEBUG_TOOLBAR_ENABLED:
     DEBUG_TOOLBAR_CONFIG = {
         'SHOW_TOOLBAR_CALLBACK': lambda request: DEBUG
     }
+
+REST_KNOX = {
+    'TOKEN_TTL': timedelta(hours=24 * 3),
+}
