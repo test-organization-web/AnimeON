@@ -55,17 +55,16 @@ INSTALLED_APPS = [
     'apps.user',
     # libraries
     'rest_framework',
-    'knox',
     'drf_yasg',
-    'rest_framework.authtoken',
     'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -73,9 +72,9 @@ MIDDLEWARE = [
 
 
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'knox.auth.TokenAuthentication',
-    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTStatelessUserAuthentication',
+    ),
     'TEST_REQUEST_DEFAULT_FORMAT': 'json',
     'DEFAULT_PARSER_CLASSES': [
         'apps.core.parsers.JSONParser',           # overridden
@@ -189,6 +188,10 @@ if DEBUG_TOOLBAR_ENABLED:
         'SHOW_TOOLBAR_CALLBACK': lambda request: DEBUG
     }
 
-REST_KNOX = {
-    'TOKEN_TTL': timedelta(hours=24 * 3),
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "ROTATE_REFRESH_TOKENS": False,
+    "BLACKLIST_AFTER_ROTATION": False,
+    "UPDATE_LAST_LOGIN": False,
 }

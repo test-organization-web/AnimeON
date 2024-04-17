@@ -5,7 +5,6 @@ from rest_framework.test import APITestCase
 from django.contrib.auth import get_user_model
 
 from apps.user.tests.mixins import UserProviderMixin
-from knox.models import AuthToken
 
 UserModel = get_user_model()
 
@@ -18,10 +17,11 @@ class UserRegisterViewAPIViewTest(APITestCase):
         response = self.client.post(self.url, data={
             'username': 'username', 'email': 'test@gmail.com', 'password': 'password', 'password2': 'password'
         })
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertIn('access', response.json())
+        self.assertIn('refresh', response.json())
         user = UserModel.objects.filter(username='username', email='test@gmail.com').first()
         self.assertIsNotNone(user)
-        self.assertTrue(AuthToken.objects.filter(user_id=user.id).exists())
 
     def test_password_not_match(self):
         response = self.client.post(self.url, data={
@@ -87,19 +87,23 @@ class UserLoginViewAPIViewTest(UserProviderMixin, APITestCase):
     def setUp(self):
         self.url = reverse('authentication:login')
 
+    def test_success_login(self):
+        response = self.client.post(self.url, data={
+            'username': 'username',
+            'password': 'password'
+        })
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('access', response.json())
+        self.assertIn('refresh', response.json())
+
     def test_wrong_password(self):
         response = self.client.post(self.url, data={
             'username': 'username',
             'password': 'test'
         })
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertJSONEqual(response.content, {
-            "errors": [
-                {
-                    "message": "Unable to log in with provided credentials.",
-                    "location": "non_field_errors"
-                }
-            ]
+            'detail': 'No active account found with the given credentials'
         })
 
     def test_wrong_username(self):
@@ -107,12 +111,7 @@ class UserLoginViewAPIViewTest(UserProviderMixin, APITestCase):
             'username': 'username1',
             'password': 'test'
         })
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertJSONEqual(response.content, {
-            "errors": [
-                {
-                    "message": "Unable to log in with provided credentials.",
-                    "location": "non_field_errors"
-                }
-            ]
+            'detail': 'No active account found with the given credentials'
         })

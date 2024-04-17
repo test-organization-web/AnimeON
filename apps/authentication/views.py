@@ -1,12 +1,14 @@
 from django.contrib.auth import get_user_model
-from django.contrib.auth import login
 
 from rest_framework.response import Response
 from rest_framework.generics import GenericAPIView
-from rest_framework import permissions
-from rest_framework.authtoken.serializers import AuthTokenSerializer
-from knox.views import LoginView as KnoxLoginVie, LogoutView as KnoxLogoutView
-from knox.models import AuthToken
+from rest_framework import permissions, status
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenBlacklistView,
+)
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenBlacklistSerializer
 
 from apps.core.utils import swagger_auto_schema_wrapper, validate_request_data
 from apps.authentication.swagger_views_docs import (
@@ -18,29 +20,28 @@ from apps.authentication.serializers import UserRegisterSerializer
 from apps.user.serializers import UserSerializer
 
 
-class UserLogoutViewAPIView(KnoxLogoutView):
+class UserLogoutViewAPIView(TokenBlacklistView):
     permission_classes = (permissions.AllowAny,)
+    serializer_class = TokenBlacklistSerializer
 
     @swagger_auto_schema_wrapper(
         doc=UserLogoutViewAPIViewDoc,
+        request_serializer_cls=serializer_class,
     )
     def post(self, request, format=None):
         return super().post(request, format)
 
 
-class UserLoginViewAPIView(KnoxLoginVie):
+class UserLoginViewAPIView(TokenObtainPairView):
     permission_classes = (permissions.AllowAny,)
-    serializer_class = AuthTokenSerializer
+    serializer_class = TokenObtainPairSerializer
 
     @swagger_auto_schema_wrapper(
         doc=UserLoginViewAPIViewDoc,
         request_serializer_cls=serializer_class,
     )
     @validate_request_data(serializer_cls=serializer_class)
-    def post(self, request, serializer: AuthTokenSerializer, format=None):
-        serializer.is_valid(raise_exception=True)
-        user = serializer.validated_data['user']
-        login(request, user)
+    def post(self, request, serializer: TokenObtainPairSerializer, format=None):
         return super().post(request, format)
 
 
@@ -57,7 +58,10 @@ class UserRegisterViewAPIView(GenericAPIView):
     def post(self, request, serializer: UserRegisterSerializer, *args, **kwargs):
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
+        token = RefreshToken.for_user(user)
+
         return Response({
-            "user": UserSerializer(user, context=self.get_serializer_context()).data,
-            "token": AuthToken.objects.create(user)[1]
-        })
+            'user': UserSerializer(user, context=self.get_serializer_context()).data,
+            'refresh': str(token),
+            'access': str(token.access_token),
+        }, status=status.HTTP_201_CREATED)
