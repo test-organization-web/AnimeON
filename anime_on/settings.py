@@ -13,7 +13,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 from pathlib import Path
 import os
 import sys
-from anime_on.utils import to_bool
+from anime_on.utils import to_bool, to_list
 from datetime import timedelta
 from rest_framework.settings import api_settings
 
@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'apps.authentication',
     'apps.user',
     # libraries
+    'corsheaders',
     'rest_framework',
     'knox',
     'drf_yasg',
@@ -64,6 +65,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -192,3 +194,5 @@ if DEBUG_TOOLBAR_ENABLED:
 REST_KNOX = {
     'TOKEN_TTL': timedelta(hours=24 * 3),
 }
+
+CORS_ALLOWED_ORIGINS = to_list(os.environ.get('CORS_ALLOWED_ORIGINS'))
