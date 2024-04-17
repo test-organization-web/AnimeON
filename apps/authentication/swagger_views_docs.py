@@ -11,13 +11,11 @@ class UserRegisterViewAPIViewDoc(BaseSwaggerAPIViewDoc):
     tags = [SwaggerTags.AUTH]
 
     responses = {
-        status.HTTP_200_OK: openapi.Response(
-            'Ok.',
+        status.HTTP_201_CREATED: openapi.Response(
+            'Created.',
             examples={'application/json': {
-                "user": {
-                    "username": "username"
-                },
-                "token": "<str: token>"
+                "access": "<str: token>",
+                "refresh": "<str: token>"
             }},
         ),
         status.HTTP_400_BAD_REQUEST: openapi.Response(
@@ -67,17 +65,15 @@ class UserLoginViewAPIViewDoc(BaseSwaggerAPIViewDoc):
     responses = {
         status.HTTP_200_OK: openapi.Response(
             'Ok.',
-            examples={'application/json': {}},
+            examples={'application/json': {
+                "access": "<str: token>",
+                "refresh": "<str: token>"
+            }},
         ),
         status.HTTP_400_BAD_REQUEST: openapi.Response(
             'Bad request.',
             examples={'application/json': {
-                "errors": [
-                    {
-                        "message": "Unable to log in with provided credentials.",
-                        "location": "non_field_errors"
-                    }
-                ]
+                'detail': 'No active account found with the given credentials'
             }},
         )
     }

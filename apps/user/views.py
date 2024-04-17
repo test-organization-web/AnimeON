@@ -1,4 +1,4 @@
-from rest_framework import permissions
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.generics import RetrieveAPIView
 from apps.user.serializers import UserSerializer
 
@@ -7,7 +7,7 @@ from apps.user.swager_views_docs import UserAPIViewDoc
 
 
 class UserAPI(RetrieveAPIView):
-    permission_classes = [permissions.IsAuthenticated, ]
+    permission_classes = (IsAuthenticated,)
     serializer_class = UserSerializer
 
     @swagger_auto_schema_wrapper(

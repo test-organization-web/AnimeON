@@ -1,5 +1,3 @@
-from rest_framework.authtoken.admin import TokenAdmin
-
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import Group
@@ -7,7 +5,6 @@ from django.contrib.auth.models import Group
 from apps.user.models import User
 from apps.user.models import Group as CustomGroup
 
-TokenAdmin.raw_id_fields = ['user']
 
 admin.site.unregister(Group)
 
