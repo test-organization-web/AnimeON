@@ -12,6 +12,12 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 import os
+import sys
+from anime_on.utils import to_bool
+
+PROJECT_VERSION = '##VERSION##'
+
+ENV_NAME = os.environ.get('ENV_NAME', 'DEV').upper()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -21,13 +27,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-s0g%s#_#-f110rqi^-(p*@ov2e3-2l^#5f@_o-s4ce-cjra)wp'
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = to_bool(os.environ.get('DEBUG'))  # turned off by default
+TESTING = "test" in sys.argv
+DEBUG_TOOLBAR_ENABLED = DEBUG and not TESTING
 
 ALLOWED_HOSTS = ['*']
-
 
 # Application definition
 
@@ -39,6 +46,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.postgres',
+
+    'drf_yasg',
 ]
 
 MIDDLEWARE = [
@@ -128,3 +137,14 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+SWAGGER_ENABLED = to_bool(os.environ.get('SWAGGER_ENABLED'))  # turned off by default
+
+if DEBUG_TOOLBAR_ENABLED:
+    import socket
+
+    INSTALLED_APPS.append('debug_toolbar')
+    MIDDLEWARE.append('debug_toolbar.middleware.DebugToolbarMiddleware')
+    DEBUG_TOOLBAR_CONFIG = {
+        'SHOW_TOOLBAR_CALLBACK': lambda request: DEBUG
+    }
