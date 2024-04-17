@@ -21,8 +21,10 @@ from django.urls import include, path
 
 from anime_on.swagger import schema_view
 
+
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('', include('apps.user.urls')),
 ]
 
 if settings.SWAGGER_ENABLED:
