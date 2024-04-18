@@ -37,7 +37,9 @@ DEBUG = to_bool(os.environ.get('DEBUG'))  # turned off by default
 TESTING = "test" in sys.argv
 DEBUG_TOOLBAR_ENABLED = DEBUG and not TESTING
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = to_list(os.getenv('ALLOWED_HOSTS'))
+if ALLOWED_HOSTS and "*" not in ALLOWED_HOSTS:
+    CSRF_TRUSTED_ORIGINS = [f"https://{h}" for h in ALLOWED_HOSTS]
 
 # Application definition
 
@@ -53,16 +55,24 @@ INSTALLED_APPS = [
     # app
     'apps.authentication',
     'apps.user',
+    'apps.anime',
     # libraries
+    'storages',
     'corsheaders',
     'rest_framework',
     'drf_yasg',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
+    'django_admin_inline_paginator',
+    'django_countries',
+    'django_filters',
+    'adminfilters',
+    'rangefilter',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+  	'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -70,6 +80,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'apps.core.middleware.request_id_middleware',
+    'apps.core.middleware.RedirectMiddleware',
 ]
 
 
@@ -105,10 +117,37 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'anime_on.wsgi.application'
 
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+STATIC_URL = os.getenv('STATIC_URL', 'static/')
+STATIC_ROOT = os.getenv('STATIC_ROOT', 'static_dir')
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 # https://docs.djangoproject.com/en/5.0/ref/databases/#postgresql-notes
+
+AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.getenv('AWS_ACCESS_KEY_ID')
+AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
+AWS_S3_ENDPOINT_URL = os.getenv('AWS_S3_ENDPOINT_URL')
+AWS_REGION = os.getenv('AWS_REGION', 'unknown')
+
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
+
+# AWS Configuration
+AWS_STORAGE_BUCKET_PREFIX = os.getenv('AWS_STORAGE_BUCKET_PREFIX', '').lstrip("/")
+
+if AWS_STORAGE_BUCKET_NAME:
+    STORAGES['default']['BACKEND'] = 'storages.backends.s3boto3.S3Boto3Storage'
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -119,7 +158,6 @@ DATABASES = {
         'PORT': os.environ.get('PG_PORT'),
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -143,9 +181,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'uk'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Kiev'
 
 USE_I18N = True
 
@@ -199,3 +237,51 @@ SIMPLE_JWT = {
 }
 
 CORS_ALLOWED_ORIGINS = to_list(os.environ.get('CORS_ALLOWED_ORIGINS'))
+
+
+# INFO logs required to capture log events and metric
+# can be increased to ERROR on dev environments to save us from the global warming
+LOGGER_LEVEL = os.getenv('LOG_LEVEL', 'INFO')
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'json': {"()": 'anime_on.logging.FormatterJSON'},
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'json',
+        },
+    },
+    'loggers': {
+        'django': {  # django, django.request, django.server must be redefined, otherwise they log their text by default
+            'handlers': ['console'],
+            'level': LOGGER_LEVEL,
+        },
+        'django.request': {  # this is for access logs and unhandled exceptions
+            'handlers': ['console'],
+            'level': LOGGER_LEVEL,
+            'propagate': False,
+        },
+        'django.server': {  # this is for local use only, I expect
+            'handlers': ['console'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+        '': {  # default handler
+            'handlers': ['console'],
+            'level': LOGGER_LEVEL,
+            'propagate': True
+        },
+    },
+}
+
+DEFAULT_EXCEPTION_REPORTER = 'apps.core.debug.JSONExceptionReporter'
+DEFAULT_EXCEPTION_REPORTER_FILTER = 'apps.core.debug.JSONSafeExceptionReporterFilter'
+
+import dj_database_url
+db_from_env = dj_database_url.config(conn_max_age=500)
+DATABASES['default'].update(db_from_env)
+

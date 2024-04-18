@@ -1,15 +1,17 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 
+from apps.user.serializers import UserSerializer
+
 UserModel = get_user_model()
 
 
-class UserRegisterSerializer(serializers.ModelSerializer):
-    password2 = serializers.CharField(style={'input_type': 'password'}, write_only=True)
+class RequestUserRegisterSerializer(serializers.ModelSerializer):
+    password_repeat = serializers.CharField(style={'input_type': 'password'}, write_only=True)
 
     class Meta:
         model = UserModel
-        fields = ['username', 'email', 'password', 'password2']
+        fields = ['username', 'email', 'password', 'password_repeat']
         extra_kwargs = {
             'password': {'write_only': True},
             'email': {'required': True},
@@ -19,10 +21,10 @@ class UserRegisterSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         validated_data = super().validate(attrs)
         password = validated_data['password']
-        password2 = validated_data['password2']
+        password_repeat = validated_data['password_repeat']
 
-        if password != password2:
-            raise serializers.ValidationError({"password": "Password Does not match"})
+        if password != password_repeat:
+            raise serializers.ValidationError({"password_repeat": "Password Does not match"})
 
         if UserModel.objects.filter(email=validated_data['email']).exists():
             raise serializers.ValidationError({"email": "Email already exist"})
@@ -36,3 +38,18 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         user.save()
 
         return user
+
+
+class ResponseUserRegisterSerializer(serializers.Serializer):
+    user = UserSerializer()
+    refresh = serializers.CharField()
+    access = serializers.CharField()
+
+
+class ResponseUserLoginSerializer(serializers.Serializer):
+    refresh = serializers.CharField()
+    access = serializers.CharField()
+
+
+class ResponseUserLogoutSerializer(serializers.Serializer):
+    refresh = serializers.CharField()

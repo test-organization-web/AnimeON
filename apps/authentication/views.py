@@ -1,3 +1,5 @@
+import logging
+
 from django.contrib.auth import get_user_model
 
 from rest_framework.response import Response
@@ -9,15 +11,19 @@ from rest_framework_simplejwt.views import (
     TokenBlacklistView,
 )
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenBlacklistSerializer
+from rest_framework_simplejwt.exceptions import InvalidToken
 
-from apps.core.utils import swagger_auto_schema_wrapper, validate_request_data
+from apps.core.utils import swagger_auto_schema_wrapper, validate_request_data, get_response_body_errors
 from apps.authentication.swagger_views_docs import (
     UserRegisterViewAPIViewDoc,
     UserLoginViewAPIViewDoc,
     UserLogoutViewAPIViewDoc,
 )
-from apps.authentication.serializers import UserRegisterSerializer
+from apps.authentication.serializers import RequestUserRegisterSerializer
 from apps.user.serializers import UserSerializer
+
+
+logger = logging.getLogger()
 
 
 class UserLogoutViewAPIView(TokenBlacklistView):
@@ -27,9 +33,15 @@ class UserLogoutViewAPIView(TokenBlacklistView):
     @swagger_auto_schema_wrapper(
         doc=UserLogoutViewAPIViewDoc,
         request_serializer_cls=serializer_class,
+        operation_id='user_logout',
     )
     def post(self, request, format=None):
-        return super().post(request, format)
+        try:
+            logger.info('User logout')
+            return super().post(request, format)
+        except InvalidToken:
+            errors = get_response_body_errors(errors=InvalidToken.default_detail)
+            return Response(data=errors, status=InvalidToken.status_code)
 
 
 class UserLoginViewAPIView(TokenObtainPairView):
@@ -39,27 +51,34 @@ class UserLoginViewAPIView(TokenObtainPairView):
     @swagger_auto_schema_wrapper(
         doc=UserLoginViewAPIViewDoc,
         request_serializer_cls=serializer_class,
+        operation_id='user_login',
     )
     @validate_request_data(serializer_cls=serializer_class)
     def post(self, request, serializer: TokenObtainPairSerializer, format=None):
-        return super().post(request, format)
+        try:
+            logger.info('User login')
+            return super().post(request, format)
+        except InvalidToken:
+            errors = get_response_body_errors(errors=InvalidToken.default_detail)
+            return Response(data=errors, status=InvalidToken.status_code)
 
 
 class UserRegisterViewAPIView(GenericAPIView):
     model = get_user_model()
     permission_classes = (permissions.AllowAny,)  # Or anon users can't register
-    serializer_class = UserRegisterSerializer
+    serializer_class = RequestUserRegisterSerializer
 
     @swagger_auto_schema_wrapper(
         doc=UserRegisterViewAPIViewDoc,
-        request_serializer_cls=UserRegisterSerializer,
+        request_serializer_cls=serializer_class,
+        operation_id='user_register',
     )
-    @validate_request_data(serializer_cls=UserRegisterSerializer)
-    def post(self, request, serializer: UserRegisterSerializer, *args, **kwargs):
-        serializer.is_valid(raise_exception=True)
+    @validate_request_data(serializer_cls=serializer_class)
+    def post(self, request, serializer: RequestUserRegisterSerializer, *args, **kwargs):
         user = serializer.save()
         token = RefreshToken.for_user(user)
 
+        logger.info('User success register')
         return Response({
             'user': UserSerializer(user, context=self.get_serializer_context()).data,
             'refresh': str(token),

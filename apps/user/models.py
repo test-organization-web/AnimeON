@@ -5,8 +5,6 @@ from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.db import models
 from django.utils import timezone
 
-from rest_framework.authtoken.models import Token
-
 
 class User(PermissionsMixin, AbstractBaseUser):
     username_validator = UnicodeUsernameValidator()
@@ -28,7 +26,7 @@ class User(PermissionsMixin, AbstractBaseUser):
         default=False,
         help_text='Designates whether the user can log into this admin site.',
     )
-    email = models.EmailField(unique=True, blank=True)
+    email = models.EmailField(unique=True, null=True, blank=True)
     is_active = models.BooleanField(
         'active',
         default=True,
