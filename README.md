@@ -60,4 +60,4 @@ make run-d
 
 ``bash`` - enter to api container.
 
-``create-db`` - create "rme" database in MSSQL Server (and print names of all existed databases)
+``create-db`` - create "anime_on" database in PostgreSQL
