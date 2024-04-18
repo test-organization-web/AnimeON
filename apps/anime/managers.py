@@ -1,5 +1,5 @@
 from django.db import models
-from django.template.defaultfilters import slugify
+from slugify import slugify
 
 
 class AnimeManager(models.Manager):

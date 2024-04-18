@@ -8,8 +8,10 @@ class AnimeStatuses(models.TextChoices):
 
 
 class AnimeTypes(models.TextChoices):
-    ANIME = 'ANIME', 'Аніме'
+    SERIAL = 'SERIAL', 'Серіал'
     FILM = 'FILM', 'Фільм'
+    ONA = 'ONA', 'ONA'
+    OVA = 'OVA', 'OVA'
 
 
 class VoiceoverTypes(models.TextChoices):
@@ -25,7 +27,7 @@ class VoiceoverStatuses(models.TextChoices):
 
 
 class VoiceoverHistoryEvents(models.TextChoices):
-    pass
+    CREATED = 'CREATED', 'Створено запит на додавання озвучки'
 
 
 class RatingTypes(models.TextChoices):

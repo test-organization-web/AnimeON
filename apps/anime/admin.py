@@ -1,3 +1,4 @@
+from django.utils import timezone
 from django.contrib import admin
 from django_admin_inline_paginator.admin import TabularInlinePaginated
 from adminfilters.combo import RelatedFieldComboFilter, AllValuesComboFilter
@@ -6,6 +7,7 @@ from apps.anime.models import (
     Anime, Episode, Director, Studio, PreviewImage, Voiceover, VoiceoverHistory, Poster
 )
 from apps.core.admin import OnlyAddPermissionMixin, ReadOnlyPermissionsMixin, OnlyChangePermissionMixin
+from apps.anime.choices import VoiceoverHistoryEvents
 
 # Register your models here.
 
@@ -118,6 +120,19 @@ class VoiceoverAdmin(admin.ModelAdmin):
         ('type', AllValuesComboFilter),
         ('status', AllValuesComboFilter),
     ]
+
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+        if change:
+            obj.process_new_history_event(
+                user=request.user,
+            )
+        else:
+            obj.process_new_history_event(
+                event=VoiceoverHistoryEvents.CREATED,
+                user=request.user,
+                created=timezone.now()
+            )
 
 
 class TOP100(Anime):

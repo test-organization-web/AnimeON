@@ -129,6 +129,7 @@ class AnimeListAPIViewDoc(BaseSwaggerAPIViewDoc):
             'Ok.',
             ResponsePaginatedAnimeListSerializer,
             examples={'application/json': {
+                "active_page": 1,
                 "num_pages": 1,
                 "count": 1,
                 "next": "<str: url>",
@@ -160,6 +161,7 @@ class AnimeSearchAPIViewDoc(BaseSwaggerAPIViewDoc):
             'Ok.',
             ResponsePaginatedAnimeListSerializer,
             examples={'application/json': {
+                "active_page": 1,
                 "num_pages": 1,
                 "count": 1,
                 "next": "<str: url>",
@@ -191,6 +193,7 @@ class AnimeListRandomAPIViewDoc(BaseSwaggerAPIViewDoc):
             'Ok.',
             ResponsePaginatedAnimeListSerializer,
             examples={'application/json': {
+                "active_page": 1,
                 "num_pages": 1,
                 "count": 1,
                 "next": "<str: url>",
@@ -222,6 +225,7 @@ class AnimeTOP100APIViewDoc(BaseSwaggerAPIViewDoc):
             'Ok.',
             ResponsePaginatedAnimeListSerializer,
             examples={'application/json': {
+                "active_page": 1,
                 "num_pages": 1,
                 "count": 1,
                 "next": "<str: url>",
@@ -286,16 +290,17 @@ class FiltersAnimeAPIViewDoc(BaseSwaggerAPIViewDoc):
                 {
                     'directors': [
                         {
-                            "id": 1,
-                            "first_name": "<str: first_name>",
-                            "last_name": "<str: last_name>",
-                            "pseudonym": "<str: pseudonym>",
+                            1: "<str: name>",
                         }
                     ],
                     'studios': [
                         {
-                            "id": 1,
-                            "name": "<str: name>",
+                            1: "<str: name>",
+                        }
+                    ],
+                    'genres': [
+                        {
+                            1: "<str: name>",
                         }
                     ],
                     "countries": {

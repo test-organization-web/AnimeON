@@ -122,6 +122,7 @@ class ChildPaginatedAnimeSerializer(ResponseAnimeListSerializer):
 
 
 class ResponsePaginatedAnimeListSerializer(serializers.Serializer):
+    active_page = serializers.IntegerField(allow_null=True)
     num_pages = serializers.IntegerField(allow_null=True)
     count = serializers.IntegerField(allow_null=True)
     next = serializers.URLField()
@@ -152,7 +153,7 @@ class ResponsePostersSerializer(serializers.ModelSerializer):
 class ResponseListDirectorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Director
-        exclude = ['url']
+        fields = ['id', 'full_name']
 
 
 class ResponseListStudioSerializer(serializers.ModelSerializer):
@@ -167,11 +168,18 @@ class ResponseListVoiceoverSerializer(serializers.ModelSerializer):
         fields = ['id', 'name']
 
 
+class ResponseListGenreSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Genre
+        fields = ['id', 'name']
+
+
 class ResponseFiltersAnimeSerializer(serializers.Serializer):
-    directors = ResponseListDirectorSerializer(many=True)
-    studios = ResponseListStudioSerializer(many=True)
+    directors = serializers.JSONField()
+    genres = serializers.JSONField()
+    studios = serializers.JSONField()
     countries = serializers.JSONField()
-    voiceover = ResponseListVoiceoverSerializer(many=True)
+    voiceover = serializers.JSONField()
     status = serializers.JSONField()
     type = serializers.JSONField()
     season = serializers.JSONField()
