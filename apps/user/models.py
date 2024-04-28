@@ -43,6 +43,16 @@ class User(PermissionsMixin, AbstractBaseUser):
     REQUIRED_FIELDS = ['email']
 
 
+class Settings(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    field_1 = models.CharField()
+    field_2 = models.CharField()
+    field_3 = models.CharField()
+
+    def __str__(self):
+        return f"Settings for {self.user.username}"
+
+
 class Group(BaseGroup):
 
     class Meta:
