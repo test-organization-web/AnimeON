@@ -1,3 +1,5 @@
+import os
+
 from typing import Optional, Union, List, Dict
 
 from rest_framework import status
@@ -73,3 +75,9 @@ def validate_request_data(serializer_cls, method: str = 'POST'):
         return inner
 
     return wrapper
+
+
+def get_extension(filename):
+    if filename is None:
+        return None
+    return os.path.splitext(filename)[1].lstrip('.').lower()

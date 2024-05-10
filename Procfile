@@ -1,0 +1,1 @@
+web: gunicorn anime_on.wsgi

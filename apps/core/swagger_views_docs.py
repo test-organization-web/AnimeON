@@ -5,6 +5,7 @@ class SwaggerTags(str, Enum):
     # services
     AUTH = 'Auth'
     USER = 'User'
+    ANIME = 'Anime'
 
 
 class BaseSwaggerAPIViewDoc:

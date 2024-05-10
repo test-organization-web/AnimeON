@@ -24,8 +24,9 @@ from anime_on.swagger import schema_view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('user/', include('apps.user.urls', namespace='user')),
-    path('auth/', include('apps.authentication.urls', namespace='authentication')),
+    path('api/user/', include('apps.user.urls', namespace='user')),
+    path('api/auth/', include('apps.authentication.urls', namespace='authentication')),
+    path('api/anime/', include('apps.anime.urls', namespace='anime')),
 ]
 
 if settings.SWAGGER_ENABLED:

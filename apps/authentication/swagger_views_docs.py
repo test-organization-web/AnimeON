@@ -2,6 +2,10 @@ from drf_yasg import openapi
 from rest_framework import status
 
 from apps.core.swagger_views_docs import BaseSwaggerAPIViewDoc, SwaggerTags
+from apps.authentication.serializers import (
+    ResponseUserRegisterSerializer, ResponseUserLoginSerializer, ResponseUserLogoutSerializer
+)
+from apps.core.serializers import ResponseErrorSerializer
 
 
 class UserRegisterViewAPIViewDoc(BaseSwaggerAPIViewDoc):
@@ -13,6 +17,7 @@ class UserRegisterViewAPIViewDoc(BaseSwaggerAPIViewDoc):
     responses = {
         status.HTTP_201_CREATED: openapi.Response(
             'Created.',
+            ResponseUserRegisterSerializer,
             examples={'application/json': {
                 "access": "<str: token>",
                 "refresh": "<str: token>"
@@ -20,6 +25,7 @@ class UserRegisterViewAPIViewDoc(BaseSwaggerAPIViewDoc):
         ),
         status.HTTP_400_BAD_REQUEST: openapi.Response(
             'Bad request.',
+            ResponseErrorSerializer,
             examples={'application/json': {
                 "errors": [
                     {
@@ -65,15 +71,21 @@ class UserLoginViewAPIViewDoc(BaseSwaggerAPIViewDoc):
     responses = {
         status.HTTP_200_OK: openapi.Response(
             'Ok.',
+            ResponseUserLoginSerializer,
             examples={'application/json': {
                 "access": "<str: token>",
                 "refresh": "<str: token>"
             }},
         ),
-        status.HTTP_400_BAD_REQUEST: openapi.Response(
-            'Bad request.',
+        status.HTTP_401_UNAUTHORIZED: openapi.Response(
+            'Unauthorized.',
+            ResponseErrorSerializer,
             examples={'application/json': {
-                'detail': 'No active account found with the given credentials'
+                "errors": [
+                    {
+                        "message": "No active account found with the given credentials",
+                    },
+                ]
             }},
         )
     }
@@ -88,6 +100,20 @@ class UserLogoutViewAPIViewDoc(BaseSwaggerAPIViewDoc):
     responses = {
         status.HTTP_200_OK: openapi.Response(
             'Ok.',
-            examples={'application/json': {}},
+            ResponseUserLogoutSerializer,
+            examples={'application/json': {
+                "refresh": "<str: token>"
+            }},
         ),
+        status.HTTP_401_UNAUTHORIZED: openapi.Response(
+            'Unauthorized.',
+            ResponseErrorSerializer,
+            examples={'application/json': {
+                "errors": [
+                    {
+                        "message": "No active account found with the given credentials",
+                    },
+                ]
+            }}
+        )
     }
