@@ -1,4 +1,6 @@
 import logging
+from typing import Union, List, Tuple
+from collections import OrderedDict
 
 from rest_framework.generics import RetrieveAPIView, ListAPIView, GenericAPIView
 from rest_framework.response import Response
@@ -11,9 +13,8 @@ from django.contrib.auth.models import Group
 
 from apps.anime.serializers import (
     ResponseDirectorSerializer, ResponseStudioSerializer, ResponseAnimeSerializer, ResponseAnimeListSerializer,
-    ResponsePostersSerializer, ResponseFiltersAnimeSerializer, ResponseListStudioSerializer,
-    ResponseListDirectorSerializer, ResponseListVoiceoverSerializer, ResponseAnimeRandomSerializer,
-    ResponseAnimeEpisodeSerializer,
+    ResponsePostersSerializer, ResponseFiltersAnimeSerializer, ResponseAnimeRandomSerializer,
+    ResponseAnimeEpisodeSerializer
 )
 from apps.core.utils import swagger_auto_schema_wrapper
 from apps.anime.swagger_views_docs import (
@@ -21,7 +22,7 @@ from apps.anime.swagger_views_docs import (
     AnimeListRandomAPIViewDoc, AnimeTOP100APIViewDoc, PostersAnimeAPIViewDoc, FiltersAnimeAPIViewDoc,
     AnimeRandomAPIViewDoc, ResponseAnimeEpisodeAPIViewDoc,
 )
-from apps.anime.models import Director, Studio, Anime, Poster, Episode
+from apps.anime.models import Director, Studio, Anime, Poster, Episode, Genre
 from apps.anime.paginators import AnimeListPaginator
 from apps.anime.filtersets import AnimeListFilterSet
 from apps.anime.choices import AnimeStatuses, AnimeTypes, SeasonTypes
@@ -152,24 +153,35 @@ class PostersAnimeAPIView(ListAPIView):
 
 
 class FiltersAnimeAPIView(GenericAPIView):
+    default_all = {'': 'Всі'}
     response_serializer = ResponseFiltersAnimeSerializer
+
+    def add_option_all(self, options: Union[List[Tuple[int, str]], dict]) -> dict:
+        if isinstance(options, dict):
+            options = list(options.items())
+        d = OrderedDict(options)
+        d.update(self.default_all)
+        d.move_to_end('', last=False)
+        return d
 
     @swagger_auto_schema_wrapper(
         doc=FiltersAnimeAPIViewDoc,
         operation_id='get_anime_filters',
     )
     def get(self, request, *args, **kwargs):
-        directors = Director.objects.all()
-        studios = Studio.objects.all()
-        voiceover = Group.objects.all()
+        directors = list((director.id, director.full_name) for director in Director.objects.all())
+        genres = list((genre.id, genre.name) for genre in Genre.objects.all())
+        studios = list((studio.id, studio.name) for studio in Studio.objects.all())
+        voiceover = list((group.id, group.name) for group in Group.objects.all())
         response = self.response_serializer({
-            'directors': ResponseListDirectorSerializer(directors, many=True).data,
-            'studios': ResponseListStudioSerializer(studios, many=True).data,
-            'countries': COUNTRIES,
-            'voiceover': ResponseListVoiceoverSerializer(voiceover, many=True).data,
-            'status': dict(AnimeStatuses.choices),
-            'type': dict(AnimeTypes.choices),
-            'season': dict(SeasonTypes.choices),
+            'directors': self.add_option_all(directors),
+            'genres': self.add_option_all(genres),
+            'studios': self.add_option_all(studios),
+            'countries': self.add_option_all(COUNTRIES),
+            'voiceover': self.add_option_all(voiceover),
+            'status': self.add_option_all(list(AnimeStatuses.choices)),
+            'type': self.add_option_all(list(AnimeTypes.choices)),
+            'season': self.add_option_all(list(SeasonTypes.choices)),
         }).data
         return Response(data=response, status=status.HTTP_200_OK)
 

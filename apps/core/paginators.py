@@ -10,6 +10,7 @@ class StandardResultsSetPagination(PageNumberPagination):
 
     def get_paginated_response(self, data):
         return Response({
+            'active_page': self.page.number,
             'num_pages': self.page.paginator.num_pages,
             'count': self.page.paginator.count,
             'next': self.get_next_link(),

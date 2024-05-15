@@ -9,11 +9,11 @@ from apps.anime.choices import AnimeTypes, SeasonTypes, AnimeStatuses
 
 class AnimeListFilterSet(filters.FilterSet):
     genres = filters.ModelChoiceFilter(
-        field_name='genres__name', to_field_name='name',
+        field_name='genres_id', to_field_name='id',
         queryset=Genre.objects.all()
     )
     studio = filters.ModelChoiceFilter(
-        field_name='studio__name', to_field_name='name',
+        field_name='studio_id', to_field_name='id',
         queryset=Studio.objects.all()
     )
     country = filters.ChoiceFilter(
@@ -23,14 +23,14 @@ class AnimeListFilterSet(filters.FilterSet):
         field_name='status', choices=AnimeStatuses.choices
     )
     director = filters.ModelChoiceFilter(
-        field_name='director__pseudonym', to_field_name='pseudonym',
+        field_name='director_id', to_field_name='id',
         queryset=Director.objects.all()
     )
     type = filters.ChoiceFilter(
         field_name='type', choices=AnimeTypes.choices
     )
     voiceover = filters.ModelChoiceFilter(
-        field_name='episode__voiceover__team__name', to_field_name='name',
+        field_name='episode__voiceover__team_id', to_field_name='id',
         queryset=Group.objects.all()
     )
     season = filters.ChoiceFilter(

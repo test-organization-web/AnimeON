@@ -23,6 +23,9 @@ class Director(models.Model):
     def __str__(self):
         return f'{self.first_name} {self.last_name} ({self.pseudonym})'
 
+    @property
+    def full_name(self):
+        return f'{self.first_name} {self.last_name} ({self.pseudonym})'
 
 class Studio(CreatedDateTimeMixin, models.Model):
     name = models.CharField(max_length=255, unique=True)
@@ -61,8 +64,8 @@ def anime_card_image_save_path(instance, filename):
 
 class Anime(CreatedDateTimeMixin, UpdatedDateTimeMixin, models.Model):
     title = models.CharField(max_length=255, default='', db_index=True)
-    type = models.CharField(max_length=255, choices=AnimeTypes.choices, default=AnimeTypes.ANIME)
-    slug = models.SlugField(max_length=255)
+    type = models.CharField(max_length=255, choices=AnimeTypes.choices)
+    slug = models.SlugField(max_length=255, blank=True)
     start_date = models.DateField(null=True, blank=True)
     end_date = models.DateField(null=True, blank=True)
     rank = models.SmallIntegerField()

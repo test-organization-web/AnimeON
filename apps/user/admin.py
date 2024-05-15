@@ -12,6 +12,7 @@ admin.site.unregister(Group)
 
 class UserTabularInlinePaginated(TabularInlinePaginated):
     model = User.groups.through
+    autocomplete_fields = ('user',)
 
 
 @admin.register(CustomGroup)
