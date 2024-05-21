@@ -10,7 +10,7 @@ from apps.anime.models import (
 class DirectorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Director
-        field = ['id', 'full_name', 'url']
+        fields = ['id', 'full_name', 'url']
 
 
 class StudioSerializer(serializers.ModelSerializer):
@@ -24,7 +24,7 @@ class StudioSerializer(serializers.ModelSerializer):
 class ChildAnimeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Anime
-        fields = ['title']
+        fields = ['title', 'id', 'slug', 'card_image']
 
 
 class VoiceoverSerializer(serializers.ModelSerializer):
@@ -61,7 +61,7 @@ class ResponseDirectorSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Director
-        exclude = ['id']
+        fields = ['anime', 'full_name']
 
 
 class ResponseStudioSerializer(serializers.ModelSerializer):

@@ -24,7 +24,10 @@ class DirectorAPIViewDoc(BaseSwaggerAPIViewDoc):
                 "url": "<str: url>",
                 "anime": [
                     {
-                        "title": "<str: title>"
+                        "title": "<str: title>",
+                        "slug": "<str: slug>",
+                        "id": 1,
+                        "card_image": "<str: url>",
                     }
                 ],
             }},
@@ -45,7 +48,10 @@ class StudioAPIViewDoc(BaseSwaggerAPIViewDoc):
             examples={'application/json': {
                 "anime": [
                     {
-                        "title": "<str: title>"
+                        "title": "<str: title>",
+                        "slug": "<str: slug>",
+                        "id": 1,
+                        "card_image": "<str: url>",
                     }
                 ],
                 "created": "<str: created>",
