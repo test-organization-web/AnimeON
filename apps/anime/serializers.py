@@ -8,9 +8,11 @@ from apps.anime.models import (
 
 
 class DirectorSerializer(serializers.ModelSerializer):
+    full_name = serializers.CharField(source='full_name')
+
     class Meta:
         model = Director
-        exclude = []
+        field = ['id', 'full_name', 'url']
 
 
 class StudioSerializer(serializers.ModelSerializer):
@@ -57,6 +59,7 @@ class ChildGenreSerializer(serializers.ModelSerializer):
 
 
 class ResponseDirectorSerializer(serializers.ModelSerializer):
+    full_name = serializers.CharField(source='full_name')
     anime = serializers.ListSerializer(child=ChildAnimeSerializer(), source='anime_set')
 
     class Meta:

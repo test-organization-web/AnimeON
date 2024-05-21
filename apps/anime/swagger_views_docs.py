@@ -20,9 +20,7 @@ class DirectorAPIViewDoc(BaseSwaggerAPIViewDoc):
             'Ok.',
             ResponseDirectorSerializer,
             examples={'application/json': {
-                "first_name": "<str: first_name>",
-                "last_name": "<str: last_name>",
-                "pseudonym": "<str: pseudonym>",
+                "full_name": "<str: full_name>",
                 "url": "<str: url>",
                 "anime": [
                     {
@@ -87,7 +85,11 @@ class AnimeAPIViewDoc(BaseSwaggerAPIViewDoc):
                 "season": "<str: studio>",
                 "studio": "<str: studio>",
                 "related": None,
-                "director": "<str: director>",
+                "director": {
+                    "id": 1,
+                    "full_name": "<str: full_name>",
+                    "url": "<str: url>",
+                },
                 "images": [
                     {
                         "file": "<str: url>",
