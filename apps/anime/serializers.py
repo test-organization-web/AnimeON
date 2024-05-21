@@ -8,8 +8,6 @@ from apps.anime.models import (
 
 
 class DirectorSerializer(serializers.ModelSerializer):
-    full_name = serializers.CharField(source='full_name')
-
     class Meta:
         model = Director
         field = ['id', 'full_name', 'url']
