@@ -57,7 +57,6 @@ class ChildGenreSerializer(serializers.ModelSerializer):
 
 
 class ResponseDirectorSerializer(serializers.ModelSerializer):
-    full_name = serializers.CharField(source='full_name')
     anime = serializers.ListSerializer(child=ChildAnimeSerializer(), source='anime_set')
 
     class Meta:
