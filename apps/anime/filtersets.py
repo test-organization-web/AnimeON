@@ -36,10 +36,10 @@ class AnimeListFilterSet(filters.FilterSet):
     season = filters.ChoiceFilter(
         field_name='season', choices=SeasonTypes.choices
     )
-    year_gte = filters.DateFilter(
+    year_gte = filters.NumberFilter(
         field_name='start_date__year', lookup_expr='gte'
     )
-    year_lte = filters.DateFilter(
+    year_lte = filters.NumberFilter(
         field_name='start_date__year', lookup_expr='lte'
     )
 
