@@ -84,17 +84,29 @@ class AnimeAPIViewDoc(BaseSwaggerAPIViewDoc):
                 "start_date": "<str: start_date>",
                 "end_date": None,
                 "rank": 1,
-                "status": "<str: status>",
+                "status": {
+                    "value": "<str: value>",
+                    "filter_url": "<str: url>",
+                },
+                "type": {
+                    "value": "<str: value>",
+                    "filter_url": "<str: url>",
+                },
                 "rating": "<str: rating>",
                 "description": "<str: description>",
                 "short_description": "<str: short_description>",
-                "season": "<str: studio>",
-                "studio": "<str: studio>",
+                "season": {
+                    "value": "<str: value>",
+                    "filter_url": "<str: url>",
+                },
+                "studio": {
+                    "value": "<str: value>",
+                    "filter_url": "<str: url>",
+                },
                 "related": None,
                 "director": {
-                    "id": 1,
-                    "full_name": "<str: full_name>",
-                    "url": "<str: url>",
+                    "value": "<str: value>",
+                    "filter_url": "<str: url>",
                 },
                 "images": [
                     {
@@ -103,7 +115,8 @@ class AnimeAPIViewDoc(BaseSwaggerAPIViewDoc):
                 ],
                 "genres": [
                     {
-                        "name": "<str: genres>"
+                        "value": "<str: value>",
+                        "filter_url": "<str: url>",
                     }
                 ],
                 "card_image": "<str: url>",
@@ -117,8 +130,8 @@ class AnimeAPIViewDoc(BaseSwaggerAPIViewDoc):
                 ],
                 "voiceovers": [
                     {
-                        "url": "<str: url>",
-                        "team": "<str: team>",
+                        "value": "<str: value>",
+                        "filter_url": "<str: url>",
                     }
                 ]
             }},
