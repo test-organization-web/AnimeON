@@ -126,6 +126,7 @@ class VoiceoverAdmin(admin.ModelAdmin):
         if change:
             obj.process_new_history_event(
                 user=request.user,
+                event=VoiceoverHistoryEvents.CHANGED,
             )
         else:
             obj.process_new_history_event(
