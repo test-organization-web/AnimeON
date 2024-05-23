@@ -1,8 +1,6 @@
 from rest_framework import serializers
 
 from django.contrib.auth.models import Group
-from django.urls import reverse
-from django.http import QueryDict
 
 from apps.anime.models import (
     Director, Anime, Studio, Episode, PreviewImage, Genre, Voiceover, Poster
@@ -11,50 +9,59 @@ from apps.anime.models import (
 
 class DirectorSerializer(serializers.ModelSerializer):
     value = serializers.SerializerMethodField()
-    filter_url = serializers.SerializerMethodField()
+    get_param = serializers.SerializerMethodField()
+    filter_field = serializers.SerializerMethodField()
 
     class Meta:
         model = Director
-        fields = ['value', 'filter_url']
+        fields = ['value', 'filter_field', 'get_param']
 
     def get_value(self, obj: Director):
         return obj.full_name
 
-    def get_filter_url(self, obj: Director):
-        get_params = QueryDict(f'director={obj.id}')
-        return f"{reverse('anime:get_anime_list')}?{get_params.urlencode()}"
+    def get_filter_field(self, obj: Voiceover):
+        return 'director'
+
+    def get_get_param(self, obj: Voiceover):
+        return obj.id
 
 
 class GenreSerializer(serializers.ModelSerializer):
     value = serializers.SerializerMethodField()
-    filter_url = serializers.SerializerMethodField()
+    get_param = serializers.SerializerMethodField()
+    filter_field = serializers.SerializerMethodField()
 
     class Meta:
         model = Genre
-        fields = ['value', 'filter_url']
+        fields = ['value', 'filter_field', 'get_param']
 
     def get_value(self, obj: Genre):
         return obj.name
 
-    def get_filter_url(self, obj: Genre):
-        get_params = QueryDict(f'genres={obj.id}')
-        return f"{reverse('anime:get_anime_list')}?{get_params.urlencode()}"
+    def get_filter_field(self, obj: Voiceover):
+        return 'genres'
+
+    def get_get_param(self, obj: Voiceover):
+        return obj.id
 
 
 class StudioSerializer(serializers.ModelSerializer):
     value = serializers.SerializerMethodField()
-    filter_url = serializers.SerializerMethodField()
+    get_param = serializers.SerializerMethodField()
+    filter_field = serializers.SerializerMethodField()
 
     class Meta:
         model = Studio
-        fields = ['value', 'filter_url']
+        fields = ['value', 'filter_field', 'get_param']
 
     def get_value(self, obj: Studio):
         return obj.name
 
-    def get_filter_url(self, obj: Studio):
-        get_params = QueryDict(f'studio={obj.id}')
-        return f"{reverse('anime:get_anime_list')}?{get_params.urlencode()}"
+    def get_filter_field(self, obj: Voiceover):
+        return 'studio'
+
+    def get_get_param(self, obj: Voiceover):
+        return obj.id
 
 
 class ChildAnimeSerializer(serializers.ModelSerializer):
@@ -65,18 +72,21 @@ class ChildAnimeSerializer(serializers.ModelSerializer):
 
 class VoiceoverSerializer(serializers.ModelSerializer):
     value = serializers.SerializerMethodField()
-    filter_url = serializers.SerializerMethodField()
+    get_param = serializers.SerializerMethodField()
+    filter_field = serializers.SerializerMethodField()
 
     class Meta:
         model = Voiceover
-        fields = ['value', 'filter_url']
+        fields = ['value', 'filter_field', 'get_param']
 
     def get_value(self, obj: Voiceover):
         return obj.team.name
 
-    def get_filter_url(self, obj: Voiceover):
-        get_params = QueryDict(f'voiceover={obj.team_id}')
-        return f"{reverse('anime:get_anime_list')}?{get_params.urlencode()}"
+    def get_filter_field(self, obj: Voiceover):
+        return 'voiceover'
+
+    def get_get_param(self, obj: Voiceover):
+        return obj.team_id
 
 
 class ChildEpisodeSerializer(serializers.ModelSerializer):
@@ -143,24 +153,24 @@ class ResponseAnimeSerializer(serializers.ModelSerializer):
         return obj.start_date.year
 
     def get_status(self, obj: Anime):
-        get_params = QueryDict(f'status={obj.status}')
         return {
             'value': obj.get_status_display(),
-            'filter_url': f"{reverse('anime:get_anime_list')}?{get_params.urlencode()}",
+            'filter_field': 'status',
+            'get_param': obj.status,
         }
 
     def get_type(self, obj: Anime):
-        get_params = QueryDict(f'type={obj.type}')
         return {
             'value': obj.get_type_display(),
-            'filter_url': f"{reverse('anime:get_anime_list')}?{get_params.urlencode()}",
+            'filter_field': 'type',
+            'get_param': obj.type,
         }
 
     def get_season(self, obj: Anime):
-        get_params = QueryDict(f'season={obj.season}')
         return {
             'value': obj.get_season_display(),
-            'filter_url': f"{reverse('anime:get_anime_list')}?{get_params.urlencode()}",
+            'filter_field': 'season',
+            'get_param': obj.season,
         }
 
 

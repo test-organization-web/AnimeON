@@ -86,27 +86,32 @@ class AnimeAPIViewDoc(BaseSwaggerAPIViewDoc):
                 "rank": 1,
                 "status": {
                     "value": "<str: value>",
-                    "filter_url": "<str: url>",
+                    'filter_field': "<str: filter_field>",
+                    'get_param': "<str: get_param>",
                 },
                 "type": {
                     "value": "<str: value>",
-                    "filter_url": "<str: url>",
+                    'filter_field': "<str: filter_field>",
+                    'get_param': "<str: get_param>",
                 },
                 "rating": "<str: rating>",
                 "description": "<str: description>",
                 "short_description": "<str: short_description>",
                 "season": {
                     "value": "<str: value>",
-                    "filter_url": "<str: url>",
+                    'filter_field': "<str: filter_field>",
+                    'get_param': "<str: get_param>",
                 },
                 "studio": {
                     "value": "<str: value>",
-                    "filter_url": "<str: url>",
+                    'filter_field': "<str: filter_field>",
+                    'get_param': "<str: get_param>",
                 },
                 "related": None,
                 "director": {
                     "value": "<str: value>",
-                    "filter_url": "<str: url>",
+                    'filter_field': "<str: filter_field>",
+                    'get_param': "<str: get_param>",
                 },
                 "images": [
                     {
@@ -116,8 +121,9 @@ class AnimeAPIViewDoc(BaseSwaggerAPIViewDoc):
                 "genres": [
                     {
                         "value": "<str: value>",
-                        "filter_url": "<str: url>",
-                    }
+                        'filter_field': "<str: filter_field>",
+                        'get_param': "<str: get_param>",
+                    },
                 ],
                 "card_image": "<str: url>",
                 "background_image": "<str: url>",
