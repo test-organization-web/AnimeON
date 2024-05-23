@@ -384,8 +384,8 @@ class ResponseAnimeEpisodeAPIViewDoc(BaseSwaggerAPIViewDoc):
                 "title": "<str: title>",
                 "voiceover": [
                     {
-                        "url": "<str: url>",
-                        "team": "<str: name>"
+                        "value": "<str: value>",
+                        "filter_url": "<str: url>",
                     }
                 ],
                 "subtitles": [

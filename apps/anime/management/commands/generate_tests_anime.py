@@ -188,7 +188,9 @@ class Command(BaseCommand):
 
             poster, created = Poster.objects.get_or_create(
                 anime=anime,
-                description=fake.sentence()
+                defaults=dict(
+                    description=fake.sentence()
+                )
             )
             if created:
                 posters_already_exists_in_db += 1
