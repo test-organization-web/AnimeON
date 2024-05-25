@@ -9,7 +9,7 @@ from apps.anime.choices import AnimeTypes, SeasonTypes, AnimeStatuses
 
 class AnimeListFilterSet(filters.FilterSet):
     genres = filters.ModelChoiceFilter(
-        field_name='genres_id', to_field_name='id',
+        field_name='genres', to_field_name='id',
         queryset=Genre.objects.all()
     )
     studio = filters.ModelChoiceFilter(
