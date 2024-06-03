@@ -6,8 +6,8 @@ from faker import Faker
 from django.db import transaction
 from django.utils import timezone
 
-from apps.anime.models import Genre, Director, Studio, Anime, Episode, Arch, Poster
-from apps.anime.choices import RatingTypes, SeasonTypes
+from apps.anime.models import Genre, Director, Studio, Anime, Episode, Poster
+from apps.anime.choices import RatingTypes, SeasonTypes, AnimeStatuses, DayOfWeekChoices
 
 fake = Faker()
 
@@ -16,98 +16,66 @@ class Command(BaseCommand):
     help = 'Generate useable data and fill the tables'
 
     def add_arguments(self, parser):
-        parser.add_argument('--genres', type=int, default=10, help='Number of genres')
-        parser.add_argument('--directors', type=int, default=10, help='Number of directors')
-        parser.add_argument('--studios', type=int, default=10, help='Number of studio')
-        parser.add_argument('--anime', type=int, default=10, help='Number of animes')
-        parser.add_argument('--arches', type=int, default=10, help='Number of arches')
         parser.add_argument('--episodes', type=int, default=10, help='Number of episodes')
-        parser.add_argument('--posters', type=int, default=10, help='Number of posters')
+        parser.add_argument('--posters', type=int, default=10, help='Number of episodes')
 
     @transaction.atomic
     def handle(self, *args, **options):
-        num_genres = options['genres']
-        num_directors = options['directors']
-        num_studios = options['studios']
-        num_anime = options['anime']
-        num_arches = options['arches']
         num_episodes = options['episodes']
         num_posters = options['posters']
 
-        self.generate_genres(num_genres)
-        self.generate_directors(num_directors)
-        self.generate_studios(num_studios)
-        self.generate_arches(num_arches)
-        self.generate_episodes(num_episodes)
+        self.generate_genres()
+        self.generate_directors()
+        self.generate_studios()
 
-        self.generate_anime(num_anime)
+        self.generate_anime()
         self.generate_posters(num_posters)
+
+        self.generate_episodes(num_episodes)
 
         self.stdout.write(self.style.SUCCESS('Script has been successfully finished!'))
 
-    def generate_genres(self, num_genres):
+    def generate_genres(self):
+        genres = ['Комедія', 'Триллер', 'Бойовик', 'Мелодрама', 'Фантастика']
         count_genres = 0
-        for _ in range(num_genres):
-            name = fake.sentence()
-
-            obj, created = Genre.objects.get_or_create(name=name)
+        for genre in genres:
+            obj, created = Genre.objects.get_or_create(name=genre)
             if not created:
                 count_genres += 1
         self.stdout.write(self.style.SUCCESS(
             f'Finish create Genres: {count_genres} new records,'))
 
-    def generate_directors(self, num_directors):
+    def generate_directors(self):
+        director_first_names = ['Том', 'Фітч', 'Кайл', 'Мейв', 'Пол']
+        director_last_names = ['Такер', 'Дізель', 'Джонсон', 'Борисенко', 'Філімон']
         count_directors = 0
-        for _ in range(num_directors):
-            first_name = fake.random_element(elements=['Tom', 'Test', 'Best'])
-            last_name = fake.random_element(elements=['Tom', 'Test', 'Best'])
-            pseudonym = fake.random_element(elements=['Tom', 'Test', 'Best'])
+        for _ in range(len(director_first_names)):
+            first_name = fake.random_element(elements=director_first_names)
+            last_name = fake.random_element(elements=director_last_names)
             url = 'http://localhost:8000'
 
             Director.objects.create(
-                first_name=first_name, last_name=last_name, pseudonym=pseudonym, url=url
+                first_name=first_name, last_name=last_name, url=url
             )
             count_directors += 1
         self.stdout.write(self.style.SUCCESS(
             f'Finish create Directors: {count_directors} new records,'))
 
-    def generate_studios(self, num_studios):
+    def generate_studios(self):
         count_studios = 0
-        for _ in range(num_studios):
-            name = fake.sentence()
+        studios = ['BulBul Media', 'Unimay Media', 'Lifecycle']
+        for studio in studios:
             country = fake.random_element(elements=Countries())
 
-            if Studio.objects.filter(name=name).exists():
+            if Studio.objects.filter(name=studio).exists():
                 continue
 
             Studio.objects.create(
-                name=name, description='test', country=country
+                name=studio, description='test', country=country
             )
             count_studios += 1
         self.stdout.write(self.style.SUCCESS(
             f'Finish create Studios: {count_studios} new records,'))
-
-    def generate_arches(self, num_arches):
-        count_arches = 0
-        animes = Anime.objects.all()
-        order = 0
-
-        for _ in range(num_arches):
-            title = fake.sentence()
-            anime = fake.random_element(elements=animes)
-
-            if arch := Arch.objects.filter(anime=anime, order=order).order_by('-order').first():
-                order += arch.order
-                continue
-
-            Arch.objects.create(
-                title=title,
-                anime=anime,
-                order=order
-            )
-            count_arches += 1
-        self.stdout.write(self.style.SUCCESS(
-            f'Finish create Arches: {count_arches} new records,'))
 
     def generate_episodes(self, num_episodes):
         count_episodes = 0
@@ -137,7 +105,7 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS(
             f'Finish create Episodes: {count_episodes} new records,'))
 
-    def generate_anime(self, num_anime) -> None:
+    def generate_anime(self) -> None:
         count_anime = 0
         anime_already_exists_in_db = 0
         genres = Genre.objects.all()
@@ -146,8 +114,35 @@ class Command(BaseCommand):
         studios = Studio.objects.all()
         start_date = timezone.now().date()
 
-        for _ in range(num_anime):
-            title = fake.sentence()
+        descr = "Людство всю його історію тягнуло до всього містичного та невідомого." \
+                " Знання занапастить людство і це факт. Жага знань не знає меж." \
+                " Щодня вчені прагнуть відкрити щось нове. Це принесе людству порятунок чи загибель." \
+                " Не можна лізти туди, де великими літерами написано «УБ'Є». Однак, як ви всі знаєте," \
+                " ми не можемо вгамувати свою жагу до цікавості і знань. Ми хочемо знати все." \
+                " «Магічна Битва» покаже вам наочно, як проста спрага знань і помилка спричинили" \
+                " великі неприємності для всього людства. Жага відкрити якийсь «предмет» із" \
+                " захисними чарами випустила назовні сили, здатні поглинути у темряву весь світ." \
+                " Здавалося б, з цією проблемою розібралися, але ніхто не міг припустити, що вона," \
+                " проблема, повернеться з новою силою.У світі нашого Аніме відбуваються цікаві події." \
+                " Люди можуть зникнути без будь-якої причини. Здавалося б, а куди вони поділися?" \
+                " Відповідь криється в демонах, які прагнуть затягнути якнайбільше людей у ​​вир" \
+                " темряви. Юдзі Ітадорі не пощастило народитися у такому світі. Головний герой" \
+                " усіляко намагається уникати спортивних клубів. Він дуже сильний фізично. Не дивно," \
+                " що його намагаються затягнути до клубів зі спортивною тематикою. Незважаючи на всі " \
+                "їхні спроби, Юдзі вступає до клубу окультних наук. Тут щось усе і починається." \
+                " Відкривши «Скриньку Пандори» і випустивши у світ невідані сили, Юдзі, потрібно" \
+                " вижити і вирішити цю проблему. Відповідати за свої вчинки просто неодмінно." \
+                " Щодня відвідувати в лікарні свого дідуся, вирішувати проблеми відкритого ящика…" \
+                " Ось це я розумію життя школяра. Приємного перегляду!"
+
+        short_descr = "Людство всю його історію тягнуло до всього містичного та невідомого." \
+                      " Знання занапастить людство і це факт. Жага знань не знає меж."
+
+        anime_names = ['Бліч', 'Наруто', 'Магічна Битва', 'Код Гіас', 'Кайдзю 8', 'Ван Піс',
+                       'Тестостерон', 'Атака титанів', 'Кайдзю', 'ТораДора', 'Людина-бензопила',
+                       'Хвіс Феї', 'Хелсінг', 'Я моряк', 'Моряк Папай', 'Скубі-ду', 'Мордок',
+                       'Володар перстнів', 'Гаррі Поттер', 'Феї Вінкс']
+        for title in anime_names:
             genre = fake.random_element(elements=genres)
             director = fake.random_element(elements=directors)
             studio = fake.random_element(elements=studios)
@@ -160,11 +155,13 @@ class Command(BaseCommand):
                     rating=fake.random_element(elements=[choice[0] for choice in RatingTypes.choices]),
                     studio=studio,
                     director=director,
-                    description=fake.sentence(),
-                    short_description=fake.sentence(),
+                    description=descr,
+                    short_description=short_descr,
                     season=fake.random_element(elements=[choice[0] for choice in SeasonTypes.choices]),
                     rank=100,
-                    status='TEST'
+                    status=fake.random_element(elements=[choice[0] for choice in AnimeStatuses.choices]),
+                    year=fake.random_element(elements=[2020, 2021, 2022, 2023, 2024]),
+                    release_day_of_week=fake.random_element(elements=[choice[0] for choice in DayOfWeekChoices.choices]),
                 )
             except Exception as error:
                 self.stdout.write(self.style.WARNING(error))
@@ -183,13 +180,16 @@ class Command(BaseCommand):
 
         animes = Anime.objects.all()
 
+        descr = "Людство всю його історію тягнуло до всього містичного та невідомого." \
+                " Знання занапастить людство і це факт. Жага знань не знає меж."
+
         for _ in range(num_posters):
             anime = fake.random_element(elements=animes)
 
             poster, created = Poster.objects.get_or_create(
                 anime=anime,
                 defaults=dict(
-                    description=fake.sentence()
+                    description=descr
                 )
             )
             if created:

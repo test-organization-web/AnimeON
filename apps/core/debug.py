@@ -32,24 +32,12 @@ def sensitive_drf_post_parameters(*parameters):
 class JSONSafeExceptionReporterFilter(SafeExceptionReporterFilter):
     def get_json_data_parameters(self, request):
         """
-        This method prepares 'request.body' similarly to the way as 'get_post_parameters' prepares 'request.POST'.
-        It needs only in case when content_type is 'application/json',
-        because 'request.POST' is always empty in this case
         (https://docs.djangoproject.com/en/4.2/ref/request-response/#django.http.HttpRequest.POST)
         """
         if request is None or request.content_type != 'application/json':
             return {}
 
         try:
-            # You should remember that DRF runs 'parse' method of a parser when you access 'request.data' at first time
-            # and 'request' in APIView is a wrapper on the original Django request.
-            # You work with the original Django request here.
-            # Since this method is only for 'application/json', 'apps.core.parsers.JSONParser' will process the request.
-            # This custom parser sets a new attribute 'json_body' to Django Request (not DRF Request), because you
-            # won't be able to get input data from the request after view processing (read about RawPostDataException).
-            # but if you don't call 'request.data', then no parsers will be triggered. It means that the request
-            # won't have 'json_body' attribute and actually no data was read from the original request.
-            # In this case we try to read data from 'request.body' directly here.
             if hasattr(request, 'json_body'):
                 data = request.json_body.copy()
             else:
@@ -58,9 +46,6 @@ class JSONSafeExceptionReporterFilter(SafeExceptionReporterFilter):
                 except json.decoder.JSONDecodeError:
                     return {"invalid_json_str": request.body}
         except Exception as e:
-            # I'm not sure that the code above works always correctly. This requires a more thorough review.
-            # This exception block was added for safety and debugging.
-            # You can remove it if you are sure that it works correctly (but I'm not sure 😁).
             logger.error('Unexpected error occurs in "get_json_data_parameters" of the exception reporter.',
                          extra={'message_id': 'get_json_data_parameters_unexpected_error',
                                 'error_type': str(type(e)),
