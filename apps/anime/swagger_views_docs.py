@@ -5,7 +5,7 @@ from apps.core.swagger_views_docs import BaseSwaggerAPIViewDoc, SwaggerTags
 from apps.anime.serializers import (
     ResponseDirectorSerializer, ResponseStudioSerializer, ResponseAnimeSerializer,
     ResponsePaginatedAnimeListSerializer, ResponsePostersSerializer, ResponseFiltersAnimeSerializer,
-    ResponseAnimeRandomSerializer, ResponseAnimeEpisodeSerializer
+    ResponseAnimeRandomSerializer, ResponseAnimeEpisodeSerializer, ResponsePaginatedCommentAnimeListSerializer
 )
 
 
@@ -203,38 +203,6 @@ class AnimeSearchAPIViewDoc(BaseSwaggerAPIViewDoc):
     }
 
 
-class AnimeListRandomAPIViewDoc(BaseSwaggerAPIViewDoc):
-    """
-    It is a Swagger doc for 'AnimeListRandomAPIView'
-    """
-    tags = [SwaggerTags.ANIME]
-
-    responses = {
-        status.HTTP_200_OK: openapi.Response(
-            'Ok.',
-            ResponsePaginatedAnimeListSerializer,
-            examples={'application/json': {
-                "active_page": 1,
-                "num_pages": 1,
-                "count": 1,
-                "next": "<str: url>",
-                "previous": "<str: url>",
-                "results": [
-                    {
-                        "id": 1,
-                        "slug": "<str: slug>",
-                        "title": "<str: title>",
-                        "start_date": "<str: start_date>",
-                        "count_episodes": 1,
-                        "type": "<str: type>",
-                        "card_image": "<str: url>",
-                    }
-                ]
-            }},
-        ),
-    }
-
-
 class AnimeTOP100APIViewDoc(BaseSwaggerAPIViewDoc):
     """
     It is a Swagger doc for 'AnimeTOP100APIView'
@@ -392,6 +360,39 @@ class ResponseAnimeEpisodeAPIViewDoc(BaseSwaggerAPIViewDoc):
                     {
                         "url": "<str: url>",
                         "team": "<str: name>"
+                    }
+                ]
+            }},
+        ),
+    }
+
+
+class CommentAnimeAPIViewDoc(BaseSwaggerAPIViewDoc):
+    """
+        It is a Swagger doc for 'CommentAnimeAPIView'
+    """
+    tags = [SwaggerTags.ANIME]
+
+    responses = {
+        status.HTTP_200_OK: openapi.Response(
+            'Ok.',
+            ResponsePaginatedCommentAnimeListSerializer,
+            examples={'application/json': {
+                "active_page": 1,
+                "num_pages": 1,
+                "count": 1,
+                "next": None,
+                "previous": None,
+                "results": [
+                    {
+                        "id": 13,
+                        "content_main": "string",
+                        "created": "2024-06-12T22:40:58.401294+03:00",
+                        "urlhash": "hunqbkxl",
+                        "has_reply": False,
+                        "get_count_like": 0,
+                        "get_count_dislike": 0,
+                        "username": "admin"
                     }
                 ]
             }},

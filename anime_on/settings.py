@@ -17,14 +17,12 @@ from anime_on.utils import to_bool, to_list
 from datetime import timedelta
 from rest_framework.settings import api_settings
 
-
 PROJECT_VERSION = '##VERSION##'
 
 ENV_NAME = os.environ.get('ENV_NAME', 'DEV').upper()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
@@ -56,6 +54,7 @@ INSTALLED_APPS = [
     'apps.authentication',
     'apps.user',
     'apps.anime',
+    'apps.comment',
     # libraries
     'storages',
     'corsheaders',
@@ -72,7 +71,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-  	'whitenoise.middleware.WhiteNoiseMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -80,10 +79,10 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'apps.core.middleware.request_id_middleware',
-    'apps.core.middleware.RedirectMiddleware',
-]
 
+    'apps.core.middleware.request_id_middleware',
+    'apps.core.middleware.error_logging_middleware',
+]
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
@@ -91,8 +90,8 @@ REST_FRAMEWORK = {
     ),
     'TEST_REQUEST_DEFAULT_FORMAT': 'json',
     'DEFAULT_PARSER_CLASSES': [
-        'apps.core.parsers.JSONParser',           # overridden
-        'rest_framework.parsers.FormParser',      # by default
+        'apps.core.parsers.JSONParser',  # overridden
+        'rest_framework.parsers.FormParser',  # by default
         'rest_framework.parsers.MultiPartParser'  # by default
     ],
 }
@@ -177,7 +176,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
@@ -188,7 +186,6 @@ TIME_ZONE = 'Europe/Kiev'
 USE_I18N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
@@ -229,15 +226,14 @@ if DEBUG_TOOLBAR_ENABLED:
     }
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=2),
     "ROTATE_REFRESH_TOKENS": False,
     "BLACKLIST_AFTER_ROTATION": False,
     "UPDATE_LAST_LOGIN": False,
 }
 
 CORS_ALLOWED_ORIGINS = to_list(os.environ.get('CORS_ALLOWED_ORIGINS'))
-
 
 # INFO logs required to capture log events and metric
 # can be increased to ERROR on dev environments to save us from the global warming
@@ -256,7 +252,8 @@ LOGGING = {
         },
     },
     'loggers': {
-        'django': {  # django, django.request, django.server must be redefined, otherwise they log their text by default
+        'django': {
+            # django, django.request, django.server must be redefined, otherwise they log their text by default
             'handlers': ['console'],
             'level': LOGGER_LEVEL,
         },
@@ -278,10 +275,11 @@ LOGGING = {
     },
 }
 
+LOGIN_URL = '/api/auth/login/'
+
 DEFAULT_EXCEPTION_REPORTER = 'apps.core.debug.JSONExceptionReporter'
 DEFAULT_EXCEPTION_REPORTER_FILTER = 'apps.core.debug.JSONSafeExceptionReporterFilter'
 
 import dj_database_url
 db_from_env = dj_database_url.config(conn_max_age=500)
 DATABASES['default'].update(db_from_env)
-

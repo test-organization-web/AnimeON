@@ -45,3 +45,13 @@ class SeasonTypes(models.TextChoices):
     SPRING = 'SPRING', 'Весна'
     SUMMER = 'SUMMER', 'Літо'
     FALL = 'FALL', 'Осінь'
+
+
+class DayOfWeekChoices(models.TextChoices):
+    MONDAY = 'MONDAY', 'Понеділок'
+    TUESDAY = 'TUESDAY', 'Вівторок'
+    WEDNESDAY = 'WEDNESDAY', 'Середа'
+    THURSDAY = 'THURSDAY', 'Четверг'
+    FRIDAY = 'FRIDAY', 'П\'ятниця'
+    SATURDAY = 'SATURDAY', 'Субота'
+    SUNDAY = 'SUNDAY', 'Неділя'

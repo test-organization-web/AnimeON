@@ -7,7 +7,7 @@ from apps.core.models import CreatedDateTimeMixin, UpdatedDateTimeMixin, VerifyM
 from apps.core.utils import get_extension
 from apps.anime.choices import (
     VoiceoverTypes, AnimeTypes, RatingTypes, SeasonTypes, VoiceoverStatuses, VoiceoverHistoryEvents,
-    AnimeStatuses,
+    AnimeStatuses, DayOfWeekChoices
 )
 from apps.anime.managers import AnimeManager
 
@@ -17,7 +17,7 @@ from apps.anime.managers import AnimeManager
 class Director(models.Model):
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
-    pseudonym = models.CharField(max_length=255)
+    pseudonym = models.CharField(max_length=255, null=True, blank=True)
     url = models.URLField()
 
     def __str__(self):
@@ -27,10 +27,10 @@ class Director(models.Model):
     def full_name(self):
         return f'{self.first_name} {self.last_name} ({self.pseudonym})'
 
+
 class Studio(CreatedDateTimeMixin, models.Model):
     name = models.CharField(max_length=255, unique=True)
     description = models.TextField(default='', blank=True)
-    country = CountryField()
 
     def __str__(self):
         return f'{self.name}'
@@ -69,7 +69,7 @@ class Anime(CreatedDateTimeMixin, UpdatedDateTimeMixin, models.Model):
     start_date = models.DateField(null=True, blank=True)
     end_date = models.DateField(null=True, blank=True)
     rank = models.SmallIntegerField()
-    status = models.CharField(max_length=255, choices=AnimeStatuses.choices, default='')
+    status = models.CharField(max_length=255, choices=AnimeStatuses.choices, default=AnimeStatuses.ANNOUNCED)
     studio = models.ForeignKey('anime.Studio', on_delete=models.SET_NULL, null=True, blank=True)
     rating = models.CharField(max_length=255, choices=RatingTypes.choices)
     related = models.ForeignKey('self', null=True, on_delete=models.SET_NULL, blank=True)
@@ -81,6 +81,10 @@ class Anime(CreatedDateTimeMixin, UpdatedDateTimeMixin, models.Model):
     is_top = models.BooleanField(default=False)
     background_image = models.ImageField(upload_to=anime_background_image_save_path, null=True)
     card_image = models.ImageField(upload_to=anime_card_image_save_path, null=True)
+    year = models.SmallIntegerField(null=True, blank=True)
+    average_time_episode = models.SmallIntegerField(help_text='in minutes', null=True, blank=True)
+    release_day_of_week = models.CharField(choices=DayOfWeekChoices.choices, null=True, blank=True)
+    country = CountryField(null=True, blank=True)
 
     objects = AnimeManager()
 
@@ -91,9 +95,6 @@ class Anime(CreatedDateTimeMixin, UpdatedDateTimeMixin, models.Model):
         super().clean()
         self.slug = self.__class__.objects.normalize_slug(self.title)
 
-    def get_count_episodes(self):
-        return self.episode_set.all().count()
-
     def get_distinct_voiceover(self):
         distinct_voiceover = list()
         for episode in self.episode_set.all():
@@ -101,7 +102,16 @@ class Anime(CreatedDateTimeMixin, UpdatedDateTimeMixin, models.Model):
         return set(distinct_voiceover)
 
     def get_episodes_release_schedule(self):
-        return self.episode_set.filter(release_date__gte=timezone.now().date()).order_by('-release_date')
+        return self.episode_set.filter(
+            release_date__gte=timezone.now().date()
+        ).order_by('-release_date')
+
+
+def episode_preview_image_save_path(instance, filename):
+    name = filename.split('.')[0]
+    extension = get_extension(filename) or 'jpeg'
+    path = f'{instance.id}/preview/{name}.{extension}'
+    return timezone.now().strftime(path)
 
 
 class Episode(CreatedDateTimeMixin, UpdatedDateTimeMixin, OrderMixin, models.Model):
@@ -110,6 +120,13 @@ class Episode(CreatedDateTimeMixin, UpdatedDateTimeMixin, OrderMixin, models.Mod
     release_date = models.DateField(null=True)
     status = models.CharField(max_length=255)
     arch = models.ForeignKey('anime.Arch', on_delete=models.SET_NULL, null=True, blank=True)
+    is_accessible = models.BooleanField(default=False)
+    start_opening = models.SmallIntegerField(help_text='in seconds', null=True, blank=True)
+    end_opening = models.SmallIntegerField(help_text='in seconds', null=True, blank=True)
+    start_ending = models.SmallIntegerField(help_text='in seconds', null=True, blank=True)
+    end_ending = models.SmallIntegerField(help_text='in seconds', null=True, blank=True)
+    youtube_url = models.URLField(null=True, blank=True)
+    preview_image = models.ImageField(upload_to=episode_preview_image_save_path, null=True)
 
     class Meta:
         ordering = ['-order']

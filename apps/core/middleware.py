@@ -1,6 +1,10 @@
+import logging
+
 from anime_on.logging import request_id_context
-from django.shortcuts import redirect
 from uuid import uuid4
+
+
+logger = logging.getLogger(__name__)
 
 
 def request_id_middleware(get_response):
@@ -13,20 +17,25 @@ def request_id_middleware(get_response):
     return middleware
 
 
-# raise Redirect(url) is useful, because you can call it from any place in your code
-class Redirect(Exception):
-    def __init__(self, url):
-        self.url = url
-
-
-class RedirectMiddleware:
-    def __init__(self, get_response):
-        self.get_response = get_response
-
-    def __call__(self, request):
-        response = self.get_response(request)
+def error_logging_middleware(get_response):
+    def middleware(request):
+        request_body = request.body
+        response = get_response(request)
+        if 400 <= response.status_code < 600:
+            # TODO: we don't log data from the /api/auth/registration/ endpoint, because there is a password in the data.
+            #  We should just remove this password from body and show all the other data.
+            message = f'Error response {response.status_code}'
+            if request.path != '/api/auth/registration/':
+                logger.warning(message,
+                               extra={'message_id': 'error_logging_middleware',
+                                      "request_query": request.GET,
+                                      "request_body": request_body,
+                                      "request_path": request.path,
+                                      "response_content": response.content})
+            else:
+                logger.warning(message,
+                               extra={'message_id': 'error_logging_middleware',
+                                      "request_path": request.path,
+                                      "response_content": response.content})
         return response
-
-    def process_exception(self, request, exception):
-        if isinstance(exception, Redirect):
-            return redirect(exception.url)
+    return middleware
