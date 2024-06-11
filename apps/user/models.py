@@ -5,6 +5,8 @@ from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.db import models
 from django.utils import timezone
 
+from apps.core.models import CreatedDateTimeMixin
+
 
 class User(PermissionsMixin, AbstractBaseUser):
     username_validator = UnicodeUsernameValidator()
@@ -40,6 +42,9 @@ class User(PermissionsMixin, AbstractBaseUser):
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['email']
 
+    def get_count_viewed_anime(self):
+        return self.viewedanime_set.all().count()
+
 
 class Group(BaseGroup):
 
@@ -47,3 +52,39 @@ class Group(BaseGroup):
         proxy = True
         verbose_name = 'Group'
         verbose_name_plural = "Groups"
+
+
+class ViewedAnime(CreatedDateTimeMixin, models.Model):
+    user = models.ForeignKey('user', on_delete=models.CASCADE)
+    anime = models.ForeignKey('anime.Anime', on_delete=models.CASCADE)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'anime'], name='unique_%(app_label)s_%(class)s_viewed_anime'
+            )
+        ]
+
+
+class ViewedEpisode(CreatedDateTimeMixin, models.Model):
+    user = models.ForeignKey('user', on_delete=models.CASCADE)
+    episode = models.ForeignKey('anime.Episode', on_delete=models.CASCADE)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'episode'], name='unique_%(app_label)s_%(class)s_viewed_episode'
+            )
+        ]
+
+
+class Favorite(CreatedDateTimeMixin, models.Model):
+    user = models.ForeignKey('user', on_delete=models.CASCADE)
+    anime = models.ForeignKey('anime.Anime', on_delete=models.CASCADE)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'anime'], name='unique_%(app_label)s_%(class)s_favorite'
+            )
+        ]

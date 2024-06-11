@@ -2,30 +2,34 @@ import logging
 from typing import Union, List, Tuple
 from collections import OrderedDict
 
-from rest_framework.generics import RetrieveAPIView, ListAPIView, GenericAPIView
+from rest_framework.generics import RetrieveAPIView, ListAPIView, GenericAPIView, get_object_or_404
 from rest_framework.response import Response
 from rest_framework.filters import SearchFilter
-from rest_framework import status
+from rest_framework import permissions, status
 from django_filters.rest_framework import DjangoFilterBackend
 from django_countries.data import COUNTRIES
 
 from django.contrib.auth.models import Group
+from django.contrib.contenttypes.models import ContentType
 
 from apps.anime.serializers import (
     ResponseDirectorSerializer, ResponseStudioSerializer, ResponseAnimeSerializer, ResponseAnimeListSerializer,
     ResponsePostersSerializer, ResponseFiltersAnimeSerializer, ResponseAnimeRandomSerializer,
-    ResponseAnimeEpisodeSerializer
+    ResponseAnimeEpisodeSerializer, ResponseCommentAnimeSerializer
 )
 from apps.core.utils import swagger_auto_schema_wrapper
 from apps.anime.swagger_views_docs import (
     DirectorAPIViewDoc, StudioAPIViewDoc, AnimeAPIViewDoc, AnimeListAPIViewDoc, AnimeSearchAPIViewDoc,
-    AnimeListRandomAPIViewDoc, AnimeTOP100APIViewDoc, PostersAnimeAPIViewDoc, FiltersAnimeAPIViewDoc,
-    AnimeRandomAPIViewDoc, ResponseAnimeEpisodeAPIViewDoc,
+    AnimeTOP100APIViewDoc, PostersAnimeAPIViewDoc, FiltersAnimeAPIViewDoc,
+    AnimeRandomAPIViewDoc, ResponseAnimeEpisodeAPIViewDoc, CommentAnimeAPIViewDoc
 )
 from apps.anime.models import Director, Studio, Anime, Poster, Episode, Genre
 from apps.anime.paginators import AnimeListPaginator
 from apps.anime.filtersets import AnimeListFilterSet
 from apps.anime.choices import AnimeStatuses, AnimeTypes, SeasonTypes
+
+from apps.comment.paginators import CommentAnimeListPaginator
+from apps.comment.models import Comment
 
 
 logger = logging.getLogger()
@@ -84,6 +88,8 @@ class AnimeSearchAPIView(ListAPIView):
 
 
 class AnimeListAPIView(ListAPIView):
+    permission_classes = [permissions.AllowAny]
+
     queryset = Anime.objects.all()
     serializer_class = ResponseAnimeListSerializer
     pagination_class = AnimeListPaginator
@@ -94,19 +100,6 @@ class AnimeListAPIView(ListAPIView):
     @swagger_auto_schema_wrapper(
         doc=AnimeListAPIViewDoc,
         operation_id='get_anime_list',
-    )
-    def get(self, request, *args, **kwargs):
-        return super().get(request, *args, **kwargs)
-
-
-class AnimeListRandomAPIView(ListAPIView):
-    queryset = Anime.objects.all().order_by('?')
-    serializer_class = ResponseAnimeListSerializer
-    pagination_class = AnimeListPaginator
-
-    @swagger_auto_schema_wrapper(
-        doc=AnimeListRandomAPIViewDoc,
-        operation_id='get_anime_list_random',
     )
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
@@ -187,12 +180,20 @@ class FiltersAnimeAPIView(GenericAPIView):
 
 
 class EpisodeAPIView(RetrieveAPIView):
+    lookup_field = 'anime_id'
+    lookup_url_kwarg = 'anime_pk'
     queryset = Episode.objects.all()
     serializer_class = ResponseAnimeEpisodeSerializer
 
     def get_queryset(self):
-        anime_pk = self.kwargs['anime_pk']
-        return super().get_queryset().filter(anime_id=anime_pk)
+        # Views have behaviour which varies dynamically based on request parameters
+        # (using self.kwargs in their get_queryset, get_serializer, etc methods).
+        # drf-yasg is unable to handle this because no requests are actually made to the inspected views.
+        if getattr(self, "swagger_fake_view", False):
+            # It means that the view instance was artificially created as part of a swagger schema request.
+            return Episode.objects.none()
+        episode_order = self.kwargs['order']
+        return super().get_queryset().filter(order=episode_order).first()
 
     @swagger_auto_schema_wrapper(
         doc=ResponseAnimeEpisodeAPIViewDoc,
@@ -200,3 +201,68 @@ class EpisodeAPIView(RetrieveAPIView):
     )
     def get(self, request, *args, **kwargs):
         return super().get(request)
+
+
+class CommentAnimeAPIView(ListAPIView):
+    lookup_field = 'pk'
+    lookup_url_kwarg = 'pk'
+
+    permission_classes = (permissions.AllowAny,)  # Or anon users can't register
+
+    serializer_class = ResponseCommentAnimeSerializer
+    pagination_class = CommentAnimeListPaginator
+
+    @swagger_auto_schema_wrapper(
+        doc=CommentAnimeAPIViewDoc,
+        operation_id='get_anime_comments',
+    )
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
+    def get_queryset(self):
+        # Views have behaviour which varies dynamically based on request parameters
+        # (using self.kwargs in their get_queryset, get_serializer, etc methods).
+        # drf-yasg is unable to handle this because no requests are actually made to the inspected views.
+        if getattr(self, "swagger_fake_view", False):
+            # It means that the view instance was artificially created as part of a swagger schema request.
+            return Comment.objects.none()
+
+        lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
+        content_type = ContentType.objects.get(app_label='anime', model='anime')
+        queryset = Comment.objects.filter(
+            content_type=content_type, object_id=self.kwargs[lookup_url_kwarg]
+        )
+        return queryset.filter_parents()
+
+
+class ReplyCommentAnimeAPIView(ListAPIView):
+    lookup_field = 'pk'
+    lookup_url_kwarg = 'pk'
+
+    permission_classes = (permissions.AllowAny,)  # Or anon users can't register
+
+    serializer_class = ResponseCommentAnimeSerializer
+    pagination_class = CommentAnimeListPaginator
+
+    @swagger_auto_schema_wrapper(
+        doc=CommentAnimeAPIViewDoc,
+        operation_id='get_anime_reply_comments',
+    )
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
+    def get_queryset(self):
+        # Views have behaviour which varies dynamically based on request parameters
+        # (using self.kwargs in their get_queryset, get_serializer, etc methods).
+        # drf-yasg is unable to handle this because no requests are actually made to the inspected views.
+        if getattr(self, "swagger_fake_view", False):
+            # It means that the view instance was artificially created as part of a swagger schema request.
+            return Comment.objects.none()
+
+        lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
+        content_type = ContentType.objects.get(app_label='anime', model='anime')
+        queryset = Comment.objects.filter(
+            content_type=content_type, object_id=self.kwargs[lookup_url_kwarg]
+        )
+        queryset = queryset.filter(parent_id=self.kwargs['comment_id'])
+        return queryset.order_pinned_newest()

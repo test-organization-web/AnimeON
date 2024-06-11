@@ -6,6 +6,8 @@ UserModel = get_user_model()
 
 
 class UserSerializer(serializers.ModelSerializer):
+    count_viewed_anime = serializers.CharField(source='get_count_viewed_anime')
+
     class Meta:
         model = UserModel
-        fields = ('username', )
+        fields = ('username', 'count_viewed_anime')

@@ -1,7 +1,10 @@
 from django.utils import timezone
 from django.contrib import admin
+from django.utils.html import format_html
+
 from django_admin_inline_paginator.admin import TabularInlinePaginated
 from adminfilters.combo import RelatedFieldComboFilter, AllValuesComboFilter
+from rangefilter.filters import NumericRangeFilter
 
 from apps.anime.models import (
     Anime, Episode, Director, Studio, PreviewImage, Voiceover, VoiceoverHistory, Poster
@@ -58,7 +61,8 @@ class PreviewImageTabularInlinePaginated(OnlyAddPermissionMixin, TabularInlinePa
 class AnimeAdmin(admin.ModelAdmin):
     search_fields = ('title', )
     search_help_text = 'Search by Title'
-    list_display = ['title']
+    list_display = ['display_poster', 'title', 'display_count_episodes', 'display_type',
+                    'display_season', 'year']
     inlines = [EpisodeTabularInlinePaginated, PreviewImageTabularInlinePaginated]
     list_filter = [
         ('genres', RelatedFieldComboFilter),
@@ -67,7 +71,31 @@ class AnimeAdmin(admin.ModelAdmin):
         ('status', AllValuesComboFilter),
         ('type', AllValuesComboFilter),
         ('season', AllValuesComboFilter),
+        ('year', NumericRangeFilter),
+        ('release_day_of_week', AllValuesComboFilter),
+        ('rating', AllValuesComboFilter),
     ]
+
+    @admin.display(description='Poster', ordering='type')
+    def display_poster(self, obj: Anime):
+        if not obj.card_image:
+            return self.get_empty_value_display()
+        return format_html(
+            '<img style="height: 100px; width: 50px;" src="{url}">',
+            url=obj.card_image.url
+        )
+
+    @admin.display(description='Type', ordering='type')
+    def display_type(self, obj: Anime):
+        return obj.get_type_display()
+
+    @admin.display(description='Season', ordering='season')
+    def display_season(self, obj: Anime):
+        return obj.get_season_display()
+
+    @admin.display(description='Episodes')
+    def display_count_episodes(self, obj: Anime):
+        return obj.get_count_episodes()
 
     def get_queryset(self, request):
         return super().get_queryset(request).prefetch_related(
@@ -151,4 +179,13 @@ class TOP100Admin(OnlyChangePermissionMixin, admin.ModelAdmin):
 
 @admin.register(Poster)
 class PosterAdmin(admin.ModelAdmin):
-    list_display = ['anime', 'image']
+    list_display = ['anime', 'display_poster']
+
+    @admin.display(description='Poster')
+    def display_poster(self, obj: Poster):
+        if not obj.image:
+            return self.get_empty_value_display()
+        return format_html(
+            '<img style="height: 100px; width: 50px;" src="{url}">',
+            url=obj.image.url
+        )
