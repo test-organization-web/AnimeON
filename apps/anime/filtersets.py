@@ -42,10 +42,16 @@ class AnimeListFilterSet(filters.FilterSet):
     year_lte = filters.NumberFilter(
         field_name='start_date__year', lookup_expr='lte'
     )
+    episode_gte = filters.NumberFilter(
+        field_name='count_episodes', lookup_expr='gte'
+    )
+    episode_lte = filters.NumberFilter(
+        field_name='count_episodes', lookup_expr='lte'
+    )
 
     class Meta:
         model = Anime
         fields = [
             'genres', 'studio', 'country', 'status', 'director', 'type', 'voiceover', 'season',
-            'year_gte', 'year_lte'
+            'year_gte', 'year_lte', 'episode_lte', 'episode_gte'
         ]

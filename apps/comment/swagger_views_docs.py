@@ -17,7 +17,14 @@ class CommentCreateAPIViewDoc(BaseSwaggerAPIViewDoc):
             'Ok.',
             CreateCommentSerializer,
             examples={'application/json': {
-
+                "id": 13,
+                "content_main": "string",
+                "created": "2024-06-12T22:40:58.401294+03:00",
+                "urlhash": "hunqbkxl",
+                "has_reply": False,
+                "get_count_like": 0,
+                "get_count_dislike": 0,
+                "username": "admin"
             }},
         ),
     }

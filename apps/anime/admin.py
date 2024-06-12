@@ -37,7 +37,7 @@ class DirectorAdmin(admin.ModelAdmin):
 class StudioAdmin(admin.ModelAdmin):
     search_fields = ('name',)
     search_help_text = 'Search by Name'
-    list_display = ['name', 'country']
+    list_display = ['name']
     inlines = [AnimeTabularInlinePaginated]
 
     def get_queryset(self, request):
@@ -95,7 +95,7 @@ class AnimeAdmin(admin.ModelAdmin):
 
     @admin.display(description='Episodes')
     def display_count_episodes(self, obj: Anime):
-        return obj.get_count_episodes()
+        return obj.count_episodes
 
     def get_queryset(self, request):
         return super().get_queryset(request).prefetch_related(

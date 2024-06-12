@@ -31,7 +31,6 @@ class Director(models.Model):
 class Studio(CreatedDateTimeMixin, models.Model):
     name = models.CharField(max_length=255, unique=True)
     description = models.TextField(default='', blank=True)
-    country = CountryField()
 
     def __str__(self):
         return f'{self.name}'
@@ -85,6 +84,7 @@ class Anime(CreatedDateTimeMixin, UpdatedDateTimeMixin, models.Model):
     year = models.SmallIntegerField(null=True, blank=True)
     average_time_episode = models.SmallIntegerField(help_text='in minutes', null=True, blank=True)
     release_day_of_week = models.CharField(choices=DayOfWeekChoices.choices, null=True, blank=True)
+    country = CountryField(null=True, blank=True)
 
     objects = AnimeManager()
 
@@ -94,9 +94,6 @@ class Anime(CreatedDateTimeMixin, UpdatedDateTimeMixin, models.Model):
     def clean(self):
         super().clean()
         self.slug = self.__class__.objects.normalize_slug(self.title)
-
-    def get_count_episodes(self):
-        return self.episode_set.all().count()
 
     def get_distinct_voiceover(self):
         distinct_voiceover = list()

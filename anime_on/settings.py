@@ -79,7 +79,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
     'apps.core.middleware.request_id_middleware',
+    'apps.core.middleware.error_logging_middleware',
 ]
 
 REST_FRAMEWORK = {

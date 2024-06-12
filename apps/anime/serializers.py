@@ -129,7 +129,6 @@ class ResponseAnimeSerializer(serializers.ModelSerializer):
     studio = StudioSerializer()
     episodes_release_schedule = ChildEpisodesReleaseScheduleSerializer(
         many=True, source='get_episodes_release_schedule')
-    count_episodes = serializers.IntegerField(source='get_count_episodes')
     voiceovers = serializers.ListSerializer(child=VoiceoverSerializer(),
                                             source='get_distinct_voiceover')
     status = serializers.SerializerMethodField()
@@ -167,8 +166,8 @@ class ResponseAnimeSerializer(serializers.ModelSerializer):
 
 
 class ResponseAnimeListSerializer(serializers.ModelSerializer):
-    count_episodes = serializers.IntegerField(source='get_count_episodes')
     year = serializers.SerializerMethodField()
+    count_episodes = serializers.SerializerMethodField()
     genres = ChildGenreSerializer(many=True)
 
     class Meta:
@@ -176,6 +175,9 @@ class ResponseAnimeListSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'slug', 'title', 'count_episodes', 'type', 'year', 'rating', 'genres', 'card_image'
         ]
+
+    def get_count_episodes(self, obj: Anime):
+        return obj.count_episodes
 
     def get_year(self, obj: Anime):
         return obj.start_date.year
@@ -195,13 +197,16 @@ class ResponsePaginatedAnimeListSerializer(serializers.Serializer):
 
 
 class ChildAnimePosterSerializer(serializers.ModelSerializer):
-    count_episodes = serializers.IntegerField(source='get_count_episodes')
+    count_episodes = serializers.SerializerMethodField()
 
     class Meta:
         model = Anime
         fields = [
             'id', 'slug', 'title', 'count_episodes'
         ]
+
+    def get_count_episodes(self, obj: Anime):
+        return obj.count_episodes
 
 
 class ResponsePostersSerializer(serializers.ModelSerializer):
@@ -261,14 +266,17 @@ class ResponseAnimeEpisodeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Episode
-        fields = ['title', 'voiceover', 'subtitles']
+        fields = ['title', 'voiceover', 'subtitles', 'preview_image', 'youtube_url',
+                  'start_opening', 'end_opening', 'start_ending', 'end_ending']
 
 
 class ResponseCommentAnimeSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(source='user.username')
+
     class Meta:
         model = Comment
         fields = ('id', 'content_main', 'created', 'urlhash', 'has_reply', 'get_count_like',
-                  'get_count_dislike', 'user')
+                  'get_count_dislike', 'username')
 
 
 class ResponsePaginatedCommentAnimeListSerializer(serializers.Serializer):

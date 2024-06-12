@@ -2,7 +2,7 @@ import logging
 from typing import Union, List, Tuple
 from collections import OrderedDict
 
-from rest_framework.generics import RetrieveAPIView, ListAPIView, GenericAPIView, get_object_or_404
+from rest_framework.generics import RetrieveAPIView, ListAPIView, GenericAPIView
 from rest_framework.response import Response
 from rest_framework.filters import SearchFilter
 from rest_framework import permissions, status
@@ -193,7 +193,7 @@ class EpisodeAPIView(RetrieveAPIView):
             # It means that the view instance was artificially created as part of a swagger schema request.
             return Episode.objects.none()
         episode_order = self.kwargs['order']
-        return super().get_queryset().filter(order=episode_order).first()
+        return super().get_queryset().filter(order=episode_order)
 
     @swagger_auto_schema_wrapper(
         doc=ResponseAnimeEpisodeAPIViewDoc,

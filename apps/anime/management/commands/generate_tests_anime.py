@@ -65,13 +65,12 @@ class Command(BaseCommand):
         count_studios = 0
         studios = ['BulBul Media', 'Unimay Media', 'Lifecycle']
         for studio in studios:
-            country = fake.random_element(elements=Countries())
 
             if Studio.objects.filter(name=studio).exists():
                 continue
 
             Studio.objects.create(
-                name=studio, description='test', country=country
+                name=studio, description='test',
             )
             count_studios += 1
         self.stdout.write(self.style.SUCCESS(
@@ -149,6 +148,7 @@ class Command(BaseCommand):
 
             try:
                 anime = Anime.objects.create(
+                    country=fake.random_element(elements=Countries()),
                     title=title,
                     slug=Anime.objects.normalize_slug(title),
                     start_date=start_date,

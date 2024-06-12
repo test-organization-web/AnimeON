@@ -3,6 +3,7 @@ from string import ascii_lowercase
 
 from django.db import models
 
+
 class CommentQuerySet(models.QuerySet):
 
     def filter_parents(self):

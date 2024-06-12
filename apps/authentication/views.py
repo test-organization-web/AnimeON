@@ -1,6 +1,7 @@
 import logging
 
 from django.contrib.auth import get_user_model
+from django.utils.decorators import method_decorator
 
 from rest_framework.response import Response
 from rest_framework.generics import GenericAPIView
@@ -21,13 +22,14 @@ from apps.authentication.swagger_views_docs import (
 )
 from apps.authentication.serializers import RequestUserRegisterSerializer
 from apps.user.serializers import UserSerializer
+from apps.core.debug import sensitive_drf_post_parameters
 
 
 logger = logging.getLogger()
 
 
 class UserLogoutViewAPIView(TokenBlacklistView):
-    permission_classes = (permissions.AllowAny,)
+    permission_classes = (permissions.IsAuthenticated,)
     serializer_class = TokenBlacklistSerializer
 
     @swagger_auto_schema_wrapper(
@@ -68,6 +70,7 @@ class UserRegisterViewAPIView(GenericAPIView):
     permission_classes = (permissions.AllowAny,)  # Or anon users can't register
     serializer_class = RequestUserRegisterSerializer
 
+    @method_decorator(sensitive_drf_post_parameters('password', 'password_repeat'))
     @swagger_auto_schema_wrapper(
         doc=UserRegisterViewAPIViewDoc,
         request_serializer_cls=serializer_class,
