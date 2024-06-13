@@ -29,10 +29,13 @@ bash:
 create-db:
 	docker-compose up -d db
 	docker-compose exec db sh -c 'psql --username=postgres --dbname=postgres -c "CREATE DATABASE $(PG_DB);"'
+	docker-compose rm -s -f db
+
+create-db-user:
 	docker-compose exec db sh \
 			-c 'psql --username=postgres --dbname=postgres -c "CREATE USER $(PG_USER) WITH PASSWORD '"'$(PG_PASSWORD)'"' SUPERUSER;"'
 	docker-compose exec db sh -c 'psql --username=postgres --dbname=postgres -c "GRANT ALL PRIVILEGES ON DATABASE $(PG_DB) to $(PG_USER);"'
-	docker-compose rm -s -f db
+
 
 rm-db:
 	docker-compose exec db sh \

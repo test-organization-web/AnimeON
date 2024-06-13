@@ -20,6 +20,7 @@ make build
 4. Execute a command for creating database (default name of new database - "anime_on")
 ```bash
 make create-db
+make create-db-user
 ```
 
 4. Apply migrations
