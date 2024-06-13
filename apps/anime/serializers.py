@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django_countries.serializer_fields import CountryField
 
 from django.contrib.auth.models import Group
 from django.urls import reverse
@@ -135,6 +136,7 @@ class ResponseAnimeSerializer(serializers.ModelSerializer):
     type = serializers.SerializerMethodField()
     season = serializers.SerializerMethodField()
     rating = serializers.CharField(source='get_rating_display')
+    country = CountryField()
 
     class Meta:
         model = Anime
