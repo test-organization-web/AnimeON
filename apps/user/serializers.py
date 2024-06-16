@@ -11,3 +11,9 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserModel
         fields = ('username', 'count_viewed_anime')
+
+
+class UserAnimeCountSerializer(serializers.Serializer):
+    count_viewed_anime = serializers.IntegerField()
+
+

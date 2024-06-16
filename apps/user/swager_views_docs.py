@@ -1,6 +1,5 @@
 from drf_yasg import openapi
 from rest_framework import status
-
 from apps.core.swagger_views_docs import BaseSwaggerAPIViewDoc, SwaggerTags
 
 
@@ -14,5 +13,23 @@ class UserAPIViewDoc(BaseSwaggerAPIViewDoc):
         status.HTTP_200_OK: openapi.Response(
             'Ok.',
             examples={'application/json': {}},
+        ),
+    }
+
+
+class UserAnimeCountAPIViewDoc(BaseSwaggerAPIViewDoc):
+    """
+    It is a Swagger doc for 'UserAnimeCountAPI'
+    """
+    tags = [SwaggerTags.USER]
+
+    responses = {
+        status.HTTP_200_OK: openapi.Response(
+            'Ok.',
+            examples={
+                'application/json': {
+                    'count_viewed_anime': 5
+                }
+            },
         ),
     }
