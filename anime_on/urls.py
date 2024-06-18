@@ -24,10 +24,10 @@ from anime_on.swagger import schema_view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/user/', include('apps.user.urls', namespace='user')),
-    path('api/auth/', include('apps.authentication.urls', namespace='authentication')),
-    path('api/anime/', include('apps.anime.urls', namespace='anime')),
-    path('api/comment/', include('apps.comment.urls', namespace='comment')),
+    path('api/v1/user/', include('apps.user.urls', namespace='user')),
+    path('api/v1/auth/', include('apps.authentication.urls', namespace='authentication')),
+    path('api/v1/anime/', include('apps.anime.urls', namespace='anime')),
+    path('api/v1/comment/', include('apps.comment.urls', namespace='comment')),
 ]
 
 if settings.SWAGGER_ENABLED:
