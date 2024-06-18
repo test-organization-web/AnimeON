@@ -208,7 +208,7 @@ class ChildAnimePosterSerializer(serializers.ModelSerializer):
         ]
 
     def get_count_episodes(self, obj: Anime):
-        return obj.count_episodes
+        return obj.episode_set.all().count()
 
 
 class ResponsePostersSerializer(serializers.ModelSerializer):
