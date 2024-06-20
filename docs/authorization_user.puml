@@ -1,0 +1,24 @@
+@startuml
+== Приклад успішної аторизації  ==
+
+Client -> Server: POST /api/v1/auth/login/ \n\
+{"login": "admin"\n\
+"password": "admin"}\n\
+
+
+Server -> Client: 200 OK\n\
+{"access_token": <token>\n\
+"refresh_token": <token>}
+
+
+== Приклад не успішної аторизації  ==
+
+Client -> Server: POST /api/v1/auth/login/ \n\
+{"login": "admin"\n\
+"password": "admin"}\n\
+
+
+Server -> Client: 401 UNAUTHORIZED\n\
+{"detail": 'Користувача з такими параметрами не знайдено'}
+
+@enduml

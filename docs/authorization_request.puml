@@ -1,0 +1,70 @@
+@startuml
+== Приклад авторизованого запиту до сервера ==
+Client -> Server: POST /api/v1/anime/1/title \n\
+HEADERS\n\
+Authorization: Bearer <token>\n\
+
+Server -> Client: 200 OK\n\
+{"episodes": [\n\
+    {\n\
+        "title": "<str: title>",\n\
+        "order": 1\n\
+    }\n\
+],\n\
+"title": "<str: title>",\n\
+"start_date": "<str: start_date>",\n\
+"end_date": None,\n\
+"rank": 1,\n\
+"status": {\n\
+    "value": "<str: value>",\n\
+    "filter_url": "<str: url>",\n\
+},\n\
+"type": {\n\
+    "value": "<str: value>",\n\
+    "filter_url": "<str: url>",\n\
+},\n\
+"rating": "<str: rating>",\n\
+"description": "<str: description>",\n\
+"short_description": "<str: short_description>",\n\
+"season": {\n\
+    "value": "<str: value>",\n\
+    "filter_url": "<str: url>",\n\
+},\n\
+"studio": {\n\
+    "value": "<str: value>",\n\
+    "filter_url": "<str: url>",\n\
+},\n\
+"related": None,\n\
+"director": {\n\
+    "value": "<str: value>",\n\
+    "filter_url": "<str: url>",\n\
+},\n\
+"images": [\n\
+    {\n\
+        "file": "<str: url>",\n\
+    }\n\
+],\n\
+"genres": [\n\
+    {\n\
+        "value": "<str: value>",\n\
+        "filter_url": "<str: url>",\n\
+    }\n\
+],\n\
+"card_image": "<str: url>",\n\
+"background_image": "<str: url>",\n\
+"episodes_release_schedule": [\n\
+    {\n\
+        "title": "<str: title>",\n\
+        "order": 0,\n\
+        "release_date": "<str: release_date>"\n\
+    }\n\
+],\n\
+"voiceovers": [\n\
+    {\n\
+        "value": "<str: value>",\n\
+        "filter_url": "<str: url>",\n\
+    }\n\
+]\n\
+}}
+
+@enduml

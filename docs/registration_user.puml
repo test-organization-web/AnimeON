@@ -1,0 +1,30 @@
+@startuml
+== Приклад успішної реєстрації  ==
+
+Client -> Server: POST /api/v1/auth/registration/ \n\
+{"login": "admin"\n\
+"password": "admin"\n\
+"repeat_password": "admin"}
+
+
+Server -> Client: 200 OK\n\
+{"access_token": <token>\n\
+"refresh_token": <token>}
+
+
+== Приклад не успішної аторизації  ==
+
+Client -> Server: POST /api/v1/auth/registration/ \n\
+{"login": "admin"\n\
+"password": "admin"\n\
+"repeat_password": "admin1"}
+
+
+Server -> Client: 401 UNAUTHORIZED\n\
+{"errors": [\n\
+"message": "Повторіть пароль"\n\
+"location": "repeat_password"\n\
+]}
+
+
+@enduml

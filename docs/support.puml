@@ -1,4 +1,0 @@
-@startuml
-Client -> "Server": Відпарвляємо звернення
-"Server" -> "Telegram/Email": Менеджер/Группа телеграм отрумує сповіщення
-@enduml
