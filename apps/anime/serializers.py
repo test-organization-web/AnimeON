@@ -64,7 +64,7 @@ class ResponseAnimeListSerializer(serializers.ModelSerializer):
         ]
 
     def get_count_episodes(self, obj: Anime):
-        return obj.episode_set.all().count()
+        return obj.episode_set.count()
 
 
 class ChildTeamSerializer(serializers.ModelSerializer):
@@ -85,7 +85,7 @@ class ChildTeamSerializer(serializers.ModelSerializer):
 class ChildEpisodeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Episode
-        fields = ['title', 'order']
+        fields = ['title', 'order', 'id']
 
 
 class ChildPreviewImageSerializer(serializers.ModelSerializer):
@@ -116,12 +116,6 @@ class ResponseStudioSerializer(serializers.ModelSerializer):
         exclude = ['id']
 
 
-class ChildEpisodesReleaseScheduleSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Episode
-        fields = ['title', 'order', 'release_date', 'status']
-
-
 class ResponseAnimeSerializer(serializers.ModelSerializer):
     episodes = serializers.ListSerializer(child=ChildEpisodeSerializer(), source='episode_set')
     images = serializers.ListSerializer(child=ChildPreviewImageSerializer(),
@@ -135,7 +129,6 @@ class ResponseAnimeSerializer(serializers.ModelSerializer):
     season = serializers.SerializerMethodField()
     rating = serializers.CharField(source='get_rating_display')
     country = serializers.SerializerMethodField()
-    year = serializers.SerializerMethodField()
     count_episodes = serializers.SerializerMethodField()
     similar = serializers.ListSerializer(child=ResponseAnimeListSerializer(), source='get_similar')
     start_date = serializers.SerializerMethodField()
@@ -210,7 +203,7 @@ class ChildAnimePosterSerializer(serializers.ModelSerializer):
         ]
 
     def get_count_episodes(self, obj: Anime):
-        return obj.episode_set.all().count()
+        return obj.episode_set.count()
 
 
 class ResponsePostersSerializer(serializers.ModelSerializer):

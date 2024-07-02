@@ -61,7 +61,9 @@ class StudioAPIView(RetrieveAPIView):
 
 
 class AnimeAPIView(RetrieveAPIView):
-    queryset = Anime.objects.all()
+    queryset = Anime.objects.prefetch_related(
+        'genres', 'director', 'studio', 'episode_set', 'previewimage_set'
+    ).all()
     serializer_class = ResponseAnimeSerializer
 
     @swagger_auto_schema_wrapper(
@@ -73,7 +75,7 @@ class AnimeAPIView(RetrieveAPIView):
 
 
 class AnimeSearchAPIView(ListAPIView):
-    queryset = Anime.objects.all()
+    queryset = Anime.objects.prefetch_related('episode_set').all()
     serializer_class = ResponseAnimeListSerializer
     pagination_class = AnimeListPaginator
 
@@ -91,7 +93,7 @@ class AnimeSearchAPIView(ListAPIView):
 class AnimeListAPIView(ListAPIView):
     permission_classes = [permissions.AllowAny]
 
-    queryset = Anime.objects.all()
+    queryset = Anime.objects.prefetch_related('episode_set').all()
     serializer_class = ResponseAnimeListSerializer
     pagination_class = AnimeListPaginator
 
@@ -122,7 +124,7 @@ class AnimeRandomAPIView(RetrieveAPIView):
 
 
 class AnimeTOP100APIView(ListAPIView):
-    queryset = Anime.objects.filter(is_top=True)
+    queryset = Anime.objects.prefetch_related('episode_set').filter(is_top=True)
     serializer_class = ResponseAnimeListSerializer
     pagination_class = AnimeListPaginator
 
@@ -135,7 +137,7 @@ class AnimeTOP100APIView(ListAPIView):
 
 
 class PostersAnimeAPIView(ListAPIView):
-    queryset = Poster.objects.all()
+    queryset = Poster.objects.prefetch_related('anime', 'anime__episode_set').all()
     serializer_class = ResponsePostersSerializer
 
     @swagger_auto_schema_wrapper(
@@ -183,7 +185,7 @@ class FiltersAnimeAPIView(GenericAPIView):
 class EpisodeAPIView(RetrieveAPIView):
     lookup_field = 'anime_id'
     lookup_url_kwarg = 'anime_pk'
-    queryset = Episode.objects.all()
+    queryset = Episode.objects.prefetch_related('voiceover_set', 'voiceover_set__team').all()
     serializer_class = ResponseAnimeEpisodeSerializer
 
     def get_queryset(self):
@@ -291,6 +293,6 @@ class AnimeArchAPIView(ListAPIView):
             return Arch.objects.none()
 
         lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
-        return Arch.objects.filter(
+        return Arch.objects.prefetch_related('anime__episode_set').filter(
             anime_id=self.kwargs[lookup_url_kwarg]
         ).order_by('order')
