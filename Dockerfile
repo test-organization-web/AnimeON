@@ -1,10 +1,7 @@
 FROM python:3
 
-
-RUN apk add --no-cache build-base gnupg g++ make cmake unzip curl unixodbc unixodbc-dev autoconf automake libtool elfutils-dev git gettext
-
 RUN apt-get update \
-    && apt-get install -y postgresql-server-dev-all gcc python3-dev musl-dev
+    && apt-get install -y postgresql-server-dev-all gcc python3-dev musl-dev build-base gnupg g++ make cmake unzip curl unixodbc unixodbc-dev autoconf automake libtool elfutils-dev git gettext
 RUN pip install psycopg2
 
 ARG BASE_DIR="/app"
