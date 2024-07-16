@@ -12,14 +12,14 @@ ARG DEPENDENCIES_DIR="/dependencies"
 RUN mkdir -p ${DEPENDENCIES_DIR}
 
 # Create a group and user
-RUN addgroup -S animeON && adduser -S anime_on -G animeON
+RUN addgroup -S animeON && adduser -S animeon -G animeON
 
-# make "raccoon" owner of FUNCTION_DIR and DEPENDENCIES_DIR
-RUN chown -R anime_on:animeON ${BASE_DIR}
-RUN chown -R anime_on:animeON ${DEPENDENCIES_DIR}
+# make "animeon" owner of FUNCTION_DIR and DEPENDENCIES_DIR
+RUN chown -R animeon:animeON ${BASE_DIR}
+RUN chown -R animeon:animeON ${DEPENDENCIES_DIR}
 
-# Tell docker that all future commands should run as the "raccoon" user
-USER anime_on
+# Tell docker that all future commands should run as the "animeon" user
+USER animeon
 
 # Create function log directory
 RUN mkdir -m a=rwx -p ${BASE_DIR}/logs
@@ -31,7 +31,7 @@ RUN /usr/local/bin/python -m pip install --upgrade pip && pip install --no-cache
 ENV PATH=$PATH:${BASE_DIR}:${DEPENDENCIES_DIR}:${DEPENDENCIES_DIR}/bin
 ENV PYTHONPATH=$PYTHONPATH:${BASE_DIR}:${DEPENDENCIES_DIR}:${DEPENDENCIES_DIR}/bin
 
-COPY --chown=anime_on:animeON . ${BASE_DIR}/
+COPY --chown=animeon:animeON . ${BASE_DIR}/
 
 ARG version=unknown
 RUN echo $version && sed -i "s/##VERSION##/$version/g" anime_on/settings.py
