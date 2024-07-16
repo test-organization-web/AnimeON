@@ -1,4 +1,6 @@
-include .env
+PG_DB ?= anime_on_10
+PG_USER ?= user_test_10
+PG_PASSWORD ?= Qwerty123
 
 run:
 	docker-compose up
