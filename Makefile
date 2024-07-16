@@ -1,4 +1,6 @@
-include .env
+PG_DB ?= anime_on_10
+PG_USER ?= user_test_10
+PG_PASSWORD ?= Qwerty123
 
 run:
 	docker-compose up
@@ -48,3 +50,7 @@ create-app:
 path = apps
 test:
 	docker-compose run --rm api test --keepdb -v 2 $(path)
+
+RELEASES_FILE ?= anime_on/releases.txt
+write-versions-file:
+	git for-each-ref --count=10 --sort='-creatordate' --format='%(refname:strip=2)==>%(contents)===' 'refs/tags' > $(RELEASES_FILE)
