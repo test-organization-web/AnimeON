@@ -1,5 +1,7 @@
 import logging
 
+from django.http import HttpResponse
+
 from anime_on.logging import request_id_context
 from uuid import uuid4
 
@@ -14,6 +16,15 @@ def request_id_middleware(get_response):
             response = get_response(request)
         response.headers['X-Request-ID'] = request_id
         return response
+    return middleware
+
+
+def ping_middleware(get_response):
+    def middleware(request):
+        if request.META["PATH_INFO"] == "/ping/":
+            return HttpResponse("pong")
+        else:
+            return get_response(request)
     return middleware
 
 
