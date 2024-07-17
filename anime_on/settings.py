@@ -119,6 +119,8 @@ WSGI_APPLICATION = 'anime_on.wsgi.application'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/4.2/howto/static-files/
 STATIC_URL = os.getenv('STATIC_URL', 'static/')
 STATIC_ROOT = os.getenv('STATIC_ROOT', 'static_dir')
 
@@ -129,7 +131,6 @@ STATIC_ROOT = os.getenv('STATIC_ROOT', 'static_dir')
 AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
 AWS_SECRET_ACCESS_KEY = os.getenv('AWS_ACCESS_KEY_ID')
 AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
-AWS_S3_ENDPOINT_URL = os.getenv('AWS_S3_ENDPOINT_URL')
 
 STORAGES = {
     "default": {
@@ -193,11 +194,6 @@ TIME_ZONE = 'Europe/Kiev'
 USE_I18N = True
 
 USE_TZ = True
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/4.2/howto/static-files/
-
-STATIC_URL = 'static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -287,6 +283,3 @@ LOGIN_URL = '/api/auth/login/'
 DEFAULT_EXCEPTION_REPORTER = 'apps.core.debug.JSONExceptionReporter'
 DEFAULT_EXCEPTION_REPORTER_FILTER = 'apps.core.debug.JSONSafeExceptionReporterFilter'
 
-import dj_database_url
-db_from_env = dj_database_url.config(conn_max_age=500)
-DATABASES['default'].update(db_from_env)
