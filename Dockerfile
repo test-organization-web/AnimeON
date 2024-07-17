@@ -1,8 +1,12 @@
-FROM python:3
+# It's python:3.11.5-alpine3.18
+FROM python@sha256:e5d592c422d6e527cb946ae6abb1886c511a5e163d3543865f5a5b9b61c01584
 
-RUN apt-get update \
-    && apt-get install -y postgresql-server-dev-all gcc python3-dev musl-dev gnupg g++ make cmake unzip curl unixodbc unixodbc-dev autoconf automake libtool git gettext
-RUN pip install psycopg2
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
+RUN apk update && \
+    apk add --virtual build-deps gcc python3-dev musl-dev gnupg g++ make automake git && \
+    apk add postgresql-dev
 
 ARG BASE_DIR="/app"
 WORKDIR ${BASE_DIR}
