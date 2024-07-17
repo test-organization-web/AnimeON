@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'apps.user',
     'apps.anime',
     'apps.comment',
+    'apps.core',
     # libraries
     'storages',
     'corsheaders',
