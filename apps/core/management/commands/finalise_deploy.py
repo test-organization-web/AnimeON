@@ -15,16 +15,6 @@ class Command(BaseCommand):
         try:
             # static files
             call_command("collectstatic", interactive=False)
-            subprocess.run(
-                [
-                    'aws', 's3', 'sync',
-                    settings.STATIC_ROOT,
-                    f's3://{settings.AWS_STORAGE_BUCKET_NAME}/static',
-                    '--acl', 'public-read',
-                ],
-                check=True,
-                capture_output=True
-            )
             # migrate and save migrations state
             call_command("migrate", interactive=False)
         except subprocess.CalledProcessError as e:
