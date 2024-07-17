@@ -37,6 +37,5 @@ jobs:
         run: |
           # Build a docker container and
           # push it to ECR so that it can be deployed.
-          make write-versions-file
           docker build --build-arg version=$IMAGE_TAG -f Dockerfile -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
           docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
