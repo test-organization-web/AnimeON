@@ -125,7 +125,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 STATIC_URL = os.getenv('STATIC_URL', 'static/')
-STATIC_ROOT = os.getenv('STATIC_ROOT', 'static_dir')
+STATIC_ROOT = os.getenv('STATIC_ROOT', 'static_dir/')
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
