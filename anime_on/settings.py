@@ -130,7 +130,6 @@ AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
 AWS_SECRET_ACCESS_KEY = os.getenv('AWS_ACCESS_KEY_ID')
 AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
 AWS_S3_ENDPOINT_URL = os.getenv('AWS_S3_ENDPOINT_URL')
-AWS_REGION = os.getenv('AWS_REGION', 'unknown')
 
 STORAGES = {
     "default": {
@@ -142,10 +141,18 @@ STORAGES = {
 }
 
 # AWS Configuration
-AWS_STORAGE_BUCKET_PREFIX = os.getenv('AWS_STORAGE_BUCKET_PREFIX', '').lstrip("/")
+AWS_LOCATION = os.getenv('AWS_LOCATION', '').lstrip("/")
 
 if AWS_STORAGE_BUCKET_NAME:
     STORAGES['default']['BACKEND'] = 'storages.backends.s3boto3.S3Boto3Storage'
+
+    # To save media files as public is insecure.
+    # The only way to access a private file in Browsers is generating URI with the authentication GET-query parameter.
+    AWS_QUERYSTRING_AUTH = True
+    AWS_DEFAULT_ACL = None  # None means the file will be private per Amazon’s default
+
+    AWS_S3_FILE_OVERWRITE = False
+    AWS_S3_SIGNATURE_VERSION = 's3v4'
 
 DATABASES = {
     'default': {
