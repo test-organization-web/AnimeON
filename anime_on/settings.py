@@ -282,3 +282,6 @@ LOGIN_URL = '/api/auth/login/'
 DEFAULT_EXCEPTION_REPORTER = 'apps.core.debug.JSONExceptionReporter'
 DEFAULT_EXCEPTION_REPORTER_FILTER = 'apps.core.debug.JSONSafeExceptionReporterFilter'
 
+ADMIN_USERNAME = os.environ.get('ADMIN_USERNAME')
+ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD')
+
