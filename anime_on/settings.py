@@ -125,6 +125,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 STATIC_URL = os.getenv('STATIC_URL', 'static/')
+STATIC_ROOT = os.getenv('STATIC_ROOT', 'static_dir/')
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
@@ -148,13 +149,9 @@ AWS_LOCATION = os.getenv('AWS_LOCATION', '').lstrip("/")
 
 if AWS_STORAGE_BUCKET_NAME:
     STORAGES['default']['BACKEND'] = 'storages.backends.s3boto3.S3Boto3Storage'
+    STORAGES['staticfiles']['BACKEND'] = 'storages.backends.s3boto3.S3Boto3Storage'
 
-    # To save media files as public is insecure.
-    # The only way to access a private file in Browsers is generating URI with the authentication GET-query parameter.
-    AWS_QUERYSTRING_AUTH = True
-    AWS_DEFAULT_ACL = None  # None means the file will be private per Amazon’s default
-
-    AWS_S3_FILE_OVERWRITE = False
+    AWS_DEFAULT_ACL = 'public-read'
     AWS_S3_SIGNATURE_VERSION = 's3v4'
 
 DATABASES = {
