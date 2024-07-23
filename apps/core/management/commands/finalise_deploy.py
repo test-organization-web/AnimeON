@@ -25,7 +25,7 @@ class Command(BaseCommand):
         except Exception:
             errors.append(traceback.format_exc())
             raise
-        else:
+        finally:
             admin_username = settings.ADMIN_USERNAME
             admin_password = settings.ADMIN_PASSWORD
             call_command("runserver", '0.0.0.0:8000')
