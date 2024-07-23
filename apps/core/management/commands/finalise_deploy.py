@@ -26,12 +26,4 @@ class Command(BaseCommand):
             errors.append(traceback.format_exc())
             raise
         finally:
-            admin_username = settings.ADMIN_USERNAME
-            admin_password = settings.ADMIN_PASSWORD
             call_command("runserver", '0.0.0.0:8000')
-            if get_user_model().objects.filter(username=admin_username).exists():
-                logger.warning('Superuser exists already')
-            else:
-                get_user_model().objects.create_superuser(admin_username,
-                                                          password=admin_password)
-                logger.info('Superuser was created successfully')
