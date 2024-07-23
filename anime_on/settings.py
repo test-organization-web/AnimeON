@@ -28,7 +28,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY')
+SECRET_KEY = os.environ.get('SECRET_KEY', 'super-secure-test-key-1')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = to_bool(os.environ.get('DEBUG'))  # turned off by default
@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'apps.anime',
     'apps.comment',
     'apps.core',
+    'apps.update_release',
     # libraries
     'storages',
     'corsheaders',
@@ -68,6 +69,7 @@ INSTALLED_APPS = [
     'django_filters',
     'adminfilters',
     'rangefilter',
+    'django_extensions',
 ]
 
 MIDDLEWARE = [
@@ -127,6 +129,15 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 STATIC_URL = os.getenv('STATIC_URL', 'static/')
 STATIC_ROOT = os.getenv('STATIC_ROOT', 'static_dir/')
 
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {  # It's not used, actually. The logic is overridden in the 'finalise_deploy' command
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
+
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 # https://docs.djangoproject.com/en/5.0/ref/databases/#postgresql-notes
@@ -134,15 +145,6 @@ STATIC_ROOT = os.getenv('STATIC_ROOT', 'static_dir/')
 AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
 AWS_SECRET_ACCESS_KEY = os.getenv('AWS_ACCESS_KEY_ID')
 AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
-
-STORAGES = {
-    "default": {
-        "BACKEND": "django.core.files.storage.FileSystemStorage",
-    },
-    "staticfiles": {
-        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
-    },
-}
 
 # AWS Configuration
 AWS_LOCATION = os.getenv('AWS_LOCATION', '').lstrip("/")
@@ -285,3 +287,5 @@ DEFAULT_EXCEPTION_REPORTER_FILTER = 'apps.core.debug.JSONSafeExceptionReporterFi
 ADMIN_USERNAME = os.environ.get('ADMIN_USERNAME')
 ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD')
 
+MYAL_CLIENT_ID = os.environ.get('MYAL_CLIENT_ID', 'my-client-id')
+MYAL_CLIENT_SECRET = os.environ.get('MYAL_CLIENT_SECRET', 'my-client-secret')

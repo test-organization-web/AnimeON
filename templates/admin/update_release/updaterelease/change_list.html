@@ -1,0 +1,17 @@
+{% extends "admin/change_list.html" %}
+
+{% block object-tools-items %}
+  <li>
+    <a href="#" id="TransactionFile" onclick="UpdateRelease()" class="activate-dialog addlink">Upload <strong>releases</strong></a>
+  </li>
+  {{ block.super }}
+
+  <div id="dialog" title="Upload release" hidden=true>
+    <form enctype="multipart/form-data" id="TransactionFile"
+      action="{% url 'admin:update-myanimelist-release' %}" method="POST">
+        {% csrf_token %}
+        <br>
+        <button class="button" type="submit">Submit</button>
+    </form>
+  </div>
+{% endblock %}

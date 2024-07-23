@@ -7,18 +7,9 @@ package user {
 		_user : email
 		_user : password
 		_user : is_subscribed
-		_user : hours on the site
 		_user : avatar file
 		_user : status
 		_user : last seen
-		_user : telegram
-
-	object _setting
-		_setting : who see status
-		_setting : who see friends
-		_setting : who see subscribe
-		_setting : who see goals
-		_setting : other settings ...
 
 	object _team
 		_team : id
@@ -31,13 +22,16 @@ package user {
 		_team : is_verified
 		_team : other sites ...
 
-	object _favorite
-		_favorite : manga_id
-		_favorite : user_id
+	object _user_team
+		_user_team : id
+		_user_team : user_id
+		_user_team : team_id
 
-	object _viewed
-		_viewed : manga_id
-		_viewed : user_id
+	object _user_anime
+		_user_anime : manga_id
+		_user_anime : user_id
+		_user_anime : type (тип улюблене|преглянуте|...)
+
 }
 
 package support {
@@ -61,100 +55,124 @@ package support {
 }
 
 package manga {
-	object _category
-		_category : id
-		_category : name
 
 	object _manga
 		_manga : id
 		_manga : title
 		_manga : created
+		_manga : updated
+		_manga : start_date
+		_manga : end_date
+		_manga : rank
 		_manga : short_description
 		_manga : description
 		_manga : like (список користуваців)
 		_manga : dislike (список користуваців)
 		_manga : status
 		_manga : country
-		_manga : start_release
-		_manga : end_release
-		_manga : director
+		_manga : director_id
 		_manga : slug (коротка назва для створення урла)
-		_manga : url (для IMDb)
 		_manga : url (для MyAnimeList)
 		_manga : type (фільм, серіал)
-		_manga : age rating
+		_manga : age_rating
 		_manga : year
 		_manga : viewed (скільки переглянуто)
 		_manga : studio_id
+		_manga : season (літо|осінь|...)
+		_manga : card_image
+		_manga : is_top
+		_manga : is_top
+		_manga : genres
+		_manga : average_time_episode
+		_manga : release_day_of_week
 
-	object _season
-		_season : name
-		_season : series_id
+	object _episode
+		_episode : id
+		_episode : title
+		_episode : anime
+		_episode : status
+		_episode : is_accessible
+		_episode : start_opening
+		_episode : end_opening
+		_episode : start_ending
+		_episode : end_ending
+		_episode : youtube_url
+		_episode : preview_image
+		_episode : created
+		_episode : updated
+		_episode : order (номер серії)
 
-	object _image
-		_image : id
-		_image : file
-		_image : manga_id
-		_image : is_main
-
-	object _comment
-		_comment : id
-		_comment : text
-		_comment : user_id
-		_comment : manga_id
-		_comment : created
-		_comment : like (список користуваців)
-		_comment : dislike (список користуваців)
-		_comment : comment_id (якщо є відповіть на коммент / аля інста)
-
-	object _series
-		_series : id
-		_series : name
-		_series : status
-		_series : order (номер серії)
-		_series : start_release
-		_series : opening_id
+	object _arch
+		_arch : title
+		_arch : anime_id
+		_arch : order (номер серії)
 
 	object _voiceover
 		_voiceover : id
 		_voiceover : team_id
 		_voiceover : user_id
-		_voiceover : series_id
+		_voiceover : episode_id
 		_voiceover : url
 		_voiceover : status
 		_voiceover : created
+		_voiceover : type (озвучка|субтитри)
+
+	object _manga_genres
+		_manga_genres : id
+		_manga_genres : manga_id
+		_manga_genres : genre_id
 
 	object _genre
 		_genre : id
 		_genre : name
 
+	object _studio
+		_studio : id
+		_studio : description
+		_studio : name
+
+	object _director
+		_director : id
+		_director : first_name
+		_director : last_name
+		_director : pseudonym
+		_director : url
+
+	object _preview_image
+		_preview_image : id
+		_preview_image : anime
+		_preview_image : file
+
+	object _poster
+		_poster : id
+		_poster : anime
+		_poster : image
+		_poster : description
+		_poster : created
 }
 
 _helpdesk }|--|| _user
 _complaints }|--|| _user
 
-_team ||--|{ _user
+_team ||--|| _user_team
+_user ||--|| _user_team
 
-_season ||--|| _series
-_series }|--|| _manga
+_arch }|--|| _manga
 
-_image }|--|| _manga
+_episode }|--|| _manga
+_studio ||--|| _manga
+_director ||--|| _manga
+_manga_genres ||--|| _manga
+_manga_genres ||--|| _genre
 
-_comment }|--|| _manga
-_comment ||--|| _user
-_comment ||--|| _comment
+_preview_image }|--|| _episode
 
-_voiceover ||--|| _series
+_voiceover }|--|| _episode
 _voiceover ||--|| _team
 _voiceover ||--|| _user
-_category }|--|| _manga
-_genre }|--|| _manga
 
-_user ||--|{ _favorite
-_user ||--|{ _viewed
-_user ||--|| _setting
+_poster }|--|| _manga
 
-_viewed ||--|| _manga
-_favorite ||--|| _manga
+_user ||--|{ _user_anime
 
 @enduml
