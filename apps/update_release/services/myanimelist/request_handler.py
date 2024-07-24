@@ -1,17 +1,29 @@
 import requests
+import logging
+
+from requests import request
+from typing import Optional
 from .exceptions import APIException
-from .json_serializer import JsonResponse
+
+
+logger = logging.getLogger(__name__)
 
 
 class APICaller(object):
 
-    def __init__(self, base_url, headers):
+    def __init__(self, base_url: str, headers: dict):
         self._base_url = base_url
         self._headers = headers
 
-    def call(self, uri, method="get", params=None, *args, **kwargs):
-        requester = getattr(requests, method.lower())
+    def call(self, uri: str, method: str = "get", params: Optional[dict] = None, *args, **kwargs) -> dict:
+        requester: request = getattr(requests, method.lower())
         url = self._base_url + uri
+        logger.info('Get request with params', extra={
+            'message_id': 'myanimelist_request_handler_call',
+            'method': method,
+            'params': params,
+            'url': url
+        })
         response = requester(url=url,
                              headers=self._headers,
                              params=params,

@@ -6,7 +6,7 @@ from apps.anime.models import Genre, Director, Studio, Anime, Episode, Poster
 
 
 class Command(BaseCommand):
-    help = 'Generate useable data and fill the tables'
+    help = 'Delete all Anime and related objects'
 
     @transaction.atomic
     def handle(self, *args, **options):

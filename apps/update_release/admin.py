@@ -1,12 +1,14 @@
 from django.contrib import admin, messages
 from django.urls import path, reverse
-from django.core.management import call_command
 from django.http import JsonResponse
+from django.conf import settings
 from django.utils.decorators import method_decorator
 from django.views.decorators.http import require_POST
+from django.utils import timezone
 
+from anime_on.awscli import schedule_command
 from apps.update_release.models import UpdateRelease
-from apps.update_release.services.myanimelist.exceptions import TokenMissing
+from apps.update_release.services.myanimelist.client import Client
 
 # Register your models here.
 
@@ -38,10 +40,26 @@ class UpdateReleaseAdmin(admin.ModelAdmin):
 
     @method_decorator(require_POST)
     def update_myanimelist_release(self, request):
-        try:
-            call_command('myanimelist_auth')
-        except TokenMissing as error:
-            self.message_user(request, str(error), level=messages.ERROR)
+        client = Client(
+            client_id=settings.MYAL_CLIENT_ID,
+            client_secret=settings.MYAL_CLIENT_SECRET
+        )
+        auth = client.auth()
+
+        if auth['type'] == 'token':
+            schedule_command(
+                command='myanimelist_update_releases',
+                start_time=timezone.now(),
+                kwargs={'authorisation_code': auth['token']}
+            )
+            messages.info(
+                request,
+                'Команда оновлення релізів запущена, процедура займе деякий час. Оновіть сторінку пізніше'
+            )
+        elif auth['type'] == 'url':
+            return JsonResponse(data={
+                'redirectUrl': auth['url']
+            })
         return JsonResponse(data={
             'redirectUrl': reverse('admin:update_release_updaterelease_changelist')
         })
