@@ -35,11 +35,13 @@ class APICaller(object):
                     return response.json()
                 except Exception as error:
                     raise APIException(
-                        f"Error: {response.status_code}: {error}, {url}",
-                        response)
+                        status_code=response.status_code,
+                        message=f"Error: {response.status_code}: {error}, {url}",
+                        response=response)
             elif method == "delete":
                 return response.status_code
         else:
             raise APIException(
-                f"Error: {response.status_code}: {response.content}, {url}",
-                response)
+                status_code=response.status_code,
+                message=f"Error: {response.status_code}: {response.content}, {url}",
+                response=response)
