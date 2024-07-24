@@ -30,7 +30,3 @@ class MyAnimeListToken(CreatedDateTimeMixin, UpdatedDateTimeMixin, models.Model)
     def clean(self):
         super().clean()
         self.expired_date = self.__class__.objects.get_expired_date(self.expires_in)
-        print("HHRERERERERER")
-        print(self.expired_date)
-
-
