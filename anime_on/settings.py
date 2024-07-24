@@ -13,9 +13,14 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 from pathlib import Path
 import os
 import sys
+import logging
 from anime_on.utils import to_bool, to_list
 from datetime import timedelta
 from rest_framework.settings import api_settings
+
+
+logger = logging.getLogger(__name__)
+
 
 PROJECT_VERSION = '##VERSION##'
 
@@ -289,3 +294,11 @@ ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD')
 
 MYAL_CLIENT_ID = os.environ.get('MYAL_CLIENT_ID', 'my-client-id')
 MYAL_CLIENT_SECRET = os.environ.get('MYAL_CLIENT_SECRET', 'my-client-secret')
+
+SQS_QUEUE_URL = os.getenv('SQS_QUEUE_URL')
+SQS_QUEUE_ARN = os.getenv('SQS_QUEUE_ARN')
+if not SQS_QUEUE_ARN:
+    logger.error("'SQS_QUEUE_ARN' is not defined. Async tasks schedules will be ignored")
+SCHEDULER_RUN_TASK_ROLE_ARN = os.getenv('SCHEDULER_RUN_TASK_ROLE_ARN')
+if not SCHEDULER_RUN_TASK_ROLE_ARN:
+    logger.error("'SCHEDULER_RUN_TASK_ROLE_ARN' is not defined. Async tasks schedules will be ignored")

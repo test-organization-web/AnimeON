@@ -1,14 +1,15 @@
 import logging
 import secrets
 
-from .request_handler import APICaller
-from .anime import Anime
-
+from typing import Optional
+from apps.update_release.services.myanimelist.request_handler import APICaller
+from apps.update_release.services.myanimelist.anime import AnimeMixin
+from apps.update_release.models import MyAnimeListToken
 
 logger = logging.getLogger(__name__)
 
 
-class Client(Anime):
+class Client(AnimeMixin):
     """
     MAL Base Client Object for interfacing with the MAL REST API.
     """
@@ -108,9 +109,12 @@ class Client(Anime):
             'Content-Type': 'application/x-www-form-urlencoded',
         }
         api_handler = APICaller(base_url=base_url, headers=headers)
+        logger.info('Generate new myanimelist token', extra={
+            'message_id': 'myanimelist_client_generate_new_token',
+        })
         return api_handler.call(uri=uri, method="post", data=data)
 
-    def connect(self, access_token=None, refresh_token=None):
+    def connect(self, access_token: Optional[str] = None, refresh_token: Optional[str] = None):
         base_url = "https://api.myanimelist.net/"
         version = 'v2'
         self.base_url = base_url + f'{version}/'
@@ -120,6 +124,12 @@ class Client(Anime):
             'Content-Type': 'application/x-www-form-urlencoded',
             'Authorization': f'Bearer {self.bearer_token}'
         }
+        logger.info('Connect to myanimelist with params', extra={
+            'message_id': 'myanimelist_connect_prepare_params',
+            'access_token': access_token,
+            'refresh_token': refresh_token,
+            'base_url': self.base_url,
+        })
         self._api_handler = APICaller(base_url=self.base_url,
                                       headers=self.headers)
 
@@ -141,6 +151,9 @@ class Client(Anime):
             data["client_secret"] = client_secret
 
         # print response json of authentication, reinstantiate caller method.
+        logger.info('Refresh myanimelist bearer token', extra={
+            'message_id': 'myanimelist_client_refresh_bearer_token',
+        })
         response = api_handler.call(uri=uri, method="post", data=data)
         logger.info(f"Refreshing token with client id and secret: {response}")
         self.bearer_token = response.access_token
@@ -150,7 +163,45 @@ class Client(Anime):
             'Authorization': f'Bearer {response.access_token}',
             'X-MAL-Client-ID': '{}'
         }
+        logger.info('Connect to myanimelist with params', extra={
+            'message_id': 'myanimelist_connect_prepare_params',
+            'bearer_token': self.bearer_token,
+            'refresh_token': self.refresh_token,
+            'base_url': self.base_url,
+        })
         self._api_handler = APICaller(base_url=self.base_url,
                                       headers=self.headers)
         return
 
+    def auth(self) -> dict:
+        logger.info('Start auth into Myanimelist', extra={
+            'message_id': 'myanimelist_auth_start'
+        })
+        active_token = MyAnimeListToken.objects.get_active()
+        if active_token:
+            logger.info('Myanimelist has active token', extra={
+                'message_id': 'myanimelist_auth_has_active_token',
+                'access_token': active_token.access_token,
+                'active_token_id': active_token.id
+            })
+            return {'type': 'token', 'token': active_token.access_token}
+        logger.info('Start get auth token myanimelist', extra={
+            'message_id': 'myanimelist_auth_get_auth_token',
+        })
+        code_verifier = code_challenge = self.get_new_code_verifier()
+        authorisation_url = self.new_authorisation_url(code_challenge=code_challenge)
+        logger.info('Get auth url Myanimelist', extra={
+            'message_id': 'myanimelist_auth_get_auth_url',
+            'authorisation_url': authorisation_url,
+            'code_verifier': code_verifier,
+            'code_challenge': code_challenge,
+        })
+        MyAnimeListToken.objects.create(
+            code_verifier=code_verifier,
+            code_challenge=code_challenge,
+            authorisation_url=authorisation_url,
+        )
+        logger.info('Finish auth into Myanimelist', extra={
+            'message_id': 'myanimelist_auth_finish',
+        })
+        return {'type': 'url', 'url': authorisation_url}
