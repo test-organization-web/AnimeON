@@ -10,7 +10,7 @@ from django.db import transaction
 from apps.anime.models import Anime
 from apps.update_release.services.myanimelist.client import Client
 from apps.update_release.models import MyAnimeListToken
-from apps.update_release.services.myanimelist.exceptions import TokenMissing
+from apps.update_release.services.myanimelist.exceptions import TokenMissing, APIException
 
 
 logger = logging.getLogger(__name__)
@@ -80,6 +80,7 @@ class Command(BaseCommand):
                 }
             else:
                 parse_suggested_anime = False
+            time.sleep(1)
 
         animes_data = []
         for suggested_anime in suggested_animes:
@@ -87,7 +88,18 @@ class Command(BaseCommand):
                 'message_id': 'myanimelist_update_release_get_detail_anime',
                 'data': suggested_anime
             })
-            response = client.get_anime_details(id=suggested_anime['node']['id'])
+            try:
+                response = client.get_anime_details(id=suggested_anime['node']['id'])
+            except APIException as error:
+                logger.exception(error)
+                if error.status_code == 503:
+                    time.sleep(60)
+                    response = client.get_anime_details(id=suggested_anime['node']['id'])
+                else:
+                    raise
+            except Exception as error:
+                logger.exception(error)
+                raise
             logger.info('Get response by anime', extra={
                 'message_id': 'myanimelist_update_release_get_response_anime',
                 'response': response
