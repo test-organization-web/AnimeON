@@ -1,6 +1,7 @@
 import logging
 
-from django.http import JsonResponse
+from django.shortcuts import redirect
+from django.contrib import messages
 from django.utils import timezone
 
 from anime_on.awscli import schedule_command
@@ -14,13 +15,24 @@ def callback(request):
         'message_id': 'myanimelist_callbak_start'
     })
     if 'code' not in request.GET:
-        logger.info('Callback Myanimelist doe not have code params', extra={
-            'message_id': 'myanimelist_callbak_start'
+        logger.warning('Callback Myanimelist doe not have code params', extra={
+            'message_id': 'myanimelist_callbak_code_does_not_exists',
         })
-        return JsonResponse(data={})
-    schedule_command(
-        command='myanimelist_update_releases',
-        start_time=timezone.now(),
-        kwargs={'authorisation_code': request.GET['code']}
-    )
-    return JsonResponse(data={})
+        messages.warning(
+            request,
+            'Невдалося отримати код авторизації від myanimelist'
+        )
+    else:
+        logger.warning('Schedule command update myanimelist releases', extra={
+            'message_id': 'myanimelist_callback_schedule_command',
+        })
+        schedule_command(
+            command='myanimelist_update_releases',
+            start_time=timezone.now(),
+            kwargs={'authorisation_code': request.GET['code']}
+        )
+        messages.info(
+            request,
+            'Команда оновлення релізів запущена, процедура займе деякий час. Оновіть сторінку пізніше'
+        )
+    return redirect('admin:anime_anime_changelist')

@@ -1,0 +1,83 @@
+.modal {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    z-index: 1000;
+    visibility: hidden;
+    transform: scale(1.1);
+    transition: visibility 0s linear 0.25s, opacity 0.25s 0s, transform 0.25s;
+}
+
+.modal-content {
+    position: relative;
+    z-index: 1001;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 1rem 1.5rem;
+    width: 30rem;
+    border-radius: 0.5rem;
+    opacity: 1;
+    color: black;
+}
+
+.modal-content p {
+    font-size: 12px;
+    text-align: center;
+    text-transform: none;
+}
+
+.modal-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: space-between;
+}
+
+.close-sign {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 1.5rem;
+    line-height: 1.5rem;
+    text-align: center;
+    cursor: pointer;
+    border-radius: 0.25rem;
+    background-color: #9d9b9b;
+}
+
+.close-sign:hover {
+    background-color: #5e5e5e;
+}
+
+.show-modal {
+    opacity: 1;
+    visibility: visible;
+    transform: scale(1.0);
+    transition: visibility 0s linear 0s, opacity 0.25s 0s, transform 0.25s;
+}
+
+#manage-documents-modal .modal-content {
+    width: 400px;
+}
+
+#manage-documents-modal .modal-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+#manage-documents-modal .modal-buttons button, #manage-documents-modal .modal-buttons a {
+    height: 40px;
+    font-size: 16px;
+    padding: 5px 10px;
+    color: #FFFFFF;
+}

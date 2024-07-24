@@ -1,0 +1,48 @@
+.button-green {
+  background-image: linear-gradient(#36b71a, #16a404);
+  display: inline-block;
+  border: 1px solid #0d7710;
+  border-radius: 4px;
+  box-sizing: border-box;
+  color: #FFFFFF;
+  cursor: pointer;
+  direction: ltr;
+  font-family: "SF Pro Text","SF Pro Icons","AOS Icons","Helvetica Neue",Helvetica,Arial,sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: -.022em;
+  line-height: 1.47059;
+  min-width: 30px;
+  overflow: visible;
+  padding: 2px 10px;
+  text-align: center;
+  vertical-align: baseline;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  white-space: nowrap;
+}
+
+.button-green:hover {
+  background-image: linear-gradient(#04bd12, #10b704);
+  border-color: #6bc763;
+  text-decoration: none;
+}
+
+.button-green:active {
+  background-image: linear-gradient(#43bb35, #05c909);
+  border-color: #00bc03;
+  outline: none;
+}
+
+.button-green:focus {
+  box-shadow: rgba(143, 253, 131, 0.5) 0 0 0 3px;
+  outline: none;
+}
+
+.button-green:disabled {
+  cursor: not-allowed;
+  background: rgb(23, 10, 10);
+  color: rgb(126, 226, 77);
+}
+

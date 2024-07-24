@@ -133,6 +133,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 STATIC_URL = os.getenv('STATIC_URL', 'static/')
 STATIC_ROOT = os.getenv('STATIC_ROOT', 'static_dir/')
+STATICFILES_DIRS = (BASE_DIR / 'static',)
 
 STORAGES = {
     "default": {
