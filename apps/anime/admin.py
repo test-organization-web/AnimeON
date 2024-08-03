@@ -63,7 +63,7 @@ class PreviewImageTabularInlinePaginated(OnlyAddPermissionMixin, TabularInlinePa
 
 class RelatedAnimeAdmin(OnlyAddPermissionMixin, TabularInlinePaginated):
     model = Anime.related.through
-    fk_name = 'to_anime'
+    fk_name = 'from_anime'
     extra = 0
 
 
