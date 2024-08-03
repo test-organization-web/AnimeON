@@ -1,9 +1,3 @@
-from django.contrib import admin, messages
-from django.urls import path, reverse
-from django.http import JsonResponse
-from django.conf import settings
-from django.utils.decorators import method_decorator
-from django.views.decorators.http import require_POST
 from django.utils import timezone
 from django.contrib import admin
 from django.utils.html import format_html
@@ -12,15 +6,18 @@ from django_admin_inline_paginator.admin import TabularInlinePaginated
 from adminfilters.combo import RelatedFieldComboFilter, AllValuesComboFilter
 from rangefilter.filters import NumericRangeFilter
 
-from anime_on.awscli import schedule_command
-from apps.update_release.services.myanimelist.client import Client
 from apps.anime.models import (
-    Anime, Episode, Director, Studio, PreviewImage, Voiceover, VoiceoverHistory, Poster
+    Anime, Episode, Director, Studio, PreviewImage, Voiceover, VoiceoverHistory, Poster, Genre
 )
 from apps.core.admin import OnlyAddPermissionMixin, ReadOnlyPermissionsMixin, OnlyChangePermissionMixin
 from apps.anime.choices import VoiceoverHistoryEvents
 
 # Register your models here.
+
+
+@admin.register(Genre)
+class GenreAdmin(admin.ModelAdmin):
+    list_display = ['name']
 
 
 class AnimeTabularInlinePaginated(ReadOnlyPermissionsMixin, TabularInlinePaginated):
@@ -46,7 +43,6 @@ class StudioAdmin(admin.ModelAdmin):
     search_fields = ('name',)
     search_help_text = 'Search by Name'
     list_display = ['name']
-    inlines = [AnimeTabularInlinePaginated]
 
     def get_queryset(self, request):
         return super().get_queryset(request).prefetch_related('anime_set')
@@ -125,40 +121,6 @@ class AnimeAdmin(admin.ModelAdmin):
         return super().get_queryset(request).prefetch_related(
             'genres', 'director', 'related', 'studio', 'episode_set',
         )
-
-    def get_urls(self):
-        urls = super().get_urls()
-        my_urls = [
-            path('update/myanimelist/', self.admin_site.admin_view(self.upload_myanimelist_release),
-                 name='upload-myanimelist-release')
-        ]
-        return my_urls + urls
-
-    @method_decorator(require_POST)
-    def upload_myanimelist_release(self, request):
-        client = Client(
-            client_id=settings.MYAL_CLIENT_ID,
-            client_secret=settings.MYAL_CLIENT_SECRET
-        )
-        auth = client.auth()
-
-        if auth['type'] == 'token':
-            schedule_command(
-                command='myanimelist_update_releases',
-                start_time=timezone.now(),
-                kwargs={'authorisation_code': auth['token']}
-            )
-            messages.info(
-                request,
-                'Команда оновлення релізів запущена, процедура займе деякий час. Оновіть сторінку пізніше'
-            )
-        elif auth['type'] == 'url':
-            return JsonResponse(data={
-                'redirectUrl': auth['url']
-            })
-        return JsonResponse(data={
-            'redirectUrl': reverse('admin:anime_anime_changelist')
-        })
 
 
 class VoiceoverTabularInlinePaginated(ReadOnlyPermissionsMixin, TabularInlinePaginated):

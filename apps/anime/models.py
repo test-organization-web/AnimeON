@@ -18,7 +18,7 @@ class Director(models.Model):
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
     pseudonym = models.CharField(max_length=255, null=True, blank=True)
-    url = models.URLField()
+    url = models.URLField(null=True, blank=True)
 
     def __str__(self):
         return f'{self.first_name} {self.last_name} ({self.pseudonym})'
@@ -70,9 +70,9 @@ class Anime(CreatedDateTimeMixin, UpdatedDateTimeMixin, models.Model):
     end_date = models.DateField(null=True, blank=True)
     rank = models.SmallIntegerField()
     status = models.CharField(max_length=255, choices=AnimeStatuses.choices, default=AnimeStatuses.ANNOUNCED)
-    studio = models.ForeignKey('anime.Studio', on_delete=models.SET_NULL, null=True, blank=True)
+    studio = models.ManyToManyField('anime.Studio', blank=True)
     rating = models.CharField(max_length=255, choices=RatingTypes.choices)
-    related = models.ForeignKey('self', null=True, on_delete=models.SET_NULL, blank=True)
+    related = models.ManyToManyField('self', blank=True)
     description = models.TextField(blank=True, default='')
     short_description = models.CharField(max_length=255, default='')
     genres = models.ManyToManyField('anime.Genre', blank=True)

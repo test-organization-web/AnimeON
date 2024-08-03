@@ -37,7 +37,6 @@ class RatingTypes(models.TextChoices):
     PG13 = 'PG13', 'Teens 13 and Older'
     R = 'R', '(violence & profanity)'
     RPLUS = 'RPLUS', 'Profanity & Mild Nudity'
-    RX = 'RX', 'Hentai'
 
 
 class SeasonTypes(models.TextChoices):

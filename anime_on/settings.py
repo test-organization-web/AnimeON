@@ -293,9 +293,6 @@ DEFAULT_EXCEPTION_REPORTER_FILTER = 'apps.core.debug.JSONSafeExceptionReporterFi
 ADMIN_USERNAME = os.environ.get('ADMIN_USERNAME')
 ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD')
 
-MYAL_CLIENT_ID = os.environ.get('MYAL_CLIENT_ID', 'my-client-id')
-MYAL_CLIENT_SECRET = os.environ.get('MYAL_CLIENT_SECRET', 'my-client-secret')
-
 SQS_QUEUE_URL = os.getenv('SQS_QUEUE_URL')
 SQS_QUEUE_ARN = os.getenv('SQS_QUEUE_ARN')
 if not SQS_QUEUE_ARN:

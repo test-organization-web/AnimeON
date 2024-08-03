@@ -28,7 +28,6 @@ urlpatterns = [
     path('api/v1/auth/', include('apps.authentication.urls', namespace='authentication')),
     path('api/v1/anime/', include('apps.anime.urls', namespace='anime')),
     path('api/v1/comment/', include('apps.comment.urls', namespace='comment')),
-    path('update-release/', include('apps.update_release.urls', namespace='update_release')),
 ]
 
 if settings.SWAGGER_ENABLED:
