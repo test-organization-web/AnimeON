@@ -61,7 +61,6 @@ INSTALLED_APPS = [
     'apps.anime',
     'apps.comment',
     'apps.core',
-    'apps.update_release',
     # libraries
     'storages',
     'corsheaders',
