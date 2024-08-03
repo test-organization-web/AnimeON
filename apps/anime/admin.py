@@ -61,13 +61,19 @@ class PreviewImageTabularInlinePaginated(OnlyAddPermissionMixin, TabularInlinePa
     extra = 0
 
 
+class RelatedAnimeAdmin(OnlyAddPermissionMixin, TabularInlinePaginated):
+    model = Anime.related.through
+    fk_name = 'to_anime'
+    extra = 0
+
+
 @admin.register(Anime)
 class AnimeAdmin(admin.ModelAdmin):
     search_fields = ('title', )
     search_help_text = 'Search by Title'
     list_display = ['display_poster', 'title', 'display_count_episodes', 'display_type',
                     'display_season', 'year']
-    inlines = [EpisodeTabularInlinePaginated, PreviewImageTabularInlinePaginated]
+    inlines = [EpisodeTabularInlinePaginated, PreviewImageTabularInlinePaginated, RelatedAnimeAdmin]
     list_filter = [
         ('genres', RelatedFieldComboFilter),
         ('studio', RelatedFieldComboFilter),
@@ -79,6 +85,7 @@ class AnimeAdmin(admin.ModelAdmin):
         ('release_day_of_week', AllValuesComboFilter),
         ('rating', AllValuesComboFilter),
     ]
+    exclude = ['related']
 
     class Media:
         css = {
