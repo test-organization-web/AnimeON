@@ -1,5 +1,4 @@
 from rest_framework import serializers
-from django_countries.serializer_fields import CountryField
 
 from django.contrib.auth.models import Group
 from django.urls import reverse
@@ -121,13 +120,31 @@ class ChildEpisodesReleaseScheduleSerializer(serializers.ModelSerializer):
         fields = ['title', 'order', 'release_date', 'status']
 
 
+class ResponseAnimeListSerializer(serializers.ModelSerializer):
+    year = serializers.SerializerMethodField()
+    count_episodes = serializers.SerializerMethodField()
+    genres = ChildGenreSerializer(many=True)
+
+    class Meta:
+        model = Anime
+        fields = [
+            'id', 'slug', 'title', 'count_episodes', 'type', 'year', 'rating', 'genres', 'card_image'
+        ]
+
+    def get_count_episodes(self, obj: Anime):
+        return obj.count_episodes
+
+    def get_year(self, obj: Anime):
+        return obj.start_date.year
+
+
 class ResponseAnimeSerializer(serializers.ModelSerializer):
     episodes = serializers.ListSerializer(child=ChildEpisodeSerializer(), source='episode_set')
     images = serializers.ListSerializer(child=ChildPreviewImageSerializer(),
                                         source='previewimage_set')
     genres = GenreSerializer(many=True)
     director = DirectorSerializer()
-    studio = StudioSerializer()
+    studio = StudioSerializer(many=True, read_only=True)
     episodes_release_schedule = ChildEpisodesReleaseScheduleSerializer(
         many=True, source='get_episodes_release_schedule')
     voiceovers = serializers.ListSerializer(child=VoiceoverSerializer(),
@@ -136,7 +153,8 @@ class ResponseAnimeSerializer(serializers.ModelSerializer):
     type = serializers.SerializerMethodField()
     season = serializers.SerializerMethodField()
     rating = serializers.CharField(source='get_rating_display')
-    country = CountryField()
+    country = serializers.CharField(source='get_country_display')
+    related = ResponseAnimeListSerializer(many=True, read_only=True)
 
     class Meta:
         model = Anime
@@ -165,24 +183,6 @@ class ResponseAnimeSerializer(serializers.ModelSerializer):
             'value': obj.get_season_display(),
             'filter_url': f"{reverse('anime:get_anime_list')}?{get_params.urlencode()}",
         }
-
-
-class ResponseAnimeListSerializer(serializers.ModelSerializer):
-    year = serializers.SerializerMethodField()
-    count_episodes = serializers.SerializerMethodField()
-    genres = ChildGenreSerializer(many=True)
-
-    class Meta:
-        model = Anime
-        fields = [
-            'id', 'slug', 'title', 'count_episodes', 'type', 'year', 'rating', 'genres', 'card_image'
-        ]
-
-    def get_count_episodes(self, obj: Anime):
-        return obj.count_episodes
-
-    def get_year(self, obj: Anime):
-        return obj.start_date.year
 
 
 class ChildPaginatedAnimeSerializer(ResponseAnimeListSerializer):
