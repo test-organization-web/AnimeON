@@ -18,11 +18,14 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
+from django.views.generic import RedirectView
 
 from anime_on.swagger import schema_view
 
 
 urlpatterns = [
+    path('', RedirectView.as_view(pattern_name='admin:index'), name='go-to-admin'),
+
     path('admin/', admin.site.urls),
     path('api/v1/user/', include('apps.user.urls', namespace='user')),
     path('api/v1/auth/', include('apps.authentication.urls', namespace='authentication')),

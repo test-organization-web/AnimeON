@@ -4,12 +4,15 @@ from django_countries.fields import CountryField
 from django.utils import timezone
 
 from apps.core.models import CreatedDateTimeMixin, UpdatedDateTimeMixin, VerifyMixin, OrderMixin
-from apps.core.utils import get_extension
 from apps.anime.choices import (
     VoiceoverTypes, AnimeTypes, RatingTypes, SeasonTypes, VoiceoverStatuses, VoiceoverHistoryEvents,
     AnimeStatuses, DayOfWeekChoices
 )
 from apps.anime.managers import AnimeManager
+from apps.anime.s3_path import (
+    anime_preview_image_save_path, anime_background_image_save_path, anime_poster_image_save_path,
+    anime_card_image_save_path, episode_preview_image_save_path
+)
 
 # Create your models here.
 
@@ -36,30 +39,9 @@ class Studio(CreatedDateTimeMixin, models.Model):
         return f'{self.name}'
 
 
-def anime_preview_image_save_path(instance, filename):
-    name = filename.split('.')[0]
-    extension = get_extension(filename) or 'jpeg'
-    path = f'{instance.anime.id}/preview/{name}.{extension}'
-    return timezone.now().strftime(path)
-
-
 class PreviewImage(models.Model):
     anime = models.ForeignKey('anime.Anime', on_delete=models.CASCADE)
     file = models.ImageField(upload_to=anime_preview_image_save_path, null=True)
-
-
-def anime_background_image_save_path(instance, filename):
-    name = filename.split('.')[0]
-    extension = get_extension(filename) or 'jpeg'
-    path = f'{instance.id}/background/{name}.{extension}'
-    return timezone.now().strftime(path)
-
-
-def anime_card_image_save_path(instance, filename):
-    name = filename.split('.')[0]
-    extension = get_extension(filename) or 'jpeg'
-    path = f'{instance.id}/card/{name}.{extension}'
-    return timezone.now().strftime(path)
 
 
 class Anime(CreatedDateTimeMixin, UpdatedDateTimeMixin, models.Model):
@@ -107,13 +89,6 @@ class Anime(CreatedDateTimeMixin, UpdatedDateTimeMixin, models.Model):
         ).order_by('-release_date')
 
 
-def episode_preview_image_save_path(instance, filename):
-    name = filename.split('.')[0]
-    extension = get_extension(filename) or 'jpeg'
-    path = f'{instance.id}/preview/{name}.{extension}'
-    return timezone.now().strftime(path)
-
-
 class Episode(CreatedDateTimeMixin, UpdatedDateTimeMixin, OrderMixin, models.Model):
     title = models.CharField(max_length=255)
     anime = models.ForeignKey('anime.Anime', on_delete=models.CASCADE)
@@ -126,7 +101,7 @@ class Episode(CreatedDateTimeMixin, UpdatedDateTimeMixin, OrderMixin, models.Mod
     start_ending = models.SmallIntegerField(help_text='in seconds', null=True, blank=True)
     end_ending = models.SmallIntegerField(help_text='in seconds', null=True, blank=True)
     youtube_url = models.URLField(null=True, blank=True)
-    preview_image = models.ImageField(upload_to=episode_preview_image_save_path, null=True)
+    preview_image = models.ImageField(upload_to=episode_preview_image_save_path, null=True, blank=True)
 
     class Meta:
         ordering = ['-order']
@@ -226,13 +201,6 @@ class ParseAnimeLog(CreatedDateTimeMixin, models.Model):
     url = models.URLField()
     curl = models.TextField()
     response = models.JSONField(default=dict)
-
-
-def anime_poster_image_save_path(instance, filename):
-    name = filename.split('.')[0]
-    extension = get_extension(filename) or 'jpeg'
-    path = f'{instance.anime.id}/poster/{name}.{extension}'
-    return timezone.now().strftime(path)
 
 
 class Poster(CreatedDateTimeMixin, models.Model):

@@ -153,7 +153,6 @@ class Command(BaseCommand):
                     slug=Anime.objects.normalize_slug(title),
                     start_date=start_date,
                     rating=fake.random_element(elements=[choice[0] for choice in RatingTypes.choices]),
-                    studio=studio,
                     director=director,
                     description=descr,
                     short_description=short_descr,
@@ -168,6 +167,7 @@ class Command(BaseCommand):
                 anime_already_exists_in_db += 1
                 continue
             anime.genres.add(genre)
+            anime.studio.add(studio)
             count_anime += 1
 
         self.stdout.write(self.style.SUCCESS(
