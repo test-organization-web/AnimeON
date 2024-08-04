@@ -41,8 +41,9 @@ TESTING = "test" in sys.argv
 DEBUG_TOOLBAR_ENABLED = DEBUG and not TESTING
 
 ALLOWED_HOSTS = to_list(os.getenv('ALLOWED_HOSTS'))
-if ALLOWED_HOSTS and "*" not in ALLOWED_HOSTS:
-    CSRF_TRUSTED_ORIGINS = [f"https://{h}" for h in ALLOWED_HOSTS]
+
+CORS_ALLOWED_ORIGINS = to_list(os.environ.get('CORS_ALLOWED_ORIGINS'))
+CORS_ALLOW_HEADERS = to_list(os.environ.get('CORS_ALLOW_HEADERS'))
 
 # Application definition
 
@@ -241,8 +242,6 @@ SIMPLE_JWT = {
     "BLACKLIST_AFTER_ROTATION": False,
     "UPDATE_LAST_LOGIN": False,
 }
-
-CORS_ALLOWED_ORIGINS = to_list(os.environ.get('CORS_ALLOWED_ORIGINS'))
 
 # INFO logs required to capture log events and metric
 # can be increased to ERROR on dev environments to save us from the global warming

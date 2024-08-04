@@ -80,6 +80,17 @@ class VoiceoverSerializer(serializers.ModelSerializer):
         return f"{reverse('anime:get_anime_list')}?{get_params.urlencode()}"
 
 
+class VoiceoverPlayerSerializer(serializers.ModelSerializer):
+    value = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Voiceover
+        fields = ['value', 'url']
+
+    def get_value(self, obj: Voiceover):
+        return obj.team.name
+
+
 class ChildEpisodeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Episode
@@ -144,7 +155,7 @@ class ResponseAnimeSerializer(serializers.ModelSerializer):
                                         source='previewimage_set')
     genres = GenreSerializer(many=True)
     director = DirectorSerializer()
-    studio = StudioSerializer(many=True, read_only=True)
+    studio = StudioSerializer(many=True)
     episodes_release_schedule = ChildEpisodesReleaseScheduleSerializer(
         many=True, source='get_episodes_release_schedule')
     voiceovers = serializers.ListSerializer(child=VoiceoverSerializer(),
@@ -263,8 +274,8 @@ class ResponseAnimeRandomSerializer(serializers.ModelSerializer):
 
 
 class ResponseAnimeEpisodeSerializer(serializers.ModelSerializer):
-    voiceover = VoiceoverSerializer(source='voiceovers', many=True, read_only=True)
-    subtitles = VoiceoverSerializer(many=True, read_only=True)
+    voiceover = VoiceoverPlayerSerializer(source='voiceovers', many=True, read_only=True)
+    subtitles = VoiceoverPlayerSerializer(many=True, read_only=True)
 
     class Meta:
         model = Episode

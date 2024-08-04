@@ -7,7 +7,7 @@ from adminfilters.combo import RelatedFieldComboFilter, AllValuesComboFilter
 from rangefilter.filters import NumericRangeFilter
 
 from apps.anime.models import (
-    Anime, Episode, Director, Studio, PreviewImage, Voiceover, VoiceoverHistory, Poster, Genre
+    Anime, Episode, Director, Studio, PreviewImage, Voiceover, VoiceoverHistory, Poster, Genre, Arch
 )
 from apps.core.admin import OnlyAddPermissionMixin, ReadOnlyPermissionsMixin, OnlyChangePermissionMixin
 from apps.anime.choices import VoiceoverHistoryEvents
@@ -168,6 +168,11 @@ class VoiceoverAdmin(admin.ModelAdmin):
     list_display = ['episode', 'team', 'user', 'type', 'status', 'verified']
     inlines = [VoiceoverHistoryInline]
 
+    fields = (
+        'episode', 'team', 'type', 'status', 'verified'
+    )
+    autocomplete_fields = ('episode',)
+
     list_filter = [
         'verified',
         ('episode', RelatedFieldComboFilter),
@@ -177,6 +182,7 @@ class VoiceoverAdmin(admin.ModelAdmin):
     ]
 
     def save_model(self, request, obj, form, change):
+        obj.user = request.user
         super().save_model(request, obj, form, change)
         if change:
             obj.process_new_history_event(
@@ -206,7 +212,7 @@ class TOP100Admin(OnlyChangePermissionMixin, admin.ModelAdmin):
 
 @admin.register(Poster)
 class PosterAdmin(admin.ModelAdmin):
-    list_display = ['anime', 'display_poster']
+    list_display = ['anime', 'display_poster', 'created']
 
     @admin.display(description='Poster')
     def display_poster(self, obj: Poster):
@@ -216,3 +222,10 @@ class PosterAdmin(admin.ModelAdmin):
             '<img style="height: 100px; width: 50px;" src="{url}">',
             url=obj.image.url
         )
+
+
+@admin.register(Arch)
+class ArchAdmin(admin.ModelAdmin):
+    list_display = ['title', 'anime']
+
+    inlines = [EpisodeTabularInlinePaginated]
