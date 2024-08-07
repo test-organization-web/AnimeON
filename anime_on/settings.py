@@ -42,9 +42,6 @@ DEBUG_TOOLBAR_ENABLED = DEBUG and not TESTING
 
 ALLOWED_HOSTS = to_list(os.getenv('ALLOWED_HOSTS'))
 
-CORS_ALLOWED_ORIGINS = to_list(os.environ.get('CORS_ALLOWED_ORIGINS'))
-CORS_ALLOW_HEADERS = to_list(os.environ.get('CORS_ALLOW_HEADERS'))
-
 # Application definition
 
 INSTALLED_APPS = [
