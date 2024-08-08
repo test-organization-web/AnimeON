@@ -83,7 +83,6 @@ class AnimeAPIViewDoc(BaseSwaggerAPIViewDoc):
                 "title": "<str: title>",
                 "start_date": "<str: start_date>",
                 "end_date": None,
-                "rank": 1,
                 "status": {
                     "value": "<str: value>",
                     "filter_url": "<str: url>",
@@ -99,10 +98,12 @@ class AnimeAPIViewDoc(BaseSwaggerAPIViewDoc):
                     "value": "<str: value>",
                     "filter_url": "<str: url>",
                 },
-                "studio": {
-                    "value": "<str: value>",
-                    "filter_url": "<str: url>",
-                },
+                "studio": [
+                    {
+                        "value": "<str: value>",
+                        "filter_url": "<str: url>",
+                    }
+                ],
                 "related": None,
                 "director": {
                     "value": "<str: value>",
@@ -125,7 +126,8 @@ class AnimeAPIViewDoc(BaseSwaggerAPIViewDoc):
                     {
                         "title": "<str: title>",
                         "order": 0,
-                        "release_date": "<str: release_date>"
+                        "release_date": "<str: release_date>",
+                        "status": "<str: status>",
                     }
                 ],
                 "voiceovers": [
@@ -133,7 +135,8 @@ class AnimeAPIViewDoc(BaseSwaggerAPIViewDoc):
                         "value": "<str: value>",
                         "filter_url": "<str: url>",
                     }
-                ]
+                ],
+                "trailer_url": "<str: url>",
             }},
         ),
     }

@@ -85,6 +85,7 @@ class AnimeAdmin(admin.ModelAdmin):
         ('release_day_of_week', AllValuesComboFilter),
         ('rating', AllValuesComboFilter),
     ]
+    readonly_fields = ['slug']
     exclude = ['related']
 
     class Media:
