@@ -157,7 +157,6 @@ class Command(BaseCommand):
                     description=descr,
                     short_description=short_descr,
                     season=fake.random_element(elements=[choice[0] for choice in SeasonTypes.choices]),
-                    rank=100,
                     status=fake.random_element(elements=[choice[0] for choice in AnimeStatuses.choices]),
                     year=fake.random_element(elements=[2020, 2021, 2022, 2023, 2024]),
                     release_day_of_week=fake.random_element(elements=[choice[0] for choice in DayOfWeekChoices.choices]),

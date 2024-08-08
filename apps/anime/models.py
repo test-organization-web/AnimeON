@@ -50,7 +50,6 @@ class Anime(CreatedDateTimeMixin, UpdatedDateTimeMixin, models.Model):
     slug = models.SlugField(max_length=255, blank=True)
     start_date = models.DateField(null=True, blank=True)
     end_date = models.DateField(null=True, blank=True)
-    rank = models.SmallIntegerField()
     status = models.CharField(max_length=255, choices=AnimeStatuses.choices, default=AnimeStatuses.ANNOUNCED)
     studio = models.ManyToManyField('anime.Studio', blank=True)
     rating = models.CharField(max_length=255, choices=RatingTypes.choices)
@@ -58,15 +57,16 @@ class Anime(CreatedDateTimeMixin, UpdatedDateTimeMixin, models.Model):
     description = models.TextField(blank=True, default='')
     short_description = models.CharField(max_length=255, default='')
     genres = models.ManyToManyField('anime.Genre', blank=True)
-    director = models.ForeignKey('anime.Director', null=True, on_delete=models.SET_NULL, blank=True)
+    director = models.ForeignKey('anime.Director', null=True, on_delete=models.SET_NULL)
     season = models.CharField(max_length=255, choices=SeasonTypes.choices, default=SeasonTypes.SUMMER)
     is_top = models.BooleanField(default=False)
     background_image = models.ImageField(upload_to=anime_background_image_save_path, null=True)
     card_image = models.ImageField(upload_to=anime_card_image_save_path, null=True)
-    year = models.SmallIntegerField(null=True, blank=True)
+    year = models.SmallIntegerField()
     average_time_episode = models.SmallIntegerField(help_text='in minutes', null=True, blank=True)
     release_day_of_week = models.CharField(choices=DayOfWeekChoices.choices, null=True, blank=True)
     country = CountryField(null=True, blank=True)
+    trailer_url = models.URLField(null=True, blank=True)
 
     objects = AnimeManager()
 
@@ -100,7 +100,6 @@ class Episode(CreatedDateTimeMixin, UpdatedDateTimeMixin, OrderMixin, models.Mod
     end_opening = models.SmallIntegerField(help_text='in seconds', null=True, blank=True)
     start_ending = models.SmallIntegerField(help_text='in seconds', null=True, blank=True)
     end_ending = models.SmallIntegerField(help_text='in seconds', null=True, blank=True)
-    youtube_url = models.URLField(null=True, blank=True)
     preview_image = models.ImageField(upload_to=episode_preview_image_save_path, null=True, blank=True)
 
     class Meta:

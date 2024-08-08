@@ -121,7 +121,6 @@ class ChildEpisodesReleaseScheduleSerializer(serializers.ModelSerializer):
 
 
 class ResponseAnimeListSerializer(serializers.ModelSerializer):
-    year = serializers.SerializerMethodField()
     count_episodes = serializers.SerializerMethodField()
     genres = ChildGenreSerializer(many=True)
 
@@ -133,9 +132,6 @@ class ResponseAnimeListSerializer(serializers.ModelSerializer):
 
     def get_count_episodes(self, obj: Anime):
         return obj.episode_set.all().count()
-
-    def get_year(self, obj: Anime):
-        return obj.start_date.year
 
 
 class ResponseAnimeSerializer(serializers.ModelSerializer):
@@ -159,9 +155,6 @@ class ResponseAnimeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Anime
         exclude = ['id', 'updated', 'created', 'slug']
-
-    def get_year(self, obj: Anime):
-        return obj.start_date.year
 
     def get_status(self, obj: Anime):
         get_params = QueryDict(f'status={obj.status}')
