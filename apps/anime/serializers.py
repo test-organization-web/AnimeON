@@ -273,9 +273,20 @@ class ResponseAnimeRandomSerializer(serializers.ModelSerializer):
         fields = ['id', 'slug']
 
 
+class EpisodeVoiceoverSerializer(serializers.ModelSerializer):
+    value = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Voiceover
+        fields = ['value', 'url']
+
+    def get_value(self, obj: Voiceover):
+        return obj.team.name
+
+
 class ResponseAnimeEpisodeSerializer(serializers.ModelSerializer):
-    voiceover = VoiceoverSerializer(source='voiceovers', many=True, read_only=True)
-    subtitles = VoiceoverSerializer(many=True, read_only=True)
+    voiceover = EpisodeVoiceoverSerializer(source='voiceovers', many=True, read_only=True)
+    subtitles = EpisodeVoiceoverSerializer(many=True, read_only=True)
 
     class Meta:
         model = Episode
