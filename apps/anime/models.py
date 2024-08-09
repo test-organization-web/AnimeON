@@ -76,10 +76,9 @@ class Anime(CreatedDateTimeMixin, UpdatedDateTimeMixin, models.Model):
         self.slug = self.__class__.objects.normalize_slug(self.title)
 
     def get_distinct_voiceover(self):
-        distinct_voiceover = list()
-        for episode in self.episode_set.all():
-            distinct_voiceover.extend(episode.voiceovers)
-        return set(distinct_voiceover)
+        return Voiceover.objects.filter(
+            episode__in=self.episode_set.all()
+        ).distinct()
 
 
 class Episode(CreatedDateTimeMixin, UpdatedDateTimeMixin, OrderMixin, models.Model):
