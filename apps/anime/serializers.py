@@ -65,13 +65,18 @@ class ChildAnimeSerializer(serializers.ModelSerializer):
 
 class VoiceoverSerializer(serializers.ModelSerializer):
     value = serializers.SerializerMethodField()
+    get_params = serializers.SerializerMethodField()
 
     class Meta:
         model = Voiceover
-        fields = ['value', 'url']
+        fields = ['value', 'get_params']
 
     def get_value(self, obj: Voiceover):
         return obj.team.name
+
+    def get_get_params(self, obj: Voiceover):
+        get_params = QueryDict(f'voiceover={obj.team.id}')
+        return get_params.urlencode()
 
 
 class ChildEpisodeSerializer(serializers.ModelSerializer):
@@ -143,11 +148,14 @@ class ResponseAnimeSerializer(serializers.ModelSerializer):
     rating = serializers.CharField(source='get_rating_display')
     country = serializers.SerializerMethodField()
     year = serializers.SerializerMethodField()
-    related = ResponseAnimeListSerializer(many=True, read_only=True)
+    count_episodes = serializers.SerializerMethodField()
 
     class Meta:
         model = Anime
         exclude = ['id', 'updated', 'created', 'slug']
+
+    def get_count_episodes(self, obj: Anime):
+        return obj.count_episodes
 
     def get_year(self, obj: Anime):
         get_params = QueryDict(f'year={obj.year}')
