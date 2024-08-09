@@ -28,7 +28,10 @@ class VoiceoverStatuses(models.TextChoices):
 
 class VoiceoverHistoryEvents(models.TextChoices):
     CREATED = 'CREATED', 'Створено запит на додавання озвучки'
+    WAIT = 'WAIT', 'Чекає на підтвердження'
     CHANGED = 'CHANGED', 'Змінено'
+    DECLINED = 'DECLINED', 'Відхилено'
+    APPROVED = 'APPROVED', 'Підтвержено'
 
 
 class RatingTypes(models.TextChoices):

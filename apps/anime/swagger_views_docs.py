@@ -122,14 +122,6 @@ class AnimeAPIViewDoc(BaseSwaggerAPIViewDoc):
                 ],
                 "card_image": "<str: url>",
                 "background_image": "<str: url>",
-                "episodes_release_schedule": [
-                    {
-                        "title": "<str: title>",
-                        "order": 0,
-                        "release_date": "<str: release_date>",
-                        "status": "<str: status>",
-                    }
-                ],
                 "voiceovers": [
                     {
                         "value": "<str: value>",

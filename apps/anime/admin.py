@@ -170,7 +170,7 @@ class VoiceoverAdmin(admin.ModelAdmin):
     inlines = [VoiceoverHistoryInline]
 
     fields = (
-        'episode', 'team', 'type', 'status', 'verified'
+        'episode', 'team', 'type', 'status', 'verified', 'url'
     )
     autocomplete_fields = ('episode',)
 
@@ -194,6 +194,10 @@ class VoiceoverAdmin(admin.ModelAdmin):
             obj.process_new_history_event(
                 event=VoiceoverHistoryEvents.CREATED,
                 user=request.user,
+                created=timezone.now()
+            )
+            obj.process_new_history_event(
+                event=VoiceoverHistoryEvents.WAIT,
                 created=timezone.now()
             )
 
