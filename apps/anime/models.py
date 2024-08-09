@@ -1,7 +1,6 @@
 from django.db import models
 from django.conf import settings
 from django_countries.fields import CountryField
-from django.utils import timezone
 
 from apps.core.models import CreatedDateTimeMixin, UpdatedDateTimeMixin, VerifyMixin, OrderMixin
 from apps.anime.choices import (
@@ -82,11 +81,6 @@ class Anime(CreatedDateTimeMixin, UpdatedDateTimeMixin, models.Model):
         for episode in self.episode_set.all():
             distinct_voiceover.extend(episode.voiceovers)
         return set(distinct_voiceover)
-
-    def get_episodes_release_schedule(self):
-        return self.episode_set.filter(
-            release_date__gte=timezone.now().date()
-        ).order_by('-release_date')
 
 
 class Episode(CreatedDateTimeMixin, UpdatedDateTimeMixin, OrderMixin, models.Model):

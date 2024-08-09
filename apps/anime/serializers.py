@@ -141,8 +141,6 @@ class ResponseAnimeSerializer(serializers.ModelSerializer):
     genres = GenreSerializer(many=True)
     director = DirectorSerializer()
     studio = StudioSerializer(many=True, read_only=True)
-    episodes_release_schedule = ChildEpisodesReleaseScheduleSerializer(
-        many=True, source='get_episodes_release_schedule')
     voiceovers = serializers.ListSerializer(child=VoiceoverSerializer(),
                                             source='get_distinct_voiceover')
     status = serializers.SerializerMethodField()
@@ -261,7 +259,7 @@ class ResponseAnimeEpisodeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Episode
-        fields = ['title', 'voiceover', 'subtitles', 'preview_image', 'youtube_url',
+        fields = ['title', 'voiceover', 'subtitles', 'preview_image',
                   'start_opening', 'end_opening', 'start_ending', 'end_ending']
 
 
