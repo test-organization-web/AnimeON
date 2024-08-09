@@ -135,7 +135,6 @@ package manga {
 		_director : id
 		_director : first_name
 		_director : last_name
-		_director : pseudonym
 		_director : url
 
 	object _preview_image

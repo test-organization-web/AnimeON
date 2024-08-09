@@ -1,7 +1,6 @@
 from rest_framework import serializers
 
 from django.contrib.auth.models import Group
-from django.urls import reverse
 from django.http import QueryDict
 
 from apps.anime.models import (
@@ -21,9 +20,9 @@ class DirectorSerializer(serializers.ModelSerializer):
     def get_value(self, obj: Director):
         return obj.full_name
 
-    def get_filter_url(self, obj: Director):
+    def get_get_params(self, obj: Director):
         get_params = QueryDict(f'director={obj.id}')
-        return f"{reverse('anime:get_anime_list')}?{get_params.urlencode()}"
+        return get_params.urlencode()
 
 
 class GenreSerializer(serializers.ModelSerializer):
@@ -37,25 +36,25 @@ class GenreSerializer(serializers.ModelSerializer):
     def get_value(self, obj: Genre):
         return obj.name
 
-    def get_filter_url(self, obj: Genre):
+    def get_get_params(self, obj: Genre):
         get_params = QueryDict(f'genres={obj.id}')
-        return f"{reverse('anime:get_anime_list')}?{get_params.urlencode()}"
+        return get_params.urlencode()
 
 
 class StudioSerializer(serializers.ModelSerializer):
     value = serializers.SerializerMethodField()
-    filter_url = serializers.SerializerMethodField()
+    get_params = serializers.SerializerMethodField()
 
     class Meta:
         model = Studio
-        fields = ['value', 'filter_url']
+        fields = ['value', 'get_params']
 
     def get_value(self, obj: Studio):
         return obj.name
 
-    def get_filter_url(self, obj: Studio):
+    def get_get_params(self, obj: Studio):
         get_params = QueryDict(f'studio={obj.id}')
-        return f"{reverse('anime:get_anime_list')}?{get_params.urlencode()}"
+        return get_params.urlencode()
 
 
 class ChildAnimeSerializer(serializers.ModelSerializer):
@@ -66,18 +65,13 @@ class ChildAnimeSerializer(serializers.ModelSerializer):
 
 class VoiceoverSerializer(serializers.ModelSerializer):
     value = serializers.SerializerMethodField()
-    filter_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Voiceover
-        fields = ['value', 'filter_url']
+        fields = ['value', 'url']
 
     def get_value(self, obj: Voiceover):
         return obj.team.name
-
-    def get_filter_url(self, obj: Voiceover):
-        get_params = QueryDict(f'voiceover={obj.team_id}')
-        return f"{reverse('anime:get_anime_list')}?{get_params.urlencode()}"
 
 
 class ChildEpisodeSerializer(serializers.ModelSerializer):
@@ -131,14 +125,14 @@ class ResponseAnimeListSerializer(serializers.ModelSerializer):
         ]
 
     def get_count_episodes(self, obj: Anime):
-        return obj.episode_set.all().count()
+        return obj.count_episodes  # from annotate manager
 
 
 class ResponseAnimeSerializer(serializers.ModelSerializer):
     episodes = serializers.ListSerializer(child=ChildEpisodeSerializer(), source='episode_set')
     images = serializers.ListSerializer(child=ChildPreviewImageSerializer(),
                                         source='previewimage_set')
-    genres = GenreSerializer(many=True)
+    genres = GenreSerializer(many=True, read_only=True)
     director = DirectorSerializer()
     studio = StudioSerializer(many=True, read_only=True)
     voiceovers = serializers.ListSerializer(child=VoiceoverSerializer(),
@@ -147,32 +141,47 @@ class ResponseAnimeSerializer(serializers.ModelSerializer):
     type = serializers.SerializerMethodField()
     season = serializers.SerializerMethodField()
     rating = serializers.CharField(source='get_rating_display')
-    country = serializers.CharField(source='get_country_display')
+    country = serializers.SerializerMethodField()
+    year = serializers.SerializerMethodField()
     related = ResponseAnimeListSerializer(many=True, read_only=True)
 
     class Meta:
         model = Anime
         exclude = ['id', 'updated', 'created', 'slug']
 
+    def get_year(self, obj: Anime):
+        get_params = QueryDict(f'year={obj.year}')
+        return {
+            'value': obj.year,
+            'get_params': get_params.urlencode(),
+        }
+
+    def get_country(self, obj: Anime):
+        get_params = QueryDict(f'country={obj.country}')
+        return {
+            'value': obj.get_country_display(),
+            'get_params': get_params.urlencode(),
+        }
+
     def get_status(self, obj: Anime):
         get_params = QueryDict(f'status={obj.status}')
         return {
             'value': obj.get_status_display(),
-            'filter_url': f"{reverse('anime:get_anime_list')}?{get_params.urlencode()}",
+            'get_params': get_params.urlencode(),
         }
 
     def get_type(self, obj: Anime):
         get_params = QueryDict(f'type={obj.type}')
         return {
             'value': obj.get_type_display(),
-            'filter_url': f"{reverse('anime:get_anime_list')}?{get_params.urlencode()}",
+            'get_params': get_params.urlencode(),
         }
 
     def get_season(self, obj: Anime):
         get_params = QueryDict(f'season={obj.season}')
         return {
             'value': obj.get_season_display(),
-            'filter_url': f"{reverse('anime:get_anime_list')}?{get_params.urlencode()}",
+            'get_params': get_params.urlencode(),
         }
 
 
@@ -199,7 +208,7 @@ class ChildAnimePosterSerializer(serializers.ModelSerializer):
         ]
 
     def get_count_episodes(self, obj: Anime):
-        return obj.episode_set.all().count()
+        return obj.count_episodes  # from annotate manager
 
 
 class ResponsePostersSerializer(serializers.ModelSerializer):

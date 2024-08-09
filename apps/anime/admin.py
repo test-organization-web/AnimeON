@@ -29,9 +29,9 @@ class AnimeTabularInlinePaginated(ReadOnlyPermissionsMixin, TabularInlinePaginat
 
 @admin.register(Director)
 class DirectorAdmin(admin.ModelAdmin):
-    search_fields = ('first_name', 'last_name', 'pseudonym')
-    search_help_text = 'Search by First name, Last name, Pseudonym'
-    list_display = ['first_name', 'last_name', 'pseudonym', 'url']
+    search_fields = ('first_name', 'last_name')
+    search_help_text = 'Search by First name, Last name'
+    list_display = ['first_name', 'last_name', 'url']
     inlines = [AnimeTabularInlinePaginated]
 
     def get_queryset(self, request):
