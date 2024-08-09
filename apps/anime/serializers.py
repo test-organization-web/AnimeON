@@ -155,7 +155,10 @@ class ResponseAnimeSerializer(serializers.ModelSerializer):
         exclude = ['id', 'updated', 'created', 'slug']
 
     def get_count_episodes(self, obj: Anime):
-        return obj.count_episodes
+        return {
+            'value': obj.count_episodes,
+            'get_params': '',
+        }
 
     def get_year(self, obj: Anime):
         get_params = QueryDict(f'year={obj.year}')
