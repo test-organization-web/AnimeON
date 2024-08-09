@@ -19,15 +19,14 @@ from apps.anime.s3_path import (
 class Director(models.Model):
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
-    pseudonym = models.CharField(max_length=255, null=True, blank=True)
     url = models.URLField(null=True, blank=True)
 
     def __str__(self):
-        return f'{self.first_name} {self.last_name} ({self.pseudonym})'
+        return f'{self.first_name} {self.last_name}'
 
     @property
     def full_name(self):
-        return f'{self.first_name} {self.last_name} ({self.pseudonym})'
+        return f'{self.first_name} {self.last_name}'
 
 
 class Studio(CreatedDateTimeMixin, models.Model):
@@ -166,7 +165,16 @@ class Voiceover(CreatedDateTimeMixin, UpdatedDateTimeMixin, VerifyMixin, models.
         Note: should be called AFTER the voiceover history has been created
         """
 
-        new_status = self.status
+        history = self.voiceover_history
+
+        if history.filter(event=VoiceoverHistoryEvents.DECLINED).exists():
+            new_status = VoiceoverStatuses.DECLINED
+        elif history.filter(event=VoiceoverHistoryEvents.APPROVED).exists():
+            new_status = VoiceoverStatuses.APPROVED
+        elif history.filter(event=VoiceoverHistoryEvents.WAIT).exists():
+            new_status = VoiceoverStatuses.WAIT
+        else:
+            new_status = VoiceoverStatuses.CREATED
 
         if self.status != new_status:
             self.status = new_status
