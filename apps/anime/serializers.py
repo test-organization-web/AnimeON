@@ -11,11 +11,11 @@ from apps.comment.models import Comment
 
 class DirectorSerializer(serializers.ModelSerializer):
     value = serializers.SerializerMethodField()
-    filter_url = serializers.SerializerMethodField()
+    get_params = serializers.SerializerMethodField()
 
     class Meta:
         model = Director
-        fields = ['value', 'filter_url']
+        fields = ['value', 'get_params']
 
     def get_value(self, obj: Director):
         return obj.full_name
@@ -27,11 +27,11 @@ class DirectorSerializer(serializers.ModelSerializer):
 
 class GenreSerializer(serializers.ModelSerializer):
     value = serializers.SerializerMethodField()
-    filter_url = serializers.SerializerMethodField()
+    get_params = serializers.SerializerMethodField()
 
     class Meta:
         model = Genre
-        fields = ['value', 'filter_url']
+        fields = ['value', 'get_params']
 
     def get_value(self, obj: Genre):
         return obj.name
@@ -208,7 +208,7 @@ class ChildAnimePosterSerializer(serializers.ModelSerializer):
         ]
 
     def get_count_episodes(self, obj: Anime):
-        return obj.count_episodes  # from annotate manager
+        return obj.episode_set.all().count()  # from annotate manager
 
 
 class ResponsePostersSerializer(serializers.ModelSerializer):
