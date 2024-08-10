@@ -80,6 +80,11 @@ class Anime(CreatedDateTimeMixin, UpdatedDateTimeMixin, models.Model):
             episode__in=self.episode_set.all()
         ).distinct()
 
+    def get_similar(self):
+        return Anime.objects.filter(
+            genres__in=self.genres.all()
+        )[:6]
+
 
 class Episode(CreatedDateTimeMixin, UpdatedDateTimeMixin, OrderMixin, models.Model):
     title = models.CharField(max_length=255)

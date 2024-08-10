@@ -15,15 +15,16 @@ from django.contrib.contenttypes.models import ContentType
 from apps.anime.serializers import (
     ResponseDirectorSerializer, ResponseStudioSerializer, ResponseAnimeSerializer, ResponseAnimeListSerializer,
     ResponsePostersSerializer, ResponseFiltersAnimeSerializer, ResponseAnimeRandomSerializer,
-    ResponseAnimeEpisodeSerializer, ResponseCommentAnimeSerializer
+    ResponseAnimeEpisodeSerializer, ResponseCommentAnimeSerializer, ResponseAnimeArchSerializer
 )
 from apps.core.utils import swagger_auto_schema_wrapper
 from apps.anime.swagger_views_docs import (
     DirectorAPIViewDoc, StudioAPIViewDoc, AnimeAPIViewDoc, AnimeListAPIViewDoc, AnimeSearchAPIViewDoc,
     AnimeTOP100APIViewDoc, PostersAnimeAPIViewDoc, FiltersAnimeAPIViewDoc,
-    AnimeRandomAPIViewDoc, ResponseAnimeEpisodeAPIViewDoc, CommentAnimeAPIViewDoc
+    AnimeRandomAPIViewDoc, ResponseAnimeEpisodeAPIViewDoc, CommentAnimeAPIViewDoc,
+    AnimeArchAPIViewDoc
 )
-from apps.anime.models import Director, Studio, Anime, Poster, Episode, Genre
+from apps.anime.models import Director, Studio, Anime, Poster, Episode, Genre, Arch
 from apps.anime.paginators import AnimeListPaginator
 from apps.anime.filtersets import AnimeListFilterSet
 from apps.anime.choices import AnimeStatuses, AnimeTypes, SeasonTypes
@@ -266,3 +267,30 @@ class ReplyCommentAnimeAPIView(ListAPIView):
         )
         queryset = queryset.filter(parent_id=self.kwargs['comment_id'])
         return queryset.order_pinned_newest()
+
+
+class AnimeArchAPIView(ListAPIView):
+    lookup_field = 'pk'
+    lookup_url_kwarg = 'pk'
+
+    serializer_class = ResponseAnimeArchSerializer
+
+    @swagger_auto_schema_wrapper(
+        doc=AnimeArchAPIViewDoc,
+        operation_id='get_anime_arche',
+    )
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
+    def get_queryset(self):
+        # Views have behaviour which varies dynamically based on request parameters
+        # (using self.kwargs in their get_queryset, get_serializer, etc methods).
+        # drf-yasg is unable to handle this because no requests are actually made to the inspected views.
+        if getattr(self, "swagger_fake_view", False):
+            # It means that the view instance was artificially created as part of a swagger schema request.
+            return Arch.objects.none()
+
+        lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
+        return Arch.objects.filter(
+            anime_id=self.kwargs[lookup_url_kwarg]
+        ).order_by('order')

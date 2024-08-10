@@ -4,7 +4,7 @@ from django.contrib.auth.models import Group
 from django.http import QueryDict
 
 from apps.anime.models import (
-    Director, Anime, Studio, Episode, PreviewImage, Genre, Voiceover, Poster
+    Director, Anime, Studio, Episode, PreviewImage, Genre, Voiceover, Poster, Arch
 )
 from apps.comment.models import Comment
 
@@ -57,10 +57,17 @@ class StudioSerializer(serializers.ModelSerializer):
         return get_params.urlencode()
 
 
-class ChildAnimeSerializer(serializers.ModelSerializer):
+class ResponseAnimeListSerializer(serializers.ModelSerializer):
+    count_episodes = serializers.SerializerMethodField()
+
     class Meta:
         model = Anime
-        fields = ['title', 'id', 'slug', 'card_image']
+        fields = [
+            'id', 'slug', 'title', 'count_episodes', 'type', 'year', 'card_image'
+        ]
+
+    def get_count_episodes(self, obj: Anime):
+        return obj.count_episodes  # from annotate manager
 
 
 class VoiceoverSerializer(serializers.ModelSerializer):
@@ -98,7 +105,7 @@ class ChildGenreSerializer(serializers.ModelSerializer):
 
 
 class ResponseDirectorSerializer(serializers.ModelSerializer):
-    anime = serializers.ListSerializer(child=ChildAnimeSerializer(), source='anime_set')
+    anime = serializers.ListSerializer(child=ResponseAnimeListSerializer(), source='anime_set')
 
     class Meta:
         model = Director
@@ -106,7 +113,7 @@ class ResponseDirectorSerializer(serializers.ModelSerializer):
 
 
 class ResponseStudioSerializer(serializers.ModelSerializer):
-    anime = serializers.ListSerializer(child=ChildAnimeSerializer(), source='anime_set')
+    anime = serializers.ListSerializer(child=ResponseAnimeListSerializer(), source='anime_set')
 
     class Meta:
         model = Studio
@@ -117,20 +124,6 @@ class ChildEpisodesReleaseScheduleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Episode
         fields = ['title', 'order', 'release_date', 'status']
-
-
-class ResponseAnimeListSerializer(serializers.ModelSerializer):
-    count_episodes = serializers.SerializerMethodField()
-    genres = ChildGenreSerializer(many=True)
-
-    class Meta:
-        model = Anime
-        fields = [
-            'id', 'slug', 'title', 'count_episodes', 'type', 'year', 'rating', 'genres', 'card_image'
-        ]
-
-    def get_count_episodes(self, obj: Anime):
-        return obj.count_episodes  # from annotate manager
 
 
 class ResponseAnimeSerializer(serializers.ModelSerializer):
@@ -149,10 +142,12 @@ class ResponseAnimeSerializer(serializers.ModelSerializer):
     country = serializers.SerializerMethodField()
     year = serializers.SerializerMethodField()
     count_episodes = serializers.SerializerMethodField()
+    similar = serializers.ListSerializer(child=ResponseAnimeListSerializer(),
+                                         source='get_similar')
 
     class Meta:
         model = Anime
-        exclude = ['id', 'updated', 'created', 'slug']
+        exclude = ['id', 'updated', 'created', 'slug', 'is_top']
 
     def get_count_episodes(self, obj: Anime):
         return {
@@ -196,17 +191,13 @@ class ResponseAnimeSerializer(serializers.ModelSerializer):
         }
 
 
-class ChildPaginatedAnimeSerializer(ResponseAnimeListSerializer):
-    pass
-
-
 class ResponsePaginatedAnimeListSerializer(serializers.Serializer):
     active_page = serializers.IntegerField(allow_null=True)
     num_pages = serializers.IntegerField(allow_null=True)
     count = serializers.IntegerField(allow_null=True)
     next = serializers.URLField()
     previous = serializers.URLField()
-    results = ChildPaginatedAnimeSerializer(many=True)
+    results = ResponseAnimeListSerializer(many=True)
 
 
 class ChildAnimePosterSerializer(serializers.ModelSerializer):
@@ -310,3 +301,11 @@ class ResponsePaginatedCommentAnimeListSerializer(serializers.Serializer):
     next = serializers.URLField()
     previous = serializers.URLField()
     results = ResponseCommentAnimeSerializer(many=True)
+
+
+class ResponseAnimeArchSerializer(serializers.ModelSerializer):
+    episodes = serializers.ListSerializer(child=ChildEpisodeSerializer(), source='episode_set')
+
+    class Meta:
+        model = Arch
+        fields = ['order', 'title', 'episodes']
