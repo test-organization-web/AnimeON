@@ -1,12 +1,12 @@
 from rest_framework import serializers
 
-from django.contrib.auth.models import Group
 from django.http import QueryDict
 
 from apps.anime.models import (
     Director, Anime, Studio, Episode, PreviewImage, Genre, Voiceover, Poster, Arch
 )
 from apps.comment.models import Comment
+from apps.user.models import Group
 
 
 class DirectorSerializer(serializers.ModelSerializer):
@@ -67,22 +67,22 @@ class ResponseAnimeListSerializer(serializers.ModelSerializer):
         ]
 
     def get_count_episodes(self, obj: Anime):
-        return obj.count_episodes  # from annotate manager
+        return obj.episode_set.all().count()
 
 
-class VoiceoverSerializer(serializers.ModelSerializer):
+class ChildTeamSerializer(serializers.ModelSerializer):
     value = serializers.SerializerMethodField()
     get_params = serializers.SerializerMethodField()
 
     class Meta:
-        model = Voiceover
+        model = Group
         fields = ['value', 'get_params']
 
-    def get_value(self, obj: Voiceover):
-        return obj.team.name
+    def get_value(self, obj: Group):
+        return obj.name
 
-    def get_get_params(self, obj: Voiceover):
-        get_params = QueryDict(f'voiceover={obj.team.id}')
+    def get_get_params(self, obj: Group):
+        get_params = QueryDict(f'voiceover={obj.id}')
         return get_params.urlencode()
 
 
@@ -133,8 +133,7 @@ class ResponseAnimeSerializer(serializers.ModelSerializer):
     genres = GenreSerializer(many=True, read_only=True)
     director = DirectorSerializer()
     studio = StudioSerializer(many=True, read_only=True)
-    voiceovers = serializers.ListSerializer(child=VoiceoverSerializer(),
-                                            source='get_distinct_voiceover')
+    voiceovers = serializers.ListSerializer(child=ChildTeamSerializer(), source='get_distinct_team')
     status = serializers.SerializerMethodField()
     type = serializers.SerializerMethodField()
     season = serializers.SerializerMethodField()
@@ -142,8 +141,7 @@ class ResponseAnimeSerializer(serializers.ModelSerializer):
     country = serializers.SerializerMethodField()
     year = serializers.SerializerMethodField()
     count_episodes = serializers.SerializerMethodField()
-    similar = serializers.ListSerializer(child=ResponseAnimeListSerializer(),
-                                         source='get_similar')
+    similar = serializers.ListSerializer(child=ResponseAnimeListSerializer(), source='get_similar')
 
     class Meta:
         model = Anime
@@ -210,7 +208,7 @@ class ChildAnimePosterSerializer(serializers.ModelSerializer):
         ]
 
     def get_count_episodes(self, obj: Anime):
-        return obj.episode_set.all().count()  # from annotate manager
+        return obj.episode_set.all().count()
 
 
 class ResponsePostersSerializer(serializers.ModelSerializer):
