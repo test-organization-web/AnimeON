@@ -5,7 +5,8 @@ from apps.core.swagger_views_docs import BaseSwaggerAPIViewDoc, SwaggerTags
 from apps.anime.serializers import (
     ResponseDirectorSerializer, ResponseStudioSerializer, ResponseAnimeSerializer,
     ResponsePaginatedAnimeListSerializer, ResponsePostersSerializer, ResponseFiltersAnimeSerializer,
-    ResponseAnimeRandomSerializer, ResponseAnimeEpisodeSerializer, ResponsePaginatedCommentAnimeListSerializer
+    ResponseAnimeRandomSerializer, ResponseAnimeEpisodeSerializer, ResponsePaginatedCommentAnimeListSerializer,
+    ResponseAnimeArchSerializer,
 )
 
 
@@ -391,5 +392,31 @@ class CommentAnimeAPIViewDoc(BaseSwaggerAPIViewDoc):
                     }
                 ]
             }},
+        ),
+    }
+
+
+class AnimeArchAPIViewDoc(BaseSwaggerAPIViewDoc):
+    """
+        It is a Swagger doc for 'AnimeArchAPIView'
+    """
+    tags = [SwaggerTags.ANIME]
+
+    responses = {
+        status.HTTP_200_OK: openapi.Response(
+            'Ok.',
+            ResponseAnimeArchSerializer,
+            examples={'application/json': [
+                {
+                    "order": 1,
+                    "title": "test",
+                    "episodes": [
+                        {
+                            "title": "<str: title>",
+                            "order": 1
+                        },
+                    ]
+                }
+            ]},
         ),
     }
