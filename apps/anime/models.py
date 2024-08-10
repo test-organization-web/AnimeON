@@ -12,6 +12,7 @@ from apps.anime.s3_path import (
     anime_preview_image_save_path, anime_background_image_save_path, anime_poster_image_save_path,
     anime_card_image_save_path, episode_preview_image_save_path
 )
+from apps.user.models import Group
 
 # Create your models here.
 
@@ -75,13 +76,13 @@ class Anime(CreatedDateTimeMixin, UpdatedDateTimeMixin, models.Model):
         super().clean()
         self.slug = self.__class__.objects.normalize_slug(self.title)
 
-    def get_distinct_voiceover(self):
-        return Voiceover.objects.filter(
-            episode__in=self.episode_set.all()
+    def get_distinct_team(self):
+        return Group.objects.prefetch_related('voiceover_set__episode').filter(
+            voiceover__episode__in=self.episode_set.all()
         ).distinct()
 
     def get_similar(self):
-        return Anime.objects.filter(
+        return Anime.objects.prefetch_related('genres').filter(
             genres__in=self.genres.all()
         )[:6]
 
