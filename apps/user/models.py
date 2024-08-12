@@ -2,10 +2,13 @@ from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin, UserManager
 from django.contrib.auth.models import Group as BaseGroup
 from django.contrib.auth.validators import UnicodeUsernameValidator
-from django.db import models
 from django.utils import timezone
+from django.db import models
+from django.conf import settings
 
+from apps.user.manager import UserAnimeManager
 from apps.core.models import CreatedDateTimeMixin
+from apps.user.choices import UserAnimeChoices
 
 
 class User(PermissionsMixin, AbstractBaseUser):
@@ -43,48 +46,42 @@ class User(PermissionsMixin, AbstractBaseUser):
     REQUIRED_FIELDS = ['email']
 
     def get_count_viewed_anime(self):
-        return self.viewedanime_set.all().count()
+        return self.useranime_set.filter(action=UserAnimeChoices.VIEWED).count()
+
+    def get_count_commented_anime(self):
+        return self.comment_set.count()
 
 
 class Group(BaseGroup):
-
     class Meta:
         proxy = True
         verbose_name = 'Group'
         verbose_name_plural = "Groups"
 
 
-class ViewedAnime(CreatedDateTimeMixin, models.Model):
-    user = models.ForeignKey('user', on_delete=models.CASCADE)
+class UserAnime(models.Model):
+    date = models.DateTimeField(default=timezone.now)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     anime = models.ForeignKey('anime.Anime', on_delete=models.CASCADE)
+    action = models.CharField(choices=UserAnimeChoices.choices)
+    objects = UserAnimeManager()
 
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=['user', 'anime'], name='unique_%(app_label)s_%(class)s_viewed_anime'
+                fields=['user', 'action', 'anime'], name='unique_%(app_label)s_%(class)s_user_anime_action'
             )
         ]
 
 
-class ViewedEpisode(CreatedDateTimeMixin, models.Model):
-    user = models.ForeignKey('user', on_delete=models.CASCADE)
+class UserEpisodeViewed(models.Model):
+    date = models.DateTimeField(default=timezone.now)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='viewed_episode')
     episode = models.ForeignKey('anime.Episode', on_delete=models.CASCADE)
 
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=['user', 'episode'], name='unique_%(app_label)s_%(class)s_viewed_episode'
-            )
-        ]
-
-
-class Favorite(CreatedDateTimeMixin, models.Model):
-    user = models.ForeignKey('user', on_delete=models.CASCADE)
-    anime = models.ForeignKey('anime.Anime', on_delete=models.CASCADE)
-
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(
-                fields=['user', 'anime'], name='unique_%(app_label)s_%(class)s_favorite'
+                fields=['user', 'episode'], name='unique_%(app_label)s_%(class)s_user_episode'
             )
         ]
