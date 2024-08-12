@@ -21,8 +21,7 @@ class DirectorSerializer(serializers.ModelSerializer):
         return obj.full_name
 
     def get_get_params(self, obj: Director):
-        get_params = QueryDict(f'director={obj.id}')
-        return get_params.urlencode()
+        return QueryDict(f'director={obj.id}').urlencode()
 
 
 class GenreSerializer(serializers.ModelSerializer):
@@ -37,8 +36,7 @@ class GenreSerializer(serializers.ModelSerializer):
         return obj.name
 
     def get_get_params(self, obj: Genre):
-        get_params = QueryDict(f'genres={obj.id}')
-        return get_params.urlencode()
+        return QueryDict(f'genres={obj.id}').urlencode()
 
 
 class StudioSerializer(serializers.ModelSerializer):
@@ -53,8 +51,7 @@ class StudioSerializer(serializers.ModelSerializer):
         return obj.name
 
     def get_get_params(self, obj: Studio):
-        get_params = QueryDict(f'studio={obj.id}')
-        return get_params.urlencode()
+        return QueryDict(f'studio={obj.id}').urlencode()
 
 
 class ResponseAnimeListSerializer(serializers.ModelSerializer):
@@ -82,8 +79,7 @@ class ChildTeamSerializer(serializers.ModelSerializer):
         return obj.name
 
     def get_get_params(self, obj: Group):
-        get_params = QueryDict(f'voiceover={obj.id}')
-        return get_params.urlencode()
+        return QueryDict(f'voiceover={obj.id}').urlencode()
 
 
 class ChildEpisodeSerializer(serializers.ModelSerializer):
@@ -142,50 +138,56 @@ class ResponseAnimeSerializer(serializers.ModelSerializer):
     year = serializers.SerializerMethodField()
     count_episodes = serializers.SerializerMethodField()
     similar = serializers.ListSerializer(child=ResponseAnimeListSerializer(), source='get_similar')
+    start_date = serializers.SerializerMethodField()
 
     class Meta:
         model = Anime
         exclude = ['id', 'updated', 'created', 'slug', 'is_top']
 
-    def get_count_episodes(self, obj: Anime):
-        return {
-            'value': obj.count_episodes,
-            'get_params': '',
+    def get_start_date(self, obj: Anime):
+        start_date_str = obj.start_date.strftime('%d %B %Y')
+        start_params = {
+            'value': f'з {start_date_str}',
+            'get_params': QueryDict(f'year_gte={obj.start_date.year}').urlencode(),
         }
+        end_params = {}
+        if obj.end_date:
+            end_date_str = obj.start_date.strftime('%d %B %Y')
+            end_params = {
+                'value': f'no {end_date_str}',
+                'get_params': QueryDict(f'year_lte={obj.end_date.year}').urlencode(),
+            }
+        return [start_params, end_params] if end_params else start_params
 
-    def get_year(self, obj: Anime):
-        get_params = QueryDict(f'year={obj.year}')
+    def get_count_episodes(self, obj: Anime):
+        count_episodes = obj.count_episodes
         return {
-            'value': obj.year,
-            'get_params': get_params.urlencode(),
+            'value': count_episodes,
+            'get_params': QueryDict(f'episode_lte={count_episodes}').urlencode(),
         }
 
     def get_country(self, obj: Anime):
-        get_params = QueryDict(f'country={obj.country}')
         return {
             'value': obj.get_country_display(),
-            'get_params': get_params.urlencode(),
+            'get_params': QueryDict(f'country={obj.country}').urlencode(),
         }
 
     def get_status(self, obj: Anime):
-        get_params = QueryDict(f'status={obj.status}')
         return {
             'value': obj.get_status_display(),
-            'get_params': get_params.urlencode(),
+            'get_params': QueryDict(f'status={obj.status}').urlencode(),
         }
 
     def get_type(self, obj: Anime):
-        get_params = QueryDict(f'type={obj.type}')
         return {
             'value': obj.get_type_display(),
-            'get_params': get_params.urlencode(),
+            'get_params': QueryDict(f'type={obj.type}').urlencode(),
         }
 
     def get_season(self, obj: Anime):
-        get_params = QueryDict(f'season={obj.season}')
         return {
             'value': obj.get_season_display(),
-            'get_params': get_params.urlencode(),
+            'get_params': QueryDict(f'season={obj.season}').urlencode(),
         }
 
 

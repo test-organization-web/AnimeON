@@ -47,7 +47,7 @@ class Anime(CreatedDateTimeMixin, UpdatedDateTimeMixin, models.Model):
     title = models.CharField(max_length=255, default='', db_index=True)
     type = models.CharField(max_length=255, choices=AnimeTypes.choices)
     slug = models.SlugField(max_length=255, blank=True)
-    start_date = models.DateField(null=True, blank=True)
+    start_date = models.DateField()
     end_date = models.DateField(null=True, blank=True)
     status = models.CharField(max_length=255, choices=AnimeStatuses.choices, default=AnimeStatuses.ANNOUNCED)
     studio = models.ManyToManyField('anime.Studio', blank=True)
@@ -199,14 +199,6 @@ class VoiceoverHistory(CreatedDateTimeMixin, models.Model):
         indexes = [
             models.Index(fields=['event', 'voiceover_id'])
         ]
-
-
-class ParseAnimeLog(CreatedDateTimeMixin, models.Model):
-    anime = models.ForeignKey('anime.Anime', on_delete=models.CASCADE)
-    source = models.CharField(max_length=255)
-    url = models.URLField()
-    curl = models.TextField()
-    response = models.JSONField(default=dict)
 
 
 class Poster(CreatedDateTimeMixin, models.Model):
