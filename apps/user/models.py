@@ -48,7 +48,7 @@ class User(PermissionsMixin, AbstractBaseUser):
         return self.useranime_set.filter(action=UserAnimeChoices.VIEWED).count()
 
     def get_count_commented_anime(self):
-        return self.comment_set.count()
+        return self.comments.count()
 
 
 class Group(BaseGroup):
