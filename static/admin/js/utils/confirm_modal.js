@@ -12,23 +12,18 @@ django.jQuery(document).ready(function () {
         modalContent.find('.errorlist').remove();
     }
 
-    django.jQuery('.addComment').on('click', function () {
+    django.jQuery('.successConfirm').on('click', function () {
         const button = django.jQuery(this);
         const data = button.data();
 
         const modal = button.closest('.modal');
-        const inputField = modal.find('.userComment');
         const modalContent = modal.find('.modal-content');
-        const inputValue = inputField.val();
 
         removeError(modalContent);
 
         django.jQuery.ajax({
             url: data['actionUrl'],
             method: 'POST',
-            data: {
-                'userComment': inputValue,
-            },
             headers: {
                 'X-CSRFToken': csrftoken
             },

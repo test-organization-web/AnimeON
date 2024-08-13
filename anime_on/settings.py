@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     'apps.anime',
     'apps.comment',
     'apps.core',
+    'apps.support',
     # libraries
     'storages',
     'corsheaders',
@@ -117,6 +118,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
+            'builtins': ['apps.support.templatetags.support']
         },
     },
 ]

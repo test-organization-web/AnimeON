@@ -1,0 +1,37 @@
+{% extends "admin/submit_line.html" %}
+{% load static support %}
+
+{% block submit-row %}
+	{% if original and not edit %}
+		{% ticket_is_can_be_resolved original request.user as is_can_be_resolved %}
+		{% ticket_is_can_be_assigned_to_user original request.user as is_can_be_assigned_to_user %}
+		{% ticket_is_can_be_unassigned_by_user original request.user as is_can_be_unassigned_by_user %}
+	{% endif %}
+
+	{% if original and not edit %}
+		<input type="button" class="trigger button" data-modal-id="modal-comment-help" value="Додати коментра">
+		{% url 'admin:helpappeal_add_note' original.id as url %}
+		{% include 'admin/includes/modal_comment.html' with url=url modal_id='help' input_placeholder='Буль-ласка залиште коментар' %}
+	{% endif %}
+
+	{% if original and not edit and is_can_be_resolved %}
+		<input type="button" class="trigger button" data-modal-id="modal-comment-resolve" value="Вирішено">
+		{% url 'admin:helpappeal_resolve' original.id as url %}
+		{% include 'admin/includes/modal_confirmation.html' with url=url modal_id='resolve' text_confirm='Ви дійсно вважаєте що тікет вирішено?' %}
+	{% endif %}
+
+	{% if original and not edit and is_can_be_assigned_to_user%}
+		<input type="button" class="trigger button" data-modal-id="modal-comment-assigned" value="Прийняти">
+		{% url 'admin:helpappeal_assigned' original.id as url %}
+		{% include 'admin/includes/modal_confirmation.html' with url=url modal_id='assigned' text_confirm='Ви дійсно хочете перевести тікет на себе?' %}
+	{% endif %}
+
+	{% if original and not edit and is_can_be_unassigned_by_user%}
+		<input type="button" class="trigger button" data-modal-id="modal-comment-unassigned" value="Відмовитися">
+		{% url 'admin:helpappeal_unassigned' original.id as url %}
+		{% include 'admin/includes/modal_confirmation.html' with url=url modal_id='unassigned' text_confirm='Ви дійсно хочете відповитися від тікета?' %}
+	{% endif %}
+
+	{{ block.super }}
+
+{% endblock %}

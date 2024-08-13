@@ -1,0 +1,15 @@
+{# required admin/js/modal.js #}
+
+<div class="modal" id="modal-comment-{{ modal_id }}">
+	<div class="modal-content">
+		<span class="close-sign">×</span>
+		<p>{{ text_confirm }}</p>
+		<div class="modal-buttons">
+			<button type="button" class="button-green successConfirm"
+					style="width: 150px; height: 40px; font-size: 16px;"
+					data-action-url={{ url }}>
+				Так
+			</button>
+		</div>
+	</div>
+</div>

@@ -28,6 +28,7 @@ urlpatterns = [
 
     path('admin/', admin.site.urls),
     path('api/v1/user/', include('apps.user.urls', namespace='user')),
+    path('api/v1/support/', include('apps.support.urls', namespace='support')),
     path('api/v1/auth/', include('apps.authentication.urls', namespace='authentication')),
     path('api/v1/anime/', include('apps.anime.urls', namespace='anime')),
     path('api/v1/comment/', include('apps.comment.urls', namespace='comment')),

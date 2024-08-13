@@ -7,6 +7,7 @@ class SwaggerTags(str, Enum):
     USER = 'User'
     ANIME = 'Anime'
     COMMENT = 'Comment'
+    SUPPORT = 'Support'
 
 
 class BaseSwaggerAPIViewDoc:
