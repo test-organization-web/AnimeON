@@ -1,8 +1,6 @@
 import logging
 from drf_yasg import openapi
 
-from django.contrib.auth.mixins import LoginRequiredMixin
-
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.generics import RetrieveAPIView, ListAPIView
 from rest_framework.response import Response

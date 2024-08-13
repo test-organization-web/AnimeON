@@ -274,7 +274,7 @@ class ResponseAnimeEpisodeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Episode
-        fields = ['title', 'voiceover', 'subtitles', 'preview_image',
+        fields = ['title', 'voiceover', 'subtitles', 'preview_image', 'id',
                   'start_opening', 'end_opening', 'start_ending', 'end_ending']
 
 
