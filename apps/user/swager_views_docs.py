@@ -1,6 +1,8 @@
 from drf_yasg import openapi
 from rest_framework import status
+
 from apps.core.swagger_views_docs import BaseSwaggerAPIViewDoc, SwaggerTags
+from apps.user.serializers import UserSerializer, UserAnimeSerializer
 
 
 class UserAPIViewDoc(BaseSwaggerAPIViewDoc):
@@ -12,6 +14,7 @@ class UserAPIViewDoc(BaseSwaggerAPIViewDoc):
     responses = {
         status.HTTP_200_OK: openapi.Response(
             'Ok.',
+            UserSerializer,
             examples={'application/json': {
                 'username': 'test',
                 'count_viewed_anime': '5',
@@ -39,6 +42,7 @@ class UserAnimeAPIViewDoc(BaseSwaggerAPIViewDoc):
     responses = {
         status.HTTP_200_OK: openapi.Response(
             'Ok.',
+            UserAnimeSerializer,
             examples={
                 'application/json': [
                     {
@@ -49,7 +53,7 @@ class UserAnimeAPIViewDoc(BaseSwaggerAPIViewDoc):
                             'count_episodes': 5,
                             'slug': 'naruto'
                         },
-                    },{
+                    }, {
                         'anime': {
                             'id': 2,
                             'title': 'One Piece',

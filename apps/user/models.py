@@ -6,7 +6,6 @@ from django.utils import timezone
 from django.db import models
 from django.conf import settings
 
-from apps.user.manager import UserAnimeManager
 from apps.core.models import CreatedDateTimeMixin
 from apps.user.choices import UserAnimeChoices
 
@@ -64,7 +63,6 @@ class UserAnime(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     anime = models.ForeignKey('anime.Anime', on_delete=models.CASCADE)
     action = models.CharField(choices=UserAnimeChoices.choices)
-    objects = UserAnimeManager()
 
     class Meta:
         constraints = [
