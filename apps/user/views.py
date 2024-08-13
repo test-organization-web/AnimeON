@@ -1,4 +1,5 @@
 import logging
+from drf_yasg import openapi
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 
@@ -15,7 +16,7 @@ from apps.user.swager_views_docs import (
 )
 from apps.user.serializers import UserAnimeSerializer, RequestUserAnimeSerializer, RequestViewedEpisodeSerializer
 from apps.user.choices import UserAnimeChoices
-from apps.user.models import UserAnime, User
+from apps.user.models import UserAnime, UserEpisodeViewed
 
 logger = logging.getLogger(__name__)
 
@@ -35,12 +36,15 @@ class UserAPI(RetrieveAPIView):
         return self.request.user
 
 
-class UserAnimeListAPIView(LoginRequiredMixin, ListAPIView):
+class UserAnimeListAPIView(ListAPIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = UserAnimeSerializer
 
     @swagger_auto_schema_wrapper(
         doc=UserAnimeAPIViewDoc,
+        manual_parameters=[
+            openapi.Parameter('action', openapi.IN_QUERY, type=openapi.TYPE_STRING, required=False)
+        ],
         request_serializer_cls=None
     )
     def get(self, request, *args, **kwargs):
@@ -60,7 +64,7 @@ class UserAnimeListAPIView(LoginRequiredMixin, ListAPIView):
         return Response(serializer.data)
 
 
-class UserAddAnimeAPIView(LoginRequiredMixin, APIView):
+class UserAddAnimeAPIView(APIView):
     permission_classes = (IsAuthenticated,)
     request_serializer = RequestUserAnimeSerializer
 
@@ -71,10 +75,12 @@ class UserAddAnimeAPIView(LoginRequiredMixin, APIView):
         anime = serializer.validated_data['anime']
         action = serializer.validated_data['action']
         try:
-            user: User = request.user
-            user.useranime_set.add(
+            UserAnime.objects.update_or_create(
                 anime=anime,
-                action=action
+                user_id=request.user.id,
+                defaults=dict(
+                    action=action
+                )
             )
         except Exception as error:
             logger.exception(error)
@@ -84,7 +90,7 @@ class UserAddAnimeAPIView(LoginRequiredMixin, APIView):
         return Response(data={}, status=status.HTTP_200_OK)
 
 
-class UserViewedEpisodeAPIView(LoginRequiredMixin, APIView):
+class UserViewedEpisodeAPIView(APIView):
     permission_classes = (IsAuthenticated,)
     request_serializer = RequestViewedEpisodeSerializer
 
@@ -94,9 +100,9 @@ class UserViewedEpisodeAPIView(LoginRequiredMixin, APIView):
     def post(self, request, serializer: RequestViewedEpisodeSerializer):
         episode = serializer.validated_data['episode']
         try:
-            user: User = request.user
-            user.viewed_episode.add(
+            UserEpisodeViewed.objects.get_or_create(
                 episode=episode,
+                user_id=request.user.id,
             )
         except Exception as error:
             logger.exception(error)

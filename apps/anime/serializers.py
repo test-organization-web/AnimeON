@@ -135,7 +135,7 @@ class ResponseAnimeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Anime
-        exclude = ['id', 'updated', 'created', 'slug', 'is_top']
+        exclude = ['updated', 'created', 'is_top']
 
     def get_start_date(self, obj: Anime):
         start_date_str = obj.start_date.strftime('%d %B %Y')
