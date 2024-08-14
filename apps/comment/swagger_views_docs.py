@@ -3,6 +3,7 @@ from rest_framework import status
 
 from apps.core.swagger_views_docs import BaseSwaggerAPIViewDoc, SwaggerTags
 from apps.anime.swagger_views_docs import CommentAnimeAPIViewDoc
+from apps.core.serializers import ResponseErrorSerializer
 from apps.anime.serializers import ResponseCommentAnimeSerializer
 from apps.comment.serializers import ResponseCommentReactSerializer
 
@@ -35,6 +36,17 @@ class CommentCreateAPIViewDoc(BaseSwaggerAPIViewDoc):
                     "detail": "Реквізити перевірки достовірності не надані."
                 }
             },
+        ),
+        status.HTTP_403_FORBIDDEN: openapi.Response(
+            'Forbidden.',
+            ResponseErrorSerializer,
+            examples={'application/json': {
+                "errors": [
+                    {
+                        "message": "Спробуйте повторити запит через {N} секунд",
+                    },
+                ]
+            }},
         ),
     }
 

@@ -8,9 +8,10 @@ from apps.support.models import RightholderAppeal, HelpAppeal
 from apps.support.choices import RightholderAppealEvents, HelpAppealEvents
 from apps.support.serializers import RightholderAppealSerializer, HelpAppealSerializer
 from apps.support.swager_views_docs import RightholderAppealAPIViewDoc, HelpAppealAPIViewDoc
+from apps.core.mixins import CheckIPSpam
 
 
-class RightholderAppealAPIView(APIView):
+class RightholderAppealAPIView(CheckIPSpam, APIView):
     permission_classes = (AllowAny,)
     request_serializer = RightholderAppealSerializer
 
@@ -29,7 +30,7 @@ class RightholderAppealAPIView(APIView):
         return Response(data={}, status=status.HTTP_201_CREATED)
 
 
-class HelpAppealAPIView(APIView):
+class HelpAppealAPIView(CheckIPSpam, APIView):
     permission_classes = (AllowAny,)
     request_serializer = HelpAppealSerializer
 

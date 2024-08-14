@@ -104,6 +104,12 @@ REST_FRAMEWORK = {
     ],
 }
 
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+    }
+}
+
 ROOT_URLCONF = 'anime_on.urls'
 
 TEMPLATES = [
