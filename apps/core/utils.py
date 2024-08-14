@@ -1,10 +1,14 @@
 import os
 
 from typing import Optional, Union, List, Dict
+from functools import wraps
 
 from rest_framework import status
 from rest_framework.response import Response
 from drf_yasg.utils import swagger_auto_schema
+from django.http import JsonResponse
+from django.contrib import messages
+from django.urls import reverse
 
 
 def get_response_body_errors(
@@ -81,3 +85,20 @@ def get_extension(filename):
     if filename is None:
         return None
     return os.path.splitext(filename)[1].lstrip('.').lower()
+
+
+def get_instance_or_ajax_redirect(error_message, redirect_url):
+    def decorator(view_func):
+        @wraps(view_func)
+        def _wrapped_view(self, request, object_id, *args, **kwargs):
+            try:
+                instance = self.model.objects.get(id=object_id)
+            except self.model.DoesNotExist:
+                self.message_user(request, error_message, level=messages.ERROR)
+                return JsonResponse(data={'redirectUrl': reverse(redirect_url)})
+
+            return view_func(self, request, object_id, *args, instance=instance, **kwargs)
+
+        return _wrapped_view
+
+    return decorator

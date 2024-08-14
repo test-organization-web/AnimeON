@@ -1,0 +1,16 @@
+{# required admin/js/modal.js #}
+
+<div class="modal" id="modal-comment-{{ modal_id }}">
+	<div class="modal-content">
+		<span class="close-sign">×</span>
+		<input class="userComment" type="text" placeholder="{{ input_placeholder }}"
+			   style="background-color: white; color: black; width: 300px; ">
+		<div class="modal-buttons">
+			<button type="button" class="button-green addComment"
+					style="width: 150px; height: 40px; font-size: 16px;"
+					data-action-url={{ url }}>
+				Send
+			</button>
+		</div>
+	</div>
+</div>
