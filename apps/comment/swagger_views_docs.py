@@ -2,7 +2,9 @@ from drf_yasg import openapi
 from rest_framework import status
 
 from apps.core.swagger_views_docs import BaseSwaggerAPIViewDoc, SwaggerTags
+from apps.anime.swagger_views_docs import CommentAnimeAPIViewDoc
 from apps.anime.serializers import ResponseCommentAnimeSerializer
+from apps.comment.serializers import ResponseCommentReactSerializer
 
 
 class CommentCreateAPIViewDoc(BaseSwaggerAPIViewDoc):
@@ -26,6 +28,14 @@ class CommentCreateAPIViewDoc(BaseSwaggerAPIViewDoc):
                 "username": "admin"
             }},
         ),
+        status.HTTP_401_UNAUTHORIZED: openapi.Response(
+            'Unauthorized.',
+            examples={
+                'application/json': {
+                    "detail": "Реквізити перевірки достовірності не надані."
+                }
+            },
+        ),
     }
 
 
@@ -35,9 +45,32 @@ class CommentReactAPIViewDoc(BaseSwaggerAPIViewDoc):
     responses = {
         status.HTTP_200_OK: openapi.Response(
             'Ok.',
-            examples={'application/json': {
-            }},
+            ResponseCommentReactSerializer,
+            examples={'application/json': [
+                {
+                    'action': 'DELETE'
+                },
+                {
+                    'action': 'CHANGE'
+                },
+                {
+                    'action': 'NEW'
+                },
+            ]},
+        ),
+        status.HTTP_401_UNAUTHORIZED: openapi.Response(
+            'Unauthorized.',
+            examples={
+                'application/json': {
+                    "detail": "Реквізити перевірки достовірності не надані."
+                }
+            },
         ),
     }
 
 
+class ReplyCommentAPIViewDoc(CommentAnimeAPIViewDoc):
+    """
+        It is a Swagger doc for 'ReplyCommentAPIView'
+    """
+    tags = [SwaggerTags.COMMENT]

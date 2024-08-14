@@ -17,6 +17,7 @@ class RightholderAppealAPIViewDoc(BaseSwaggerAPIViewDoc):
         ),
     }
 
+
 class HelpAppealAPIViewDoc(BaseSwaggerAPIViewDoc):
     """
     It is a Swagger doc for 'HelpAppealAPIView'

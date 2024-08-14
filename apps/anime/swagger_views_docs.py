@@ -405,7 +405,7 @@ class AnimeArchAPIViewDoc(BaseSwaggerAPIViewDoc):
     responses = {
         status.HTTP_200_OK: openapi.Response(
             'Ok.',
-            ResponseAnimeArchSerializer,
+            ResponseAnimeArchSerializer(many=True),
             examples={'application/json': [
                 {
                     "order": 1,

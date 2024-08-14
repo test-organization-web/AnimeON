@@ -2,6 +2,7 @@ from drf_yasg import openapi
 from rest_framework import status
 
 from apps.core.swagger_views_docs import BaseSwaggerAPIViewDoc, SwaggerTags
+from apps.core.serializers import ResponseErrorSerializer
 from apps.user.serializers import UserSerializer, UserAnimeSerializer
 
 
@@ -24,7 +25,7 @@ class UserAPIViewDoc(BaseSwaggerAPIViewDoc):
     }
 
 
-class UserAnimeAPIViewDoc(BaseSwaggerAPIViewDoc):
+class UserAnimeListAPIViewDoc(BaseSwaggerAPIViewDoc):
     """
     It is a Swagger doc for 'UserAnimeListAPIView'
     """
@@ -42,7 +43,7 @@ class UserAnimeAPIViewDoc(BaseSwaggerAPIViewDoc):
     responses = {
         status.HTTP_200_OK: openapi.Response(
             'Ok.',
-            UserAnimeSerializer,
+            UserAnimeSerializer(many=True),
             examples={
                 'application/json': [
                     {
@@ -65,12 +66,20 @@ class UserAnimeAPIViewDoc(BaseSwaggerAPIViewDoc):
                 ]
             },
         ),
+        status.HTTP_401_UNAUTHORIZED: openapi.Response(
+            'Unauthorized.',
+            examples={
+                'application/json': {
+                    "detail": "Реквізити перевірки достовірності не надані."
+                }
+            },
+        ),
     }
 
 
-class UserAddAnimeAPIViewDoc(BaseSwaggerAPIViewDoc):
+class UserAnimeAPIViewDoc(BaseSwaggerAPIViewDoc):
     """
-        It is a Swagger doc for 'UserAddAnimeAPIView'
+        It is a Swagger doc for 'UserAnimeAPIView'
     """
     tags = [SwaggerTags.USER]
 
@@ -83,6 +92,7 @@ class UserAddAnimeAPIViewDoc(BaseSwaggerAPIViewDoc):
         ),
         status.HTTP_400_BAD_REQUEST: openapi.Response(
             'Bad request.',
+            ResponseErrorSerializer,
             examples={
                 'application/json': {
                     "errors": [
@@ -120,6 +130,7 @@ class UserViewedEpisodeAPIViewDoc(BaseSwaggerAPIViewDoc):
         ),
         status.HTTP_400_BAD_REQUEST: openapi.Response(
             'Bad request.',
+            ResponseErrorSerializer,
             examples={
                 'application/json': {
                     "errors": [
