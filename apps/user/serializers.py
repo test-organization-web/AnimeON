@@ -47,6 +47,12 @@ class RequestUserAnimeSerializer(serializers.Serializer):
     )
 
 
+class RequestUserAnimeDeleteSerializer(serializers.Serializer):
+    anime = serializers.PrimaryKeyRelatedField(
+        queryset=Anime.objects.all(), error_messages={'does_not_exist': 'Аніме не знайдено.'}
+    )
+
+
 class RequestViewedEpisodeSerializer(serializers.Serializer):
     episode = serializers.PrimaryKeyRelatedField(
         queryset=Episode.objects.all(), error_messages={'does_not_exist': 'Епізод не знайдено.'}
