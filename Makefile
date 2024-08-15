@@ -38,10 +38,13 @@ create-db-user:
 			-c 'psql --username=postgres --dbname=postgres -c "CREATE USER $(PG_USER) WITH PASSWORD '"'$(PG_PASSWORD)'"' SUPERUSER;"'
 	docker-compose exec db sh -c 'psql --username=postgres --dbname=postgres -c "GRANT ALL PRIVILEGES ON DATABASE $(PG_DB) to $(PG_USER);"'
 
-
 rm-db:
 	docker-compose exec db sh \
 			-c "psql --username=postgres --dbname=postgres -c 'drop database if exists $(PG_DB);'"
+
+rm-testdb:
+	docker-compose exec db sh \
+			-c "psql --username=postgres --dbname=postgres -c 'drop database if exists test_$(PG_DB);'"
 
 create-app:
 	docker-compose up -d api
