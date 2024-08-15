@@ -10,11 +10,12 @@ from apps.support.choices import (
 
 
 class RightholderAppeal(CreatedDateTimeMixin, models.Model):
+    title = models.CharField(max_length=255)
     organization = models.CharField(max_length=255)
     contact_person = models.CharField(max_length=255)
     email = models.EmailField()
-    release_url = models.JSONField()
-    document_url = models.JSONField()
+    release_url = models.TextField()
+    document_url = models.TextField()
     explanation = models.TextField()
     message = models.TextField()
     user = models.ForeignKey(

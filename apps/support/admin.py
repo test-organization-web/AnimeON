@@ -56,7 +56,7 @@ class RightholderAppealHistoryInline(ReadOnlyPermissionsMixin, TabularInlinePagi
 
 @admin.register(RightholderAppeal)
 class RightholderAppealAdmin(ReadOnlyPermissionsMixin, admin.ModelAdmin):
-    list_display = ['created', 'status', 'email', 'organization', 'contact_person']
+    list_display = ['created', 'title', 'status', 'email', 'organization', 'contact_person']
     inlines = [RightholderAppealHistoryInline]
 
     actions = [assigned_tickets]
@@ -226,7 +226,7 @@ class HelpAppealHistoryInline(ReadOnlyPermissionsMixin, TabularInlinePaginated):
 
 @admin.register(HelpAppeal)
 class HelpAppealAdmin(ReadOnlyPermissionsMixin, admin.ModelAdmin):
-    list_display = ['created', 'status', 'email', 'title']
+    list_display = ['created', 'title', 'status', 'email']
     inlines = [HelpAppealHistoryInline]
 
     list_filter = [

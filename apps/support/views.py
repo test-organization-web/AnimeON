@@ -1,3 +1,6 @@
+from django.conf import settings
+from django.core.mail import send_mail
+
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
@@ -25,6 +28,10 @@ class RightholderAppealAPIView(CheckIPSpam, APIView):
         if not request.user.is_anonymous:
             ticket.user = request.user
             ticket.save(update_fields=['user'])
+
+        if settings.EMAIL_HOST:
+            send_mail(subject=ticket.title, message=ticket.message, from_email=None,
+                      recipient_list=[ticket.email, settings.EMAIL_HOST_USER], fail_silently=False, html_message=ticket.message)
         ticket.process_new_history_event(
             event=RightholderAppealEvents.OPEN
         )
@@ -45,6 +52,10 @@ class HelpAppealAPIView(CheckIPSpam, APIView):
         if not request.user.is_anonymous:
             ticket.user = request.user
             ticket.save(update_fields=['user'])
+
+        if settings.EMAIL_HOST:
+            send_mail(subject=ticket.title, message=ticket.message, from_email=None,
+                      recipient_list=[ticket.email, settings.EMAIL_HOST_USER], fail_silently=False, html_message=ticket.message)
         ticket.process_new_history_event(
             event=HelpAppealEvents.OPEN
         )
