@@ -15,7 +15,7 @@ class UserRegisterViewAPIViewTest(APITestCase):
 
     def test_register_success_user(self):
         response = self.client.post(self.url, data={
-            'username': 'username', 'email': 'test@gmail.com', 'password': 'password', 'password2': 'password'
+            'username': 'username', 'email': 'test@gmail.com', 'password': 'password', 'password_repeat': 'password'
         })
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertIn('access', response.json())
@@ -25,13 +25,13 @@ class UserRegisterViewAPIViewTest(APITestCase):
 
     def test_password_not_match(self):
         response = self.client.post(self.url, data={
-            'username': 'test', 'email': 'test@gmail.com', 'password': 'password', 'password2': 'password1'
+            'username': 'test', 'email': 'test@gmail.com', 'password': 'password', 'password_repeat': 'password1'
         })
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertJSONEqual(response.content, {"errors": [
             {
                 "message": "Password Does not match",
-                "location": "password"
+                "location": "password_repeat"
             },
         ]})
 
@@ -40,7 +40,7 @@ class UserRegisterViewAPIViewTest(APITestCase):
 
         response = self.client.post(self.url, data={
             'username': 'test', 'email': 'test@gmail.com', 'password': 'password',
-            'password2': 'password1'
+            'password_repeat': 'password1'
         })
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertJSONEqual(response.content, {"errors": [
@@ -55,12 +55,12 @@ class UserRegisterViewAPIViewTest(APITestCase):
 
         response = self.client.post(self.url, data={
             'username': 'test1', 'email': 'test@example.com', 'password': 'password',
-            'password2': 'password'
+            'password_repeat': 'password'
         })
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertJSONEqual(response.content, {"errors": [
             {
-                "message": "user with this email already exists.",
+                "message": "user з таким email вже існує.",
                 "location": "email"
             },
         ]})
@@ -68,16 +68,16 @@ class UserRegisterViewAPIViewTest(APITestCase):
     def test_empty_required_fields(self):
         response = self.client.post(self.url, data={
             'password': 'password',
-            'password2': 'password'
+            'password_repeat': 'password'
         })
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertJSONEqual(response.content, {"errors": [
             {
-                "message": "This field is required.",
+                "message": "Це поле обов'язкове.",
                 "location": "username"
             },
             {
-                "message": "This field is required.",
+                "message": "Це поле обов'язкове.",
                 "location": "email"
             },
         ]})
@@ -103,7 +103,7 @@ class UserLoginViewAPIViewTest(UserProviderMixin, APITestCase):
         })
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertJSONEqual(response.content, {
-            'detail': 'No active account found with the given credentials'
+            'detail': 'Не знайдено жодного облікового запису по наданих облікових даних'
         })
 
     def test_wrong_username(self):
@@ -113,5 +113,5 @@ class UserLoginViewAPIViewTest(UserProviderMixin, APITestCase):
         })
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertJSONEqual(response.content, {
-            'detail': 'No active account found with the given credentials'
+            'detail': 'Не знайдено жодного облікового запису по наданих облікових даних'
         })

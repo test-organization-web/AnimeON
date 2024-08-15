@@ -3,7 +3,7 @@ from rest_framework.generics import GenericAPIView, ListAPIView
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 
 from apps.comment.mixins import CommentMixin
 from apps.comment.models import Comment, Reaction
@@ -22,6 +22,7 @@ from apps.core.mixins import CheckIPSpam
 
 
 class CommentCreateAPIView(CheckIPSpam, CommentMixin, APIView):
+    spam_key = 'comment'
     permission_classes = (IsAuthenticated,)
     request_serializer = CreateCommentSerializer
     response_serializer = ResponseCommentAnimeSerializer
@@ -82,7 +83,7 @@ class ReplyCommentAPIView(ListAPIView):
     lookup_field = 'pk'
     lookup_url_kwarg = 'pk'
 
-    permission_classes = (IsAuthenticated,)  # Or anon users can't register
+    permission_classes = (AllowAny,)  # Or anon users can't register
 
     serializer_class = ResponseCommentAnimeSerializer
     pagination_class = CommentAnimeListPaginator

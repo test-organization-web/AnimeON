@@ -1,5 +1,4 @@
 from django.db import models
-from django.db.models import Count
 
 from slugify import slugify
 
@@ -12,8 +11,3 @@ class AnimeManager(models.Manager):
         """
         title = title or ""
         return slugify(title.strip())
-
-    def get_queryset(self):
-        return super().get_queryset().annotate(
-            count_episodes=Count('episode')
-        )

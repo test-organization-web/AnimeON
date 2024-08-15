@@ -153,7 +153,7 @@ class ResponseAnimeSerializer(serializers.ModelSerializer):
         return [start_params, end_params] if end_params else start_params
 
     def get_count_episodes(self, obj: Anime):
-        count_episodes = obj.count_episodes
+        count_episodes = obj.episode_set.count()
         return {
             'value': count_episodes,
             'get_params': QueryDict(f'episode_lte={count_episodes}').urlencode(),

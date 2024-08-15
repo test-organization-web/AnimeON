@@ -19,5 +19,5 @@ class CommentReactSerializer(serializers.ModelSerializer):
 
 class ResponseCommentReactSerializer(serializers.Serializer):
     action = serializers.ChoiceField(
-        choices=(('DETETE', 'DELETE'), ('CHANGE', 'CHANGE'), ('NEW', 'NEW'))
+        choices=(('DELETE', 'DELETE'), ('CHANGE', 'CHANGE'), ('NEW', 'NEW'))
     )

@@ -3,7 +3,7 @@ from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.permissions import AllowAny
 
-from apps.core.utils import swagger_auto_schema_wrapper, validate_request_data, get_response_body_errors
+from apps.core.utils import swagger_auto_schema_wrapper, validate_request_data
 from apps.support.models import RightholderAppeal, HelpAppeal
 from apps.support.choices import RightholderAppealEvents, HelpAppealEvents
 from apps.support.serializers import RightholderAppealSerializer, HelpAppealSerializer
@@ -12,12 +12,13 @@ from apps.core.mixins import CheckIPSpam
 
 
 class RightholderAppealAPIView(CheckIPSpam, APIView):
+    spam_key = 'rightholder'
     permission_classes = (AllowAny,)
     request_serializer = RightholderAppealSerializer
 
     @swagger_auto_schema_wrapper(doc=RightholderAppealAPIViewDoc,
                                  request_serializer_cls=request_serializer,
-                                 operation_id='create_rightholder_appeal', )
+                                 operation_id='create_rightholder_appeal')
     @validate_request_data(serializer_cls=request_serializer)
     def post(self, request, serializer: RightholderAppealSerializer):
         ticket: RightholderAppeal = serializer.save()
@@ -31,12 +32,13 @@ class RightholderAppealAPIView(CheckIPSpam, APIView):
 
 
 class HelpAppealAPIView(CheckIPSpam, APIView):
+    spam_key = 'help'
     permission_classes = (AllowAny,)
     request_serializer = HelpAppealSerializer
 
     @swagger_auto_schema_wrapper(doc=HelpAppealAPIViewDoc,
                                  request_serializer_cls=request_serializer,
-                                 operation_id='create_help_appeal',)
+                                 operation_id='create_help_appeal')
     @validate_request_data(serializer_cls=request_serializer)
     def post(self, request, serializer: HelpAppealSerializer):
         ticket: HelpAppeal = serializer.save()
