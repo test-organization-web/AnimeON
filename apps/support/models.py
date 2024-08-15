@@ -165,10 +165,8 @@ class HelpAppeal(CreatedDateTimeMixin, models.Model):
 
             if last_obj.event == RightholderAppealEvents.IN_PROGRESS:
                 new_status = RightholderAppealEvents.IN_PROGRESS
-            elif last_obj.event == RightholderAppealEvents.OPEN:
-                new_status = RightholderAppealEvents.OPEN
             else:
-                new_status = RightholderAppealEvents.CREATED
+                new_status = RightholderAppealEvents.OPEN
 
         if self.status != new_status:
             self.status = new_status

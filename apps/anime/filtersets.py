@@ -12,8 +12,8 @@ class AnimeListFilterSet(filters.FilterSet):
         field_name='genres', to_field_name='id',
         queryset=Genre.objects.all()
     )
-    studio = filters.ModelChoiceFilter(
-        field_name='studio_id', to_field_name='id',
+    studio = filters.ModelMultipleChoiceFilter(
+        field_name='studio', to_field_name='id',
         queryset=Studio.objects.all()
     )
     country = filters.ChoiceFilter(

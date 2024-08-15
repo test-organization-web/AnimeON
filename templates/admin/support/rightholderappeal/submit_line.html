@@ -25,7 +25,7 @@
 		{% include 'admin/includes/modal_confirmation.html' with url=url modal_id='assigned' text_confirm='Ви дійсно хочете перевести тікет на себе?' %}
 	{% endif %}
 
-	{% if original and not edit and ticket_is_can_be_unassigned_by_user%}
+	{% if original and not edit and is_can_be_unassigned_by_user%}
 		<input type="button" class="trigger button" data-modal-id="modal-comment-unassigned" value="Відповитися">
 		{% url 'admin:rightholderappeal_unassigned' original.id as url %}
 		{% include 'admin/includes/modal_confirmation.html' with url=url modal_id='unassigned' text_confirm='Ви дійсно хочете відповитися від тікета?' %}

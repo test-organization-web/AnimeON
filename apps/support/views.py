@@ -31,7 +31,11 @@ class RightholderAppealAPIView(CheckIPSpam, APIView):
 
         if settings.EMAIL_HOST:
             send_mail(subject=ticket.title, message=ticket.message, from_email=None,
-                      recipient_list=[ticket.email, settings.EMAIL_HOST_USER], fail_silently=False, html_message=ticket.message)
+                      recipient_list=[ticket.email, settings.EMAIL_HOST_USER], fail_silently=False,
+                      html_message=ticket.message)
+        ticket.process_new_history_event(
+            event=RightholderAppealEvents.CREATED
+        )
         ticket.process_new_history_event(
             event=RightholderAppealEvents.OPEN
         )
@@ -55,7 +59,11 @@ class HelpAppealAPIView(CheckIPSpam, APIView):
 
         if settings.EMAIL_HOST:
             send_mail(subject=ticket.title, message=ticket.message, from_email=None,
-                      recipient_list=[ticket.email, settings.EMAIL_HOST_USER], fail_silently=False, html_message=ticket.message)
+                      recipient_list=[ticket.email, settings.EMAIL_HOST_USER], fail_silently=False,
+                      html_message=ticket.message)
+        ticket.process_new_history_event(
+            event=HelpAppealEvents.CREATED
+        )
         ticket.process_new_history_event(
             event=HelpAppealEvents.OPEN
         )
