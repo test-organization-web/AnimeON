@@ -17,7 +17,7 @@ class AnimeListFilterSet(filters.FilterSet):
         queryset=Studio.objects.all()
     )
     country = filters.ChoiceFilter(
-        field_name='studio__country', choices=Countries()
+        field_name='country', choices=Countries()
     )
     status = filters.ChoiceFilter(
         field_name='status', choices=AnimeStatuses.choices
