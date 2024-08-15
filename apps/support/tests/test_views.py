@@ -68,8 +68,8 @@ class RightholderAppealAPIViewTest(UserProviderMixin, APITestCase):
             'organization': 'organization',
             'contact_person': 'contact_person',
             'email': 'test@gmail.com',
-            'release_url': '{}',
-            'document_url': '{}',
+            'release_url': 'test',
+            'document_url': 'test',
             'explanation': 'explanation',
             'message': 'message',
         }, headers={
