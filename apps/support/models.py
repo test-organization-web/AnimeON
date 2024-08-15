@@ -30,7 +30,7 @@ class RightholderAppeal(CreatedDateTimeMixin, models.Model):
         return self.assigned == user and self.status != HelpAppealStatus.RESOLVED
 
     def is_can_be_assigned_to_user(self, user):
-        return self.assigned != user or self.status in (HelpAppealStatus.OPEN, HelpAppealStatus.CREATED)
+        return self.assigned != user or self.status in (HelpAppealStatus.OPEN,)
 
     def is_can_be_unassigned_by_user(self, user):
         return self.assigned == user and self.status != HelpAppealStatus.RESOLVED
@@ -72,13 +72,15 @@ class RightholderAppeal(CreatedDateTimeMixin, models.Model):
 
         if history.filter(event=RightholderAppealEvents.RESOLVED).exists():
             new_status = RightholderAppealEvents.RESOLVED
-        else:
-            last_obj = history.last()
-
+        elif last_obj := history.filter(
+                event__in=[RightholderAppealEvents.IN_PROGRESS, RightholderAppealEvents.OPEN]
+        ).last():
             if last_obj.event == RightholderAppealEvents.IN_PROGRESS:
                 new_status = RightholderAppealEvents.IN_PROGRESS
             else:
                 new_status = RightholderAppealEvents.OPEN
+        else:
+            new_status = RightholderAppealEvents.OPEN
 
         if self.status != new_status:
             self.status = new_status
@@ -118,7 +120,7 @@ class HelpAppeal(CreatedDateTimeMixin, models.Model):
         return self.assigned == user and self.status != HelpAppealStatus.RESOLVED
 
     def is_can_be_assigned_to_user(self, user):
-        return self.assigned != user or self.status in (HelpAppealStatus.OPEN, HelpAppealStatus.CREATED)
+        return self.assigned != user or self.status in (HelpAppealStatus.OPEN,)
 
     def is_can_be_unassigned_by_user(self, user):
         return self.assigned == user and self.status != HelpAppealStatus.RESOLVED
@@ -160,13 +162,15 @@ class HelpAppeal(CreatedDateTimeMixin, models.Model):
 
         if history.filter(event=RightholderAppealEvents.RESOLVED).exists():
             new_status = RightholderAppealEvents.RESOLVED
-        else:
-            last_obj = history.last()
-
+        elif last_obj := history.filter(
+                event__in=[RightholderAppealEvents.IN_PROGRESS, RightholderAppealEvents.OPEN]
+        ).last():
             if last_obj.event == RightholderAppealEvents.IN_PROGRESS:
                 new_status = RightholderAppealEvents.IN_PROGRESS
             else:
                 new_status = RightholderAppealEvents.OPEN
+        else:
+            new_status = RightholderAppealEvents.OPEN
 
         if self.status != new_status:
             self.status = new_status
