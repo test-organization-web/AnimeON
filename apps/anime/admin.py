@@ -123,7 +123,7 @@ class AnimeAdmin(admin.ModelAdmin):
 
     @admin.display(description='Episodes')
     def display_count_episodes(self, obj: Anime):
-        return obj.count_episodes
+        return obj.episode_set.count()
 
     def get_queryset(self, request):
         return super().get_queryset(request).prefetch_related(
