@@ -2,16 +2,18 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import Group
 from django_admin_inline_paginator.admin import TabularInlinePaginated
+from django.contrib.auth import get_user_model
 
-from apps.user.models import User
 from apps.user.models import Group as CustomGroup
+
+UserModel = get_user_model()
 
 
 admin.site.unregister(Group)
 
 
 class UserTabularInlinePaginated(TabularInlinePaginated):
-    model = User.groups.through
+    model = UserModel.groups.through
     autocomplete_fields = ('user',)
 
 
@@ -21,7 +23,7 @@ class CustomGroupAdmin(admin.ModelAdmin):
     pass
 
 
-@admin.register(User)
+@admin.register(UserModel)
 class CustomUserAdmin(UserAdmin):
     add_fieldsets = (
         (None, {

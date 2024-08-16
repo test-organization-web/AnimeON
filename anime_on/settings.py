@@ -54,8 +54,8 @@ INSTALLED_APPS = [
     'django.contrib.postgres',
 
     # app
-    'apps.authentication',
     'apps.user',
+    'apps.authentication',
     'apps.anime',
     'apps.comment',
     'apps.core',

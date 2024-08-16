@@ -1,17 +1,15 @@
-from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
+from django.conf import settings
 
 from apps.core.models import CreatedDateTimeMixin
 from apps.comment.managers import CommentQuerySet, ReactionQuerySet
 from apps.comment.choices import ReactionChoices
 
-User = get_user_model()
-
 
 class Comment(CreatedDateTimeMixin, models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='comments')
     content_main = models.TextField()
     content = models.TextField()  # edited content will store here
     parent = models.ForeignKey('self', on_delete=models.CASCADE, related_name='reply', null=True, blank=True)
@@ -60,7 +58,8 @@ class Comment(CreatedDateTimeMixin, models.Model):
 
 
 class Reaction(models.Model):
-    user = models.ForeignKey(User, related_name='comment_reactions', on_delete=models.CASCADE, editable=False)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='comment_reactions', on_delete=models.CASCADE,
+                             editable=False)
     comment = models.ForeignKey(Comment, related_name='reactions', on_delete=models.CASCADE, editable=False)
     reaction = models.CharField(choices=ReactionChoices.choices, default='')
 

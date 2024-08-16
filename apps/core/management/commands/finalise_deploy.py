@@ -1,7 +1,5 @@
 from django.core.management import call_command
 from django.core.management import BaseCommand
-from django.conf import settings
-from django.contrib.auth import get_user_model
 import subprocess
 import traceback
 import logging
@@ -16,8 +14,10 @@ class Command(BaseCommand):
         try:
             # static files
             call_command("collectstatic", interactive=False)
+            # remove all applied migrations from table
+            call_command("truncate_django_migration_table")
             # migrate and save migrations state
-            call_command("migrate", interactive=False)
+            call_command("migrate", "--fake", interactive=False)
         except subprocess.CalledProcessError as e:
             errors.append(e.stderr.decode())
             errors.append(traceback.format_exc())
