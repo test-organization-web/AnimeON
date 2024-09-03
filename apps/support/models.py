@@ -26,13 +26,13 @@ class RightholderAppeal(CreatedDateTimeMixin, models.Model):
         settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='rightholder_appeal'
     )
 
-    def is_can_be_resolved(self, user):
+    def is_can_be_resolved(self, user: settings.AUTH_USER_MODEL):
         return self.assigned == user and self.status != HelpAppealStatus.RESOLVED
 
-    def is_can_be_assigned_to_user(self, user):
+    def is_can_be_assigned_to_user(self, user: settings.AUTH_USER_MODEL):
         return self.assigned != user or self.status in (HelpAppealStatus.OPEN,)
 
-    def is_can_be_unassigned_by_user(self, user):
+    def is_can_be_unassigned_by_user(self, user: settings.AUTH_USER_MODEL):
         return self.assigned == user and self.status != HelpAppealStatus.RESOLVED
 
     def process_assigned(self, history_record: 'RightholderAppealHistory'):
@@ -116,13 +116,13 @@ class HelpAppeal(CreatedDateTimeMixin, models.Model):
         settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='help_appeal'
     )
 
-    def is_can_be_resolved(self, user):
+    def is_can_be_resolved(self, user: settings.AUTH_USER_MODEL):
         return self.assigned == user and self.status != HelpAppealStatus.RESOLVED
 
-    def is_can_be_assigned_to_user(self, user):
+    def is_can_be_assigned_to_user(self, user: settings.AUTH_USER_MODEL):
         return self.assigned != user or self.status in (HelpAppealStatus.OPEN,)
 
-    def is_can_be_unassigned_by_user(self, user):
+    def is_can_be_unassigned_by_user(self, user: settings.AUTH_USER_MODEL):
         return self.assigned == user and self.status != HelpAppealStatus.RESOLVED
 
     def process_assigned(self, history_record: 'HelpAppealHistory'):

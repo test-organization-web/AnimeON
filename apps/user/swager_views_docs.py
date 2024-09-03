@@ -3,7 +3,8 @@ from rest_framework import status
 
 from apps.core.swagger_views_docs import BaseSwaggerAPIViewDoc, SwaggerTags
 from apps.core.serializers import ResponseErrorSerializer
-from apps.user.serializers import UserSerializer, UserAnimeSerializer
+from apps.user.serializers import UserSerializer
+from apps.anime.serializers import ResponsePaginatedAnimeListSerializer
 
 
 class UserAPIViewDoc(BaseSwaggerAPIViewDoc):
@@ -43,27 +44,34 @@ class UserAnimeListAPIViewDoc(BaseSwaggerAPIViewDoc):
     responses = {
         status.HTTP_200_OK: openapi.Response(
             'Ok.',
-            UserAnimeSerializer(many=True),
+            ResponsePaginatedAnimeListSerializer,
             examples={
-                'application/json': [
-                    {
-                        'anime': {
+                'application/json': {
+                    "active_page": 1,
+                    "num_pages": 1,
+                    "count": 1,
+                    "next": "<str: url>",
+                    "previous": "<str: url>",
+                    "results": [
+                        {
                             'id': 1,
                             'title': 'Naruto',
                             'card_image': '/path/to/naruto/image.jpg',
                             'count_episodes': 5,
-                            'slug': 'naruto'
-                        },
-                    }, {
-                        'anime': {
+                            'slug': 'naruto',
+                            'type': 'TV',
+                            'year': 2012,
+                        }, {
                             'id': 2,
                             'title': 'One Piece',
                             'card_image': '/path/to/onepiece/image.jpg',
                             'count_episodes': 3,
-                            'slug': 'one-piece'
+                            'slug': 'one-piece',
+                            'type': 'TV',
+                            'year': 2012,
                         }
-                    }
-                ]
+                    ]
+                }
             },
         ),
         status.HTTP_401_UNAUTHORIZED: openapi.Response(

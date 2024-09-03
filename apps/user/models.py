@@ -6,7 +6,6 @@ from django.utils import timezone
 from django.db import models
 from django.conf import settings
 
-from apps.core.models import CreatedDateTimeMixin
 from apps.user.choices import UserAnimeChoices
 
 

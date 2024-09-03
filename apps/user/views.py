@@ -1,25 +1,27 @@
 import logging
-from drf_yasg import openapi
 
 from django.db import transaction
+from django_filters.rest_framework import DjangoFilterBackend
 
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.generics import RetrieveAPIView
+from rest_framework.generics import RetrieveAPIView, ListAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
 
+from apps.anime.models import Anime
+from apps.anime.serializers import ResponseAnimeListSerializer
 from apps.user.serializers import UserSerializer
 from apps.core.utils import swagger_auto_schema_wrapper, validate_request_data, get_response_body_errors
 from apps.user.swager_views_docs import (
     UserAPIViewDoc, UserAnimeListAPIViewDoc, UserAnimeAPIViewDoc, UserViewedEpisodeAPIViewDoc,
 )
 from apps.user.serializers import (
-    UserAnimeSerializer, RequestUserAnimeSerializer, RequestViewedEpisodeSerializer,
-    RequestUserAnimeDeleteSerializer
+    RequestUserAnimeSerializer, RequestViewedEpisodeSerializer, RequestUserAnimeDeleteSerializer
 )
-from apps.user.choices import UserAnimeChoices
 from apps.user.models import UserAnime, UserEpisodeViewed
+from apps.user.filtersets import UserAnimeListFilterSet
+from apps.user.paginators import UserAnimeListPaginator
 
 logger = logging.getLogger(__name__)
 
@@ -39,35 +41,36 @@ class UserAPI(RetrieveAPIView):
         return self.request.user
 
 
-class UserAnimeAPIView(APIView):
+class UserAnimeAPIView(ListAPIView, APIView):
     permission_classes = (IsAuthenticated,)
     request_serializer = RequestUserAnimeSerializer
     request_delete_serializer = RequestUserAnimeDeleteSerializer
-    response_anime_list_class = UserAnimeSerializer
+
+    queryset = Anime.objects.prefetch_related('episode_set').all()
+
+    serializer_class = ResponseAnimeListSerializer
+
+    pagination_class = UserAnimeListPaginator
+
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = UserAnimeListFilterSet
 
     @swagger_auto_schema_wrapper(
         doc=UserAnimeListAPIViewDoc,
-        manual_parameters=[
-            openapi.Parameter('action', openapi.IN_QUERY, type=openapi.TYPE_STRING, required=False)
-        ],
         request_serializer_cls=None,
         operation_id='user_anime_list',
     )
     def get(self, request, *args, **kwargs):
-        action = request.query_params.get('action', None)
-        user = self.request.user
+        return super().get(request, *args, **kwargs)
 
-        if action and action in UserAnimeChoices.values:
-            user_anime = UserAnime.objects.prefetch_related(
-                'anime', 'anime__episode_set'
-            ).filter(user_id=user.id, action=action)
-        else:
-            user_anime = UserAnime.objects.prefetch_related(
-                'anime', 'anime__episode_set'
-            ).filter(user_id=user.id)
-
-        serializer = self.response_anime_list_class(user_anime, many=True)
-        return Response(serializer.data)
+    def get_queryset(self):
+        # Views have behaviour which varies dynamically based on request parameters
+        # (using self.kwargs in their get_queryset, get_serializer, etc methods).
+        # drf-yasg is unable to handle this because no requests are actually made to the inspected views.
+        if getattr(self, "swagger_fake_view", False):
+            # It means that the view instance was artificially created as part of a swagger schema request.
+            return Anime.objects.none()
+        return super().get_queryset().filter(useranime__user=self.request.user)
 
     @swagger_auto_schema_wrapper(doc=UserAnimeAPIViewDoc, request_serializer_cls=request_serializer,
                                  operation_id='user_add_anime',)
