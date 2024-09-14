@@ -32,6 +32,7 @@ class VoiceoverHistoryEvents(models.TextChoices):
     CHANGED = 'CHANGED', 'Змінено'
     DECLINED = 'DECLINED', 'Відхилено'
     APPROVED = 'APPROVED', 'Підтвержено'
+    COMMENT = 'COMMENT'
 
 
 class RatingTypes(models.TextChoices):

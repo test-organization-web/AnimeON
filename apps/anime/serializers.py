@@ -269,8 +269,8 @@ class EpisodeVoiceoverSerializer(serializers.ModelSerializer):
 
 
 class ResponseAnimeEpisodeSerializer(serializers.ModelSerializer):
-    voiceover = EpisodeVoiceoverSerializer(source='voiceovers', many=True, read_only=True)
-    subtitles = EpisodeVoiceoverSerializer(many=True, read_only=True)
+    voiceover = EpisodeVoiceoverSerializer(source='public_voiceovers', many=True, read_only=True)
+    subtitles = EpisodeVoiceoverSerializer(source='public_subtitles', many=True, read_only=True)
 
     class Meta:
         model = Episode

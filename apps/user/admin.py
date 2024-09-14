@@ -30,3 +30,8 @@ class CustomUserAdmin(UserAdmin):
             "fields": ("username", "email", "password1", "password2"),
         }),
     )
+
+    def get_search_results(self, request, queryset, search_term):
+        queryset, may_have_duplicates = super().get_search_results(request, queryset, search_term)
+        queryset = queryset.filter(is_staff=True)
+        return queryset, may_have_duplicates

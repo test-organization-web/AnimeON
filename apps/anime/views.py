@@ -11,6 +11,7 @@ from django_countries.data import COUNTRIES
 
 from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
+from django.db.models import Prefetch
 
 from apps.anime.serializers import (
     ResponseDirectorSerializer, ResponseStudioSerializer, ResponseAnimeSerializer, ResponseAnimeListSerializer,
@@ -24,7 +25,8 @@ from apps.anime.swagger_views_docs import (
     AnimeRandomAPIViewDoc, ResponseAnimeEpisodeAPIViewDoc, CommentAnimeAPIViewDoc,
     AnimeArchAPIViewDoc
 )
-from apps.anime.models import Director, Studio, Anime, Poster, Episode, Genre, Arch
+from apps.anime.models import Director, Studio, Anime, Poster, Episode, Genre, Arch, Voiceover
+from apps.anime.choices import VoiceoverStatuses, VoiceoverTypes
 from apps.anime.paginators import AnimeListPaginator
 from apps.anime.filtersets import AnimeListFilterSet
 from apps.anime.choices import AnimeStatuses, AnimeTypes, SeasonTypes
@@ -185,7 +187,20 @@ class FiltersAnimeAPIView(GenericAPIView):
 class EpisodeAPIView(RetrieveAPIView):
     lookup_field = 'anime_id'
     lookup_url_kwarg = 'anime_pk'
-    queryset = Episode.objects.prefetch_related('voiceover_set', 'voiceover_set__team').all()
+    queryset = Episode.objects.prefetch_related(
+        Prefetch(
+            lookup='voiceover_set',
+            queryset=Voiceover.objects.filter(
+                status=VoiceoverStatuses.APPROVED, type=VoiceoverTypes.VOICEOVER),
+            to_attr='public_voiceovers'
+        ),
+        Prefetch(
+            lookup='voiceover_set',
+            queryset=Voiceover.objects.filter(
+                status=VoiceoverStatuses.APPROVED, type=VoiceoverTypes.SUBTITLES),
+            to_attr='public_subtitles'
+        )
+    ).all()
     serializer_class = ResponseAnimeEpisodeSerializer
 
     def get_queryset(self):

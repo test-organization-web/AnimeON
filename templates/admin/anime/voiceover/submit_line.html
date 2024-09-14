@@ -1,0 +1,23 @@
+{% extends "admin/submit_line.html" %}
+{% load static support %}
+
+{% block submit-row %}
+
+	{% if original and not edit %}
+		<input type="button" class="trigger button" data-modal-id="modal-comment-help" value="Додати коментар">
+		{% url 'admin:voiceover_add_note' original.id as url %}
+		{% include 'admin/includes/modal_comment.html' with url=url modal_id='help' input_placeholder='Буль-ласка залиште коментар' %}
+		{% if user_has_change_permission %}
+			<input type="button" class="trigger button" data-modal-id="modal-comment-approve" value="Перевірено">
+			{% url 'admin:voiceover_approve' original.id as url %}
+			{% include 'admin/includes/modal_confirmation.html' with url=url modal_id='approve' text_confirm='Після переіврки озвучка буде доступна користувачу' %}
+
+			<input type="button" class="trigger button" data-modal-id="modal-comment-decline" value="Відилити">
+			{% url 'admin:voiceover_decline' original.id as url %}
+			{% include 'admin/includes/modal_confirmation.html' with url=url modal_id='decline' text_confirm='Відхилити озвучку' %}
+		{% endif %}
+	{% endif %}
+
+	{{ block.super }}
+
+{% endblock %}

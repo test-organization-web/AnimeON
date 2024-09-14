@@ -1,7 +1,13 @@
 from django.utils import timezone
 from django.contrib import admin
 from django.utils.html import format_html
+from django.urls import path, reverse
+from django.utils.decorators import method_decorator
+from django.views.decorators.http import require_POST
+from django.http import JsonResponse
+from django.contrib import messages
 
+from rest_framework import status
 from django_admin_inline_paginator.admin import TabularInlinePaginated
 from adminfilters.combo import RelatedFieldComboFilter, AllValuesComboFilter
 from rangefilter.filters import NumericRangeFilter
@@ -11,6 +17,7 @@ from apps.anime.models import (
 )
 from apps.core.admin import OnlyAddPermissionMixin, ReadOnlyPermissionsMixin, OnlyChangePermissionMixin
 from apps.anime.choices import VoiceoverHistoryEvents
+from apps.core.utils import get_instance_or_ajax_redirect
 
 # Register your models here.
 
@@ -163,24 +170,107 @@ class VoiceoverHistoryInline(ReadOnlyPermissionsMixin, TabularInlinePaginated):
 
 
 @admin.register(Voiceover)
-class VoiceoverAdmin(admin.ModelAdmin):
+class VoiceoverAdmin(OnlyAddPermissionMixin, admin.ModelAdmin):
     search_fields = ('episode__anime__title',)
     search_help_text = 'Search by Anime'
-    list_display = ['episode', 'team', 'user', 'type', 'status', 'verified']
+    list_display = ['episode', 'team', 'user', 'type', 'status']
     inlines = [VoiceoverHistoryInline]
 
     fields = (
-        'episode', 'team', 'type', 'status', 'verified', 'url'
+        'episode', 'team', 'type', 'url'
     )
     autocomplete_fields = ('episode',)
 
     list_filter = [
-        'verified',
         ('episode', RelatedFieldComboFilter),
         ('team', RelatedFieldComboFilter),
         ('type', AllValuesComboFilter),
         ('status', AllValuesComboFilter),
     ]
+
+    class Media:
+        css = {
+            'all': (
+                "//code.jquery.com/ui/1.11.1/themes/smoothness/jquery-ui.css",
+                'admin/css/utils/modal.css',
+                'admin/css/buttons.css',
+            )
+        }
+        js = (
+            '//code.jquery.com/jquery-1.11.1.min.js',
+            '//code.jquery.com/ui/1.11.1/jquery-ui.min.js',
+            '//cdn.jsdelivr.net/npm/js-cookie@3.0.1/dist/js.cookie.min.js',
+            "admin/js/utils/modal.js",
+            "admin/js/utils/add_modal.js",
+            'admin/js/utils/confirm_modal.js',
+        )
+
+    def get_urls(self):
+        urls = super().get_urls()
+        my_urls = [
+            path('<str:object_id>/add-note/',
+                 self.admin_site.admin_view(self.add_note),
+                 name='voiceover_add_note'),
+            path('<str:object_id>/decline/',
+                 self.admin_site.admin_view(self.decline),
+                 name='voiceover_decline'),
+            path('<str:object_id>/approve/',
+                 self.admin_site.admin_view(self.approve),
+                 name='voiceover_approve'),
+        ]
+        return my_urls + urls
+
+    def change_view(self, request, object_id, form_url="", extra_context=None):
+        extra_context = extra_context or {}
+        extra_context.update({
+            'user_has_change_permission': request.user.has_perm('anime.change_voiceover')
+        })
+        return super(VoiceoverAdmin, self).change_view(request, object_id, form_url, extra_context)
+
+    @method_decorator(require_POST)
+    @get_instance_or_ajax_redirect(error_message="Voiceover does not exist!",
+                                   redirect_url='admin:anime_voiceover_changelist')
+    def decline(self, request, object_id, instance: Voiceover):
+        instance.process_new_history_event(
+            event=VoiceoverHistoryEvents.DECLINED,
+            user=request.user,
+        )
+        self.message_user(request, "The Voiceover has been successfully decline!",
+                          level=messages.SUCCESS)
+        return JsonResponse(data={
+            'redirectUrl': reverse('admin:anime_voiceover_change', args=(instance.id,))
+        })
+
+    @method_decorator(require_POST)
+    @get_instance_or_ajax_redirect(error_message="Voiceover does not exist!",
+                                   redirect_url='admin:anime_voiceover_changelist')
+    def approve(self, request, object_id, instance: Voiceover):
+        instance.process_new_history_event(
+            event=VoiceoverHistoryEvents.APPROVED,
+            user=request.user,
+        )
+        self.message_user(request, "The Voiceover has been successfully approve!", level=messages.SUCCESS)
+        return JsonResponse(data={
+            'redirectUrl': reverse('admin:anime_voiceover_change', args=(instance.id,))
+        })
+
+    @method_decorator(require_POST)
+    @get_instance_or_ajax_redirect(error_message="Voiceover does not exist!",
+                                   redirect_url='admin:anime_voiceover_changelist')
+    def add_note(self, request, object_id, instance: Voiceover):
+        if request.POST.get('userComment', '') == '':
+            return JsonResponse(data={}, status=status.HTTP_400_BAD_REQUEST)
+
+        instance.process_new_history_event(
+            event=VoiceoverHistoryEvents.COMMENT,
+            user=request.user,
+            message=request.POST['userComment'],
+        )
+
+        self.message_user(request, "The comment has been successfully added!", level=messages.SUCCESS)
+        return JsonResponse(data={
+            'redirectUrl': reverse('admin:anime_voiceover_change', args=(instance.id,))
+        })
 
     def save_model(self, request, obj, form, change):
         obj.user = request.user
