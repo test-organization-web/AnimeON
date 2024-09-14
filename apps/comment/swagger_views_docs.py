@@ -33,7 +33,11 @@ class CommentCreateAPIViewDoc(BaseSwaggerAPIViewDoc):
             'Unauthorized.',
             examples={
                 'application/json': {
-                    "detail": "Реквізити перевірки достовірності не надані."
+                    "errors": [
+                        {
+                            "message": "Реквізити перевірки достовірності не надані.",
+                        },
+                    ]
                 }
             },
         ),
@@ -74,7 +78,11 @@ class CommentReactAPIViewDoc(BaseSwaggerAPIViewDoc):
             'Unauthorized.',
             examples={
                 'application/json': {
-                    "detail": "Реквізити перевірки достовірності не надані."
+                    "errors": [
+                        {
+                            "message": "Реквізити перевірки достовірності не надані.",
+                        },
+                    ]
                 }
             },
         ),

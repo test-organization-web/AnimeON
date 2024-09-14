@@ -3,8 +3,7 @@ from rest_framework import status
 
 from apps.core.swagger_views_docs import BaseSwaggerAPIViewDoc, SwaggerTags
 from apps.core.serializers import ResponseErrorSerializer
-from apps.user.serializers import UserSerializer
-from apps.anime.serializers import ResponsePaginatedAnimeListSerializer
+from apps.user.serializers import UserSerializer, ResponsePaginatedUserAnimeListSerializer
 
 
 class UserAPIViewDoc(BaseSwaggerAPIViewDoc):
@@ -44,7 +43,7 @@ class UserAnimeListAPIViewDoc(BaseSwaggerAPIViewDoc):
     responses = {
         status.HTTP_200_OK: openapi.Response(
             'Ok.',
-            ResponsePaginatedAnimeListSerializer,
+            ResponsePaginatedUserAnimeListSerializer,
             examples={
                 'application/json': {
                     "active_page": 1,
@@ -54,21 +53,27 @@ class UserAnimeListAPIViewDoc(BaseSwaggerAPIViewDoc):
                     "previous": "<str: url>",
                     "results": [
                         {
-                            'id': 1,
-                            'title': 'Naruto',
-                            'card_image': '/path/to/naruto/image.jpg',
-                            'count_episodes': 5,
-                            'slug': 'naruto',
-                            'type': 'TV',
-                            'year': 2012,
+                            'action': 'FAVORITE',
+                            'anime': {
+                                'id': 1,
+                                'title': 'Naruto',
+                                'card_image': '/path/to/naruto/image.jpg',
+                                'count_episodes': 5,
+                                'slug': 'naruto',
+                                'type': 'TV',
+                                'year': 2012,
+                            }
                         }, {
-                            'id': 2,
-                            'title': 'One Piece',
-                            'card_image': '/path/to/onepiece/image.jpg',
-                            'count_episodes': 3,
-                            'slug': 'one-piece',
-                            'type': 'TV',
-                            'year': 2012,
+                            'action': 'FAVORITE',
+                            'anime': {
+                                'id': 2,
+                                'title': 'One Piece',
+                                'card_image': '/path/to/onepiece/image.jpg',
+                                'count_episodes': 3,
+                                'slug': 'one-piece',
+                                'type': 'TV',
+                                'year': 2012,
+                            }
                         }
                     ]
                 }
@@ -78,7 +83,11 @@ class UserAnimeListAPIViewDoc(BaseSwaggerAPIViewDoc):
             'Unauthorized.',
             examples={
                 'application/json': {
-                    "detail": "Реквізити перевірки достовірності не надані."
+                    "errors": [
+                        {
+                            "message": "Реквізити перевірки достовірності не надані.",
+                        },
+                    ]
                 }
             },
         ),
@@ -116,7 +125,11 @@ class UserAnimeAPIViewDoc(BaseSwaggerAPIViewDoc):
             'Unauthorized.',
             examples={
                 'application/json': {
-                    "detail": "Реквізити перевірки достовірності не надані."
+                    "errors": [
+                        {
+                            "message": "Реквізити перевірки достовірності не надані.",
+                        },
+                    ]
                 }
             },
         ),
@@ -154,7 +167,11 @@ class UserViewedEpisodeAPIViewDoc(BaseSwaggerAPIViewDoc):
             'Unauthorized.',
             examples={
                 'application/json': {
-                    "detail": "Реквізити перевірки достовірності не надані."
+                    "errors": [
+                        {
+                            "message": "Реквізити перевірки достовірності не надані.",
+                        },
+                    ]
                 }
             },
         ),

@@ -9,8 +9,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
 
-from apps.anime.models import Anime
-from apps.anime.serializers import ResponseAnimeListSerializer
+from apps.user.serializers import ResponseUserAnimeListSerializer
 from apps.user.serializers import UserSerializer
 from apps.core.utils import swagger_auto_schema_wrapper, validate_request_data, get_response_body_errors
 from apps.user.swager_views_docs import (
@@ -46,9 +45,9 @@ class UserAnimeAPIView(ListAPIView, APIView):
     request_serializer = RequestUserAnimeSerializer
     request_delete_serializer = RequestUserAnimeDeleteSerializer
 
-    queryset = Anime.objects.prefetch_related('episode_set').all()
+    queryset = UserAnime.objects.prefetch_related('anime__episode_set').all()
 
-    serializer_class = ResponseAnimeListSerializer
+    serializer_class = ResponseUserAnimeListSerializer
 
     pagination_class = UserAnimeListPaginator
 
@@ -69,8 +68,8 @@ class UserAnimeAPIView(ListAPIView, APIView):
         # drf-yasg is unable to handle this because no requests are actually made to the inspected views.
         if getattr(self, "swagger_fake_view", False):
             # It means that the view instance was artificially created as part of a swagger schema request.
-            return Anime.objects.none()
-        return super().get_queryset().filter(useranime__user=self.request.user)
+            return UserAnime.objects.none()
+        return super().get_queryset().filter(user=self.request.user)
 
     @swagger_auto_schema_wrapper(doc=UserAnimeAPIViewDoc, request_serializer_cls=request_serializer,
                                  operation_id='user_add_anime',)
