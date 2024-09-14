@@ -142,7 +142,7 @@ class Genre(models.Model):
         return f'{self.name}'
 
 
-class Voiceover(CreatedDateTimeMixin, UpdatedDateTimeMixin, VerifyMixin, models.Model):
+class Voiceover(CreatedDateTimeMixin, UpdatedDateTimeMixin, models.Model):
     type = models.CharField(max_length=255, choices=VoiceoverTypes.choices)
     episode = models.ForeignKey('anime.Episode', on_delete=models.CASCADE)
     team = models.ForeignKey('user.Group', on_delete=models.CASCADE)
@@ -152,6 +152,9 @@ class Voiceover(CreatedDateTimeMixin, UpdatedDateTimeMixin, VerifyMixin, models.
 
     def __str__(self):
         return f'voiceover# {self.episode.title} ({self.team.name})'
+
+    def is_can_be_approved(self, user: settings.AUTH_USER_MODEL):
+        return self.user != user
 
     def process_new_history_event(self, event: VoiceoverHistoryEvents, **kwargs) -> 'VoiceoverHistory':
         old_status = self.status

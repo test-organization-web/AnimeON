@@ -10,13 +10,13 @@ from apps.core.utils import get_response_body_errors
 logger = logging.getLogger(__name__)
 
 
-def custom_exception_handler(exc: APIException, context):
+def custom_exception_handler(exc, context):
     # Call REST framework's default exception handler first,
     # to get the standard error response.
     response = exception_handler(exc, context)
     if response is not None:
         kwargs = {}
-        data: dict = exc.detail
+        data = exc.detail if hasattr(exc, 'detail') else str(exc)
         try:
             if isinstance(data, dict):
                 kwargs.update({'errors': [error['message'] for error in data['messages']]})
@@ -28,5 +28,4 @@ def custom_exception_handler(exc: APIException, context):
             return Response(response_data, status=response.status_code, headers=response.headers)
         except Exception as error:
             logger.exception(error)
-            return response
     return response

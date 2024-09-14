@@ -1,6 +1,7 @@
 from django.contrib import admin
 
 from apps.comment.models import Comment
+from apps.core.admin import ReadOnlyPermissionsMixin, OnlyChangePermissionMixin
 
 
 class ListFilterByParent(admin.SimpleListFilter):
@@ -21,7 +22,7 @@ class ListFilterByParent(admin.SimpleListFilter):
 
 
 @admin.register(Comment)
-class CommentAdmin(admin.ModelAdmin):
+class CommentAdmin(ReadOnlyPermissionsMixin, admin.ModelAdmin):
     list_display = ('__str__', 'content', 'user', 'content_object', 'created', 'updated')
     search_fields = ('content',)
     list_filter = (ListFilterByParent,)
