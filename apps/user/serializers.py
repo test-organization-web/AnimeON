@@ -3,9 +3,30 @@ from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
 from apps.anime.models import Anime, Episode
+from apps.user.models import UserAnime
 from apps.user.choices import UserAnimeChoices
+from apps.anime.serializers import ResponseAnimeListSerializer
 
 UserModel = get_user_model()
+
+
+class ResponseUserAnimeListSerializer(ResponseAnimeListSerializer):
+    anime = ResponseAnimeListSerializer()
+
+    class Meta:
+        model = UserAnime
+        fields = [
+            'action', 'anime'
+        ]
+
+
+class ResponsePaginatedUserAnimeListSerializer(serializers.Serializer):
+    active_page = serializers.IntegerField(allow_null=True)
+    num_pages = serializers.IntegerField(allow_null=True)
+    count = serializers.IntegerField(allow_null=True)
+    next = serializers.URLField()
+    previous = serializers.URLField()
+    results = ResponseUserAnimeListSerializer(many=True)
 
 
 class UserSerializer(serializers.ModelSerializer):

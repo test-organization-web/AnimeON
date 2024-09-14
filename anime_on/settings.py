@@ -102,6 +102,7 @@ REST_FRAMEWORK = {
         'rest_framework.parsers.FormParser',  # by default
         'rest_framework.parsers.MultiPartParser'  # by default
     ],
+    'EXCEPTION_HANDLER': 'apps.core.views.custom_exception_handler'
 }
 
 CACHES = {
