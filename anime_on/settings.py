@@ -41,6 +41,8 @@ TESTING = "test" in sys.argv
 DEBUG_TOOLBAR_ENABLED = DEBUG and not TESTING
 
 ALLOWED_HOSTS = to_list(os.getenv('ALLOWED_HOSTS'))
+CORS_ALLOWED_ORIGINS = to_list(os.getenv('CORS_ALLOWED_ORIGINS'))
+CORS_ALLOW_HEADERS = to_list(os.getenv('CORS_ALLOW_HEADERS'))
 
 # Application definition
 
@@ -76,12 +78,12 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
     'apps.core.middleware.ping_middleware',
 
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
