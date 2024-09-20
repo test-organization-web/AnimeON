@@ -47,6 +47,10 @@ CORS_ALLOW_HEADERS = to_list(os.getenv('CORS_ALLOW_HEADERS'))
 # Application definition
 
 INSTALLED_APPS = [
+    'dal',
+    'dal_select2',
+    # 'grappelli',
+
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -55,7 +59,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.postgres',
 
-    # app
+    # apps
     'apps.user',
     'apps.authentication',
     'apps.anime',
