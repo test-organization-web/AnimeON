@@ -1,8 +1,10 @@
 import logging
 
+from dal import autocomplete
+
 from rest_framework.views import exception_handler
 from rest_framework.response import Response
-from rest_framework.exceptions import APIException
+from django_countries.data import COUNTRIES
 
 from apps.core.utils import get_response_body_errors
 
@@ -29,3 +31,8 @@ def custom_exception_handler(exc, context):
         except Exception as error:
             logger.exception(error)
     return response
+
+
+class CountryAutocomplete(autocomplete.Select2ListView):
+    def get_list(self):
+        return [[code, name] for code, name in COUNTRIES.items()]

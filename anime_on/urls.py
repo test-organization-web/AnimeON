@@ -27,6 +27,7 @@ urlpatterns = [
     path('', RedirectView.as_view(pattern_name='admin:index'), name='go-to-admin'),
 
     path('admin/', admin.site.urls),
+    path('', include('apps.core.urls', namespace='core')),
     path('api/v1/user/', include('apps.user.urls', namespace='user')),
     path('api/v1/support/', include('apps.support.urls', namespace='support')),
     path('api/v1/auth/', include('apps.authentication.urls', namespace='authentication')),

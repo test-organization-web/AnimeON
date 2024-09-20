@@ -17,6 +17,7 @@ from apps.anime.models import (
 )
 from apps.core.admin import OnlyAddPermissionMixin, ReadOnlyPermissionsMixin, OnlyChangePermissionMixin
 from apps.anime.choices import VoiceoverHistoryEvents
+from apps.anime.forms import AnimeAdminForm
 from apps.core.utils import get_instance_or_ajax_redirect
 
 # Register your models here.
@@ -76,6 +77,7 @@ class RelatedAnimeAdmin(OnlyAddPermissionMixin, TabularInlinePaginated):
 
 @admin.register(Anime)
 class AnimeAdmin(admin.ModelAdmin):
+    form = AnimeAdminForm
     search_fields = ('title', )
     search_help_text = 'Search by Title'
     list_display = ['display_poster', 'title', 'display_count_episodes', 'display_type',
@@ -149,6 +151,8 @@ class EpisodeAdmin(admin.ModelAdmin):
     search_help_text = 'Search by Anime'
     list_display = ['title', 'display_arch_title', 'anime']
     inlines = [VoiceoverTabularInlinePaginated]
+
+    autocomplete_fields = ('anime',)
 
     list_filter = [
         ('anime', RelatedFieldComboFilter),
