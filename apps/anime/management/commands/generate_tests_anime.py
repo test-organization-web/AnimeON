@@ -141,7 +141,7 @@ class Command(BaseCommand):
                        'Тестостерон', 'Атака титанів', 'Кайдзю', 'ТораДора', 'Людина-бензопила',
                        'Хвіс Феї', 'Хелсінг', 'Я моряк', 'Моряк Папай', 'Скубі-ду', 'Мордок',
                        'Володар перстнів', 'Гаррі Поттер', 'Феї Вінкс']
-        for title in anime_names:
+        for title in anime_names * 100:
             genre = fake.random_element(elements=genres)
             director = fake.random_element(elements=directors)
             studio = fake.random_element(elements=studios)
