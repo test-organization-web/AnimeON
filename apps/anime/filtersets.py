@@ -8,6 +8,20 @@ from apps.anime.choices import AnimeTypes, SeasonTypes, AnimeStatuses
 
 
 class AnimeListFilterSet(filters.FilterSet):
+    order_by = filters.OrderingFilter(
+        choices=(
+            ('created', 'Created'),
+            ('-created', 'Created(-)'),
+            ('is_popular', 'Popular'),
+            ('-is_popular', 'Popular(-)'),
+        ),
+        fields={
+            'created': 'created',
+            '-created': '-created',
+            'count_like': 'is_popular',
+            '-count_like': '-is_popular',
+        },
+    )
     genres = filters.ModelChoiceFilter(
         field_name='genres', to_field_name='id',
         queryset=Genre.objects.all()
