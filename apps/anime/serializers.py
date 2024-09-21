@@ -3,8 +3,9 @@ from rest_framework import serializers
 from django.http import QueryDict
 
 from apps.anime.models import (
-    Director, Anime, Studio, Episode, PreviewImage, Genre, Voiceover, Poster, Arch
+    Director, Anime, Studio, Episode, PreviewImage, Genre, Voiceover, Poster, Arch, Reaction
 )
+from apps.anime.choices import ReactionChoices
 from apps.comment.models import Comment
 from apps.user.models import Group
 
@@ -132,6 +133,7 @@ class ResponseAnimeSerializer(serializers.ModelSerializer):
     count_episodes = serializers.SerializerMethodField()
     similar = serializers.ListSerializer(child=ResponseAnimeListSerializer(), source='get_similar')
     start_date = serializers.SerializerMethodField()
+    reactions = serializers.SerializerMethodField()
 
     class Meta:
         model = Anime
@@ -181,6 +183,11 @@ class ResponseAnimeSerializer(serializers.ModelSerializer):
         return {
             'value': obj.get_season_display(),
             'get_params': QueryDict(f'season={obj.season}').urlencode(),
+        }
+
+    def get_reactions(self, obj: Anime):
+        return {
+            reaction: obj.get_count_by_reaction(reaction=reaction) for reaction in ReactionChoices.values
         }
 
 
@@ -302,3 +309,15 @@ class ResponseAnimeArchSerializer(serializers.ModelSerializer):
     class Meta:
         model = Arch
         fields = ['order', 'title', 'episodes']
+
+
+class AnimeReactSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Reaction
+        fields = ('reaction',)
+
+
+class ResponseAnimeReactSerializer(serializers.Serializer):
+    action = serializers.ChoiceField(
+        choices=(('DELETE', 'DELETE'), ('CHANGE', 'CHANGE'), ('NEW', 'NEW'))
+    )

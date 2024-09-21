@@ -6,7 +6,7 @@ from apps.anime.serializers import (
     ResponseDirectorSerializer, ResponseStudioSerializer, ResponseAnimeSerializer,
     ResponsePaginatedAnimeListSerializer, ResponsePostersSerializer, ResponseFiltersAnimeSerializer,
     ResponseAnimeRandomSerializer, ResponseAnimeEpisodeSerializer, ResponsePaginatedCommentAnimeListSerializer,
-    ResponseAnimeArchSerializer,
+    ResponseAnimeArchSerializer, ResponseAnimeReactSerializer
 )
 
 
@@ -130,6 +130,10 @@ class AnimeAPIViewDoc(BaseSwaggerAPIViewDoc):
                     }
                 ],
                 "trailer_url": "<str: url>",
+                "reactions": {
+                    "LIKE": 1,
+                    "DISLIKE": 0
+                }
             }},
         ),
     }
@@ -418,5 +422,42 @@ class AnimeArchAPIViewDoc(BaseSwaggerAPIViewDoc):
                     ]
                 }
             ]},
+        ),
+    }
+
+
+class AnimeReactAPIViewDoc(BaseSwaggerAPIViewDoc):
+    """
+        It is a Swagger doc for 'AnimeReactAPIView'
+    """
+    tags = [SwaggerTags.ANIME]
+
+    responses = {
+        status.HTTP_200_OK: openapi.Response(
+            'Ok.',
+            ResponseAnimeReactSerializer,
+            examples={'application/json': [
+                {
+                    'action': 'DELETE'
+                },
+                {
+                    'action': 'CHANGE'
+                },
+                {
+                    'action': 'NEW'
+                },
+            ]},
+        ),
+        status.HTTP_401_UNAUTHORIZED: openapi.Response(
+            'Unauthorized.',
+            examples={
+                'application/json': {
+                    "errors": [
+                        {
+                            "message": "Реквізити перевірки достовірності не надані.",
+                        },
+                    ]
+                }
+            },
         ),
     }

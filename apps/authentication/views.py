@@ -6,7 +6,7 @@ from django.utils.decorators import method_decorator
 from rest_framework.response import Response
 from rest_framework.generics import GenericAPIView
 from rest_framework import permissions, status
-from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.tokens import RefreshToken, Token
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenBlacklistView,
@@ -39,7 +39,9 @@ class UserLogoutViewAPIView(TokenBlacklistView):
     )
     def post(self, request, format=None):
         try:
-            logger.info('User logout')
+            logger.info('User try logout', extra={
+                'message_id': 'authentication_logout_try'
+            })
             return super().post(request, format)
         except InvalidToken:
             errors = get_response_body_errors(errors=InvalidToken.default_detail)
@@ -58,7 +60,9 @@ class UserLoginViewAPIView(TokenObtainPairView):
     @validate_request_data(serializer_cls=serializer_class)
     def post(self, request, serializer: TokenObtainPairSerializer, format=None):
         try:
-            logger.info('User login')
+            logger.info('User try login', extra={
+                'message_id': 'authentication_login_try'
+            })
             return super().post(request, format)
         except InvalidToken:
             errors = get_response_body_errors(errors=InvalidToken.default_detail)
@@ -79,9 +83,11 @@ class UserRegisterViewAPIView(GenericAPIView):
     @validate_request_data(serializer_cls=serializer_class)
     def post(self, request, serializer: RequestUserRegisterSerializer, *args, **kwargs):
         user = serializer.save()
-        token = RefreshToken.for_user(user)
+        token: Token = RefreshToken.for_user(user)
 
-        logger.info('User success register')
+        logger.info('User success register', extra={
+            'message_id': 'authentication_register_success'
+        })
         return Response({
             'user': UserSerializer(user, context=self.get_serializer_context()).data,
             'refresh': str(token),
