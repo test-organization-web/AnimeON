@@ -19,7 +19,7 @@ class User(PermissionsMixin, AbstractBaseUser):
         help_text='Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.',
         validators=[username_validator],
         error_messages={
-            'unique': "A user with that username already exists.",
+            'unique': "Користувач з таким username вже існує",
         },
     )
     first_name = models.CharField("first name", max_length=150, blank=True)

@@ -17,3 +17,8 @@ class AnimeManager(models.Manager):
         return super().get_queryset().annotate(
             count_episodes=Count('episode')
         )
+
+
+class ReactionQuerySet(models.QuerySet):
+    def get_users(self):
+        return [reaction.user for reaction in self.all()]

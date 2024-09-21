@@ -2,7 +2,7 @@ from django.urls import path
 from apps.anime.views import (
     DirectorAPIView, StudioAPIView, AnimeAPIView, AnimeListAPIView, AnimeSearchAPIView,
     PostersAnimeAPIView, FiltersAnimeAPIView, AnimeRandomAPIView,
-    EpisodeAPIView, CommentAnimeAPIView, AnimeArchAPIView
+    EpisodeAPIView, CommentAnimeAPIView, AnimeArchAPIView, AnimeReactAPIView
 )
 
 
@@ -22,4 +22,5 @@ urlpatterns = [
     path('posters/', PostersAnimeAPIView.as_view(), name='get_anime_posters'),
     path('filters/', FiltersAnimeAPIView.as_view(), name='get_anime_filters'),
     path('<int:pk>/<str:slug>/arch/', AnimeArchAPIView.as_view(), name='get_anime_arch'),
+    path('<int:pk>/<str:slug>/reaction/', AnimeReactAPIView.as_view(), name='reaction_anime'),
 ]

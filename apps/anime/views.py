@@ -1,6 +1,7 @@
 import logging
 from typing import Union, List, Tuple
 from collections import OrderedDict
+from drf_yasg import openapi
 
 from rest_framework.generics import RetrieveAPIView, ListAPIView, GenericAPIView
 from rest_framework.response import Response
@@ -8,6 +9,7 @@ from rest_framework.filters import SearchFilter
 from rest_framework import permissions, status
 from django_filters.rest_framework import DjangoFilterBackend
 from django_countries.data import COUNTRIES
+from rest_framework.permissions import IsAuthenticated
 
 from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
@@ -16,16 +18,17 @@ from django.db.models import Prefetch
 from apps.anime.serializers import (
     ResponseDirectorSerializer, ResponseStudioSerializer, ResponseAnimeSerializer, ResponseAnimeListSerializer,
     ResponsePostersSerializer, ResponseFiltersAnimeSerializer, ResponseAnimeRandomSerializer,
-    ResponseAnimeEpisodeSerializer, ResponseCommentAnimeSerializer, ResponseAnimeArchSerializer
+    ResponseAnimeEpisodeSerializer, ResponseCommentAnimeSerializer, ResponseAnimeArchSerializer,
+    AnimeReactSerializer,
 )
 from apps.core.utils import swagger_auto_schema_wrapper
 from apps.anime.swagger_views_docs import (
     DirectorAPIViewDoc, StudioAPIViewDoc, AnimeAPIViewDoc, AnimeListAPIViewDoc, AnimeSearchAPIViewDoc,
     AnimeTOP100APIViewDoc, PostersAnimeAPIViewDoc, FiltersAnimeAPIViewDoc,
     AnimeRandomAPIViewDoc, ResponseAnimeEpisodeAPIViewDoc, CommentAnimeAPIViewDoc,
-    AnimeArchAPIViewDoc
+    AnimeArchAPIViewDoc, AnimeReactAPIViewDoc
 )
-from apps.anime.models import Director, Studio, Anime, Poster, Episode, Genre, Arch, Voiceover
+from apps.anime.models import Director, Studio, Anime, Poster, Episode, Genre, Arch, Voiceover, Reaction
 from apps.anime.choices import VoiceoverStatuses, VoiceoverTypes
 from apps.anime.paginators import AnimeListPaginator
 from apps.anime.filtersets import AnimeListFilterSet
@@ -33,6 +36,7 @@ from apps.anime.choices import AnimeStatuses, AnimeTypes, SeasonTypes
 
 from apps.comment.paginators import CommentAnimeListPaginator
 from apps.comment.models import Comment
+from apps.core.utils import validate_request_data
 
 
 logger = logging.getLogger()
@@ -105,9 +109,20 @@ class AnimeListAPIView(ListAPIView):
     @swagger_auto_schema_wrapper(
         doc=AnimeListAPIViewDoc,
         operation_id='get_anime_list',
+        manual_parameters=[
+            openapi.Parameter('order', openapi.IN_QUERY, type=openapi.TYPE_STRING, required=False)
+        ],
     )
     def get(self, request, *args, **kwargs):
+        self.order_by = request.GET.get('order', '-created')
         return super().get(request, *args, **kwargs)
+
+    def get_queryset(self):
+        try:
+            return super().get_queryset().order_by(self.order_by)
+        except Exception as error:
+            logger.warning(error)
+            return super().get_queryset()
 
 
 class AnimeRandomAPIView(RetrieveAPIView):
@@ -139,7 +154,9 @@ class AnimeTOP100APIView(ListAPIView):
 
 
 class PostersAnimeAPIView(ListAPIView):
-    queryset = Poster.objects.prefetch_related('anime', 'anime__episode_set').all()
+    queryset = Poster.objects.prefetch_related(
+        'anime', 'anime__episode_set'
+    ).order_by('-created').all()[:4]
     serializer_class = ResponsePostersSerializer
 
     @swagger_auto_schema_wrapper(
@@ -278,3 +295,37 @@ class AnimeArchAPIView(ListAPIView):
         return Arch.objects.prefetch_related('anime__episode_set').filter(
             anime_id=self.kwargs[lookup_url_kwarg]
         ).order_by('order')
+
+
+class AnimeReactAPIView(GenericAPIView):
+    lookup_url_kwarg = 'pk'
+    lookup_field = 'pk'
+    queryset = Anime.objects.all()
+
+    permission_classes = (IsAuthenticated,)
+    serializer_class = AnimeReactSerializer
+
+    @swagger_auto_schema_wrapper(
+        doc=AnimeReactAPIViewDoc,
+        operation_id='reaction_anime',
+    )
+    @validate_request_data(serializer_cls=serializer_class)
+    def post(self, request, serializer: AnimeReactSerializer, *args, **kwargs):
+        anime = self.get_object()
+        serializer.validated_data['anime_id'] = anime.id
+        serializer.validated_data['user_id'] = request.user.id
+        user_reaction = serializer.validated_data['reaction']
+
+        reaction = Reaction.objects.filter(user=request.user.id, anime_id=anime.id).first()
+
+        if reaction:  # Update Previous Reaction
+            if reaction.reaction == user_reaction:  # Delete Previous Reaction
+                reaction.delete()
+                return Response(data={'action': 'DELETE'}, status=status.HTTP_200_OK)
+            else:  # Change Previous Reaction
+                reaction.react = user_reaction
+                reaction.save()
+                return Response(data={'action': 'CHANGE'}, status=status.HTTP_200_OK)
+        else:  # Create New Reaction
+            serializer.save()
+        return Response(data={'action': 'NEW'}, status=status.HTTP_200_OK)

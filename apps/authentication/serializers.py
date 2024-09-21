@@ -24,10 +24,10 @@ class RequestUserRegisterSerializer(serializers.ModelSerializer):
         password_repeat = validated_data['password_repeat']
 
         if password != password_repeat:
-            raise serializers.ValidationError({"password_repeat": "Password Does not match"})
+            raise serializers.ValidationError({"password_repeat": "Паролі не співпадають"})
 
         if UserModel.objects.filter(email=validated_data['email']).exists():
-            raise serializers.ValidationError({"email": "Email already exist"})
+            raise serializers.ValidationError({"email": "Користувач з таким e-mail вже існує"})
         return validated_data
 
     def save(self):

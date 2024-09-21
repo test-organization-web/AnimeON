@@ -5,9 +5,9 @@ from django_countries.fields import CountryField
 from apps.core.models import CreatedDateTimeMixin, UpdatedDateTimeMixin, VerifyMixin, OrderMixin
 from apps.anime.choices import (
     VoiceoverTypes, AnimeTypes, RatingTypes, SeasonTypes, VoiceoverStatuses, VoiceoverHistoryEvents,
-    AnimeStatuses, DayOfWeekChoices
+    AnimeStatuses, DayOfWeekChoices, ReactionChoices
 )
-from apps.anime.managers import AnimeManager
+from apps.anime.managers import AnimeManager, ReactionQuerySet
 from apps.anime.s3_path import (
     anime_preview_image_save_path, anime_background_image_save_path, anime_poster_image_save_path,
     anime_card_image_save_path, episode_preview_image_save_path
@@ -85,6 +85,28 @@ class Anime(CreatedDateTimeMixin, UpdatedDateTimeMixin, models.Model):
         return Anime.objects.prefetch_related('genres').filter(
             genres__in=self.genres.all()
         )[:6]
+
+    def get_count_by_reaction(self, reaction: ReactionChoices.values) -> int:
+        return self.reactions.filter(reaction=reaction).count()
+
+
+class Reaction(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='anime_reactions', on_delete=models.CASCADE,
+                             editable=False)
+    anime = models.ForeignKey('Anime', related_name='reactions', on_delete=models.CASCADE, editable=False)
+    reaction = models.CharField(choices=ReactionChoices.choices, default='')
+
+    objects = ReactionQuerySet.as_manager()
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'anime'], name='unique_%(app_label)s_%(class)s_user_reaction'
+            )
+        ]
+
+    def __str__(self):
+        return f'{self.user} <{self.reaction}> ({self.anime.title})'
 
 
 class Episode(CreatedDateTimeMixin, UpdatedDateTimeMixin, OrderMixin, models.Model):

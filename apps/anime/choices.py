@@ -58,3 +58,8 @@ class DayOfWeekChoices(models.TextChoices):
     FRIDAY = 'FRIDAY', 'П\'ятниця'
     SATURDAY = 'SATURDAY', 'Субота'
     SUNDAY = 'SUNDAY', 'Неділя'
+
+
+class ReactionChoices(models.TextChoices):
+    LIKE = 'LIKE'
+    DISLIKE = 'DISLIKE'
