@@ -1,5 +1,5 @@
 from django.db import models
-from django.db.models import Count
+from django.db.models import Count, Q
 
 from slugify import slugify
 
@@ -15,7 +15,8 @@ class AnimeManager(models.Manager):
 
     def get_queryset(self):
         return super().get_queryset().annotate(
-            count_episodes=Count('episode')
+            count_episodes=Count('episode'),
+            count_like=Count('reactions', filter=Q(reactions__reaction='LIKE')),
         )
 
 

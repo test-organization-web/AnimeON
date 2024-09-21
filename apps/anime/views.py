@@ -109,9 +109,6 @@ class AnimeListAPIView(ListAPIView):
     @swagger_auto_schema_wrapper(
         doc=AnimeListAPIViewDoc,
         operation_id='get_anime_list',
-        manual_parameters=[
-            openapi.Parameter('order', openapi.IN_QUERY, type=openapi.TYPE_STRING, required=False)
-        ],
     )
     def get(self, request, *args, **kwargs):
         self.order_by = request.GET.get('order', '-created')
