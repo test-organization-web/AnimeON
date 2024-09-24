@@ -1,7 +1,6 @@
 import logging
 from typing import Union, List, Tuple
 from collections import OrderedDict
-from drf_yasg import openapi
 
 from rest_framework.generics import RetrieveAPIView, ListAPIView, GenericAPIView
 from rest_framework.response import Response

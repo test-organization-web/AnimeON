@@ -1,7 +1,9 @@
+from typing import Dict, Any
+
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 
-from apps.user.serializers import UserSerializer
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 UserModel = get_user_model()
 
@@ -40,8 +42,14 @@ class RequestUserRegisterSerializer(serializers.ModelSerializer):
         return user
 
 
+class UserReadSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserModel
+        fields = ['username']
+
+
 class ResponseUserRegisterSerializer(serializers.Serializer):
-    user = UserSerializer()
+    user = UserReadSerializer()
     refresh = serializers.CharField()
     access = serializers.CharField()
 
@@ -49,7 +57,17 @@ class ResponseUserRegisterSerializer(serializers.Serializer):
 class ResponseUserLoginSerializer(serializers.Serializer):
     refresh = serializers.CharField()
     access = serializers.CharField()
+    user = UserReadSerializer()
 
 
 class ResponseUserLogoutSerializer(serializers.Serializer):
     refresh = serializers.CharField()
+
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    def validate(self, attrs: Dict[str, Any]) -> Dict[str, str]:
+        data = super().validate(attrs)
+        data['user'] = {
+            'username': self.user.username
+        }
+        return data

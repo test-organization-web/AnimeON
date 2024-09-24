@@ -20,7 +20,10 @@ class UserRegisterViewAPIViewDoc(BaseSwaggerAPIViewDoc):
             ResponseUserRegisterSerializer,
             examples={'application/json': {
                 "access": "<str: token>",
-                "refresh": "<str: token>"
+                "refresh": "<str: token>",
+                "user": {
+                    "username": "<str: username>"
+                }
             }},
         ),
         status.HTTP_400_BAD_REQUEST: openapi.Response(
@@ -74,7 +77,10 @@ class UserLoginViewAPIViewDoc(BaseSwaggerAPIViewDoc):
             ResponseUserLoginSerializer,
             examples={'application/json': {
                 "access": "<str: token>",
-                "refresh": "<str: token>"
+                "refresh": "<str: token>",
+                "user": {
+                    "username": "<str: username>"
+                }
             }},
         ),
         status.HTTP_401_UNAUTHORIZED: openapi.Response(

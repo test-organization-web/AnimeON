@@ -18,6 +18,11 @@
 		{% endif %}
 	{% endif %}
 
-	{{ block.super }}
+	{% if not original or edit %}
+		{{ block.super }}
+	{% else %}
+		{% comment %} not edit means that current object is in editing state and prevents button to show {% endcomment %}
+      	<a href="{% url 'admin:edit_voiceover' original.id %}"><input type="button" value="Редагувати"></a>
+	{% endif %}
 
 {% endblock %}

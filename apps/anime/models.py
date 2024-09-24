@@ -10,7 +10,7 @@ from apps.anime.choices import (
 from apps.anime.managers import AnimeManager, ReactionQuerySet
 from apps.anime.s3_path import (
     anime_preview_image_save_path, anime_background_image_save_path, anime_poster_image_save_path,
-    anime_card_image_save_path, episode_preview_image_save_path
+    anime_card_image_save_path, episode_preview_image_save_path, episode_voiceover_save_path
 )
 from apps.user.models import Group
 
@@ -131,7 +131,7 @@ class Episode(CreatedDateTimeMixin, UpdatedDateTimeMixin, OrderMixin, models.Mod
         ]
 
     def __str__(self):
-        return f'{self.anime}: {self.title} episode {self.order}'
+        return f'ep#{self.order} {self.title}'
 
     @property
     def voiceovers(self):
@@ -170,7 +170,7 @@ class Voiceover(CreatedDateTimeMixin, UpdatedDateTimeMixin, models.Model):
     team = models.ForeignKey('user.Group', on_delete=models.CASCADE)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
     status = models.CharField(choices=VoiceoverStatuses.choices, max_length=255)
-    url = models.URLField()
+    file = models.FileField(upload_to=episode_voiceover_save_path)
 
     def __str__(self):
         return f'voiceover# {self.episode.title} ({self.team.name})'

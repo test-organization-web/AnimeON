@@ -19,6 +19,7 @@ from apps.core.admin import OnlyAddPermissionMixin, ReadOnlyPermissionsMixin, On
 from apps.anime.choices import VoiceoverHistoryEvents
 from apps.anime.forms import AnimeAdminForm
 from apps.core.utils import get_instance_or_ajax_redirect
+from apps.anime.admin_filters import AnimeFilter
 
 # Register your models here.
 
@@ -155,7 +156,7 @@ class EpisodeAdmin(admin.ModelAdmin):
     autocomplete_fields = ('anime',)
 
     list_filter = [
-        ('anime', RelatedFieldComboFilter),
+        AnimeFilter,
         ('order', AllValuesComboFilter),
         ('status', AllValuesComboFilter),
     ]
@@ -174,19 +175,16 @@ class VoiceoverHistoryInline(ReadOnlyPermissionsMixin, TabularInlinePaginated):
 
 
 @admin.register(Voiceover)
-class VoiceoverAdmin(OnlyAddPermissionMixin, admin.ModelAdmin):
+class VoiceoverAdmin(admin.ModelAdmin):
     search_fields = ('episode__anime__title',)
     search_help_text = 'Search by Anime'
-    list_display = ['episode', 'team', 'user', 'type', 'status']
+    list_display = ['display_anime', 'episode', 'team', 'user', 'type', 'status']
     inlines = [VoiceoverHistoryInline]
 
-    fields = (
-        'episode', 'team', 'type', 'url'
-    )
+    fields = ('episode', 'team', 'type', 'file')
     autocomplete_fields = ('episode',)
 
     list_filter = [
-        ('episode', RelatedFieldComboFilter),
         ('team', RelatedFieldComboFilter),
         ('type', AllValuesComboFilter),
         ('status', AllValuesComboFilter),
@@ -209,6 +207,35 @@ class VoiceoverAdmin(OnlyAddPermissionMixin, admin.ModelAdmin):
             'admin/js/utils/confirm_modal.js',
         )
 
+    def add_view(self, request, form_url="", extra_context=None):
+        self.readonly_fields = ()
+        return super().add_view(request, form_url, extra_context)
+
+    def edit_view(self, request, object_id, *args, **kwargs):
+        """
+        edit_view created for editing objects created via admin,
+        change_view used for viewing objects
+        """
+        self.readonly_fields = ('episode', 'team', 'type')
+        return super().change_view(
+            request, object_id, extra_context={'edit': True, 'show_delete': False}, *args, **kwargs
+        )
+
+    def change_view(self, request, object_id, form_url="", extra_context=None):
+        extra_context = extra_context or {}
+        extra_context.update({
+            'user_has_change_permission': request.user.has_perm('anime.change_voiceover')
+        })
+        self.readonly_fields = ('episode', 'team', 'type', 'file')
+        return super(VoiceoverAdmin, self).change_view(request, object_id, form_url, extra_context)
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).prefetch_related('episode__anime', 'episode', 'team', 'user')
+
+    @admin.display()
+    def display_anime(self, obj: Voiceover):
+        return obj.episode.anime.title
+
     def get_urls(self):
         urls = super().get_urls()
         my_urls = [
@@ -221,15 +248,11 @@ class VoiceoverAdmin(OnlyAddPermissionMixin, admin.ModelAdmin):
             path('<str:object_id>/approve/',
                  self.admin_site.admin_view(self.approve),
                  name='voiceover_approve'),
+            path('<str:object_id>/edit/',
+                 self.admin_site.admin_view(self.edit_view),
+                 name='edit_voiceover'),
         ]
         return my_urls + urls
-
-    def change_view(self, request, object_id, form_url="", extra_context=None):
-        extra_context = extra_context or {}
-        extra_context.update({
-            'user_has_change_permission': request.user.has_perm('anime.change_voiceover')
-        })
-        return super(VoiceoverAdmin, self).change_view(request, object_id, form_url, extra_context)
 
     @method_decorator(require_POST)
     @get_instance_or_ajax_redirect(error_message="Voiceover does not exist!",
@@ -305,6 +328,10 @@ class TOP100(Anime):
 
 @admin.register(TOP100)
 class TOP100Admin(OnlyChangePermissionMixin, admin.ModelAdmin):
+    list_filter = (
+        AnimeFilter,
+    )
+
     def get_queryset(self, request):
         return super().get_queryset(request).filter(is_top=True)
 
@@ -312,6 +339,9 @@ class TOP100Admin(OnlyChangePermissionMixin, admin.ModelAdmin):
 @admin.register(Poster)
 class PosterAdmin(admin.ModelAdmin):
     list_display = ['anime', 'display_poster', 'created']
+    list_filter = (
+        AnimeFilter,
+    )
 
     @admin.display(description='Poster')
     def display_poster(self, obj: Poster):
@@ -326,5 +356,8 @@ class PosterAdmin(admin.ModelAdmin):
 @admin.register(Arch)
 class ArchAdmin(admin.ModelAdmin):
     list_display = ['title', 'anime']
+    list_filter = (
+        AnimeFilter,
+    )
 
     inlines = [EpisodeTabularInlinePaginated]
