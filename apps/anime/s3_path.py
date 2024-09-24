@@ -36,3 +36,10 @@ def anime_poster_image_save_path(instance, filename: str):
     extension = get_extension(filename) or 'jpeg'
     path = f'poster/{instance.anime.id}/{name}.{extension}'
     return timezone.now().strftime(path)
+
+
+def episode_voiceover_save_path(instance, filename: str):
+    name = filename.split('.')[0]
+    extension = get_extension(filename) or 'm3u8'
+    path = f'voiceover/{instance.episode.anime.id}/{instance.episode.order}/{name}.{extension}'
+    return timezone.now().strftime(path)

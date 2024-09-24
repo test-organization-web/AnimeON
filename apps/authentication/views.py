@@ -11,7 +11,7 @@ from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenBlacklistView,
 )
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenBlacklistSerializer
+from rest_framework_simplejwt.serializers import TokenBlacklistSerializer
 from rest_framework_simplejwt.exceptions import InvalidToken
 
 from apps.core.utils import swagger_auto_schema_wrapper, validate_request_data, get_response_body_errors
@@ -20,7 +20,7 @@ from apps.authentication.swagger_views_docs import (
     UserLoginViewAPIViewDoc,
     UserLogoutViewAPIViewDoc,
 )
-from apps.authentication.serializers import RequestUserRegisterSerializer
+from apps.authentication.serializers import RequestUserRegisterSerializer, CustomTokenObtainPairSerializer
 from apps.user.serializers import UserSerializer
 from apps.core.debug import sensitive_drf_post_parameters
 
@@ -50,7 +50,7 @@ class UserLogoutViewAPIView(TokenBlacklistView):
 
 class UserLoginViewAPIView(TokenObtainPairView):
     permission_classes = (permissions.AllowAny,)
-    serializer_class = TokenObtainPairSerializer
+    serializer_class = CustomTokenObtainPairSerializer
 
     @swagger_auto_schema_wrapper(
         doc=UserLoginViewAPIViewDoc,
@@ -58,7 +58,7 @@ class UserLoginViewAPIView(TokenObtainPairView):
         operation_id='user_login',
     )
     @validate_request_data(serializer_cls=serializer_class)
-    def post(self, request, serializer: TokenObtainPairSerializer, format=None):
+    def post(self, request, serializer: CustomTokenObtainPairSerializer, format=None):
         try:
             logger.info('User try login', extra={
                 'message_id': 'authentication_login_try'

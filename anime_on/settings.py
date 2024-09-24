@@ -79,6 +79,7 @@ INSTALLED_APPS = [
     'adminfilters',
     'rangefilter',
     'django_extensions',
+    'admin_auto_filters',
 ]
 
 MIDDLEWARE = [
