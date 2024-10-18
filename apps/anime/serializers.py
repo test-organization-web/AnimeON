@@ -269,7 +269,7 @@ class EpisodeVoiceoverSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Voiceover
-        fields = ['value', 'file']
+        fields = ['value', 'url']
 
     def get_value(self, obj: Voiceover):
         return obj.team.name

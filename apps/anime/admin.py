@@ -181,7 +181,7 @@ class VoiceoverAdmin(admin.ModelAdmin):
     list_display = ['display_anime', 'episode', 'team', 'user', 'type', 'status']
     inlines = [VoiceoverHistoryInline]
 
-    fields = ('episode', 'team', 'type', 'file')
+    fields = ('episode', 'team', 'type', 'url')
     autocomplete_fields = ('episode',)
 
     list_filter = [
@@ -226,7 +226,7 @@ class VoiceoverAdmin(admin.ModelAdmin):
         extra_context.update({
             'user_has_change_permission': request.user.has_perm('anime.change_voiceover')
         })
-        self.readonly_fields = ('episode', 'team', 'type', 'file')
+        self.readonly_fields = ('episode', 'team', 'type', 'url')
         return super(VoiceoverAdmin, self).change_view(request, object_id, form_url, extra_context)
 
     def get_queryset(self, request):
