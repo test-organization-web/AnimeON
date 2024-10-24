@@ -3,7 +3,9 @@ from rest_framework import status
 
 from apps.core.swagger_views_docs import BaseSwaggerAPIViewDoc, SwaggerTags
 from apps.core.serializers import ResponseErrorSerializer
-from apps.user.serializers import UserSerializer, ResponsePaginatedUserAnimeListSerializer
+from apps.user.serializers import (
+    UserSerializer, ResponsePaginatedUserAnimeListSerializer, ResponseUserSettingsSerializer
+)
 
 
 class UserAPIViewDoc(BaseSwaggerAPIViewDoc):
@@ -20,7 +22,40 @@ class UserAPIViewDoc(BaseSwaggerAPIViewDoc):
                 'username': 'test',
                 'count_viewed_anime': '5',
                 'count_commented_anime': '5',
+                'avatar': '/media/users/admin/avatar/Screenshot_2024-10-10_at_14.png'
             }},
+        ),
+    }
+
+
+class UserSettingsAPIViewDoc(BaseSwaggerAPIViewDoc):
+    """
+    It is a Swagger doc for 'UserSettingsAPIView'
+    """
+    tags = [SwaggerTags.USER]
+
+    responses = {
+        status.HTTP_200_OK: openapi.Response(
+            'Ok.',
+            ResponseUserSettingsSerializer,
+            examples={'application/json': {
+                'avatar': '/media/users/admin/avatar/Screenshot_2024-10-10_at_14.png',
+                'telegram': 'test',
+            }},
+        ),
+    }
+
+
+class CreateUserSettingsAPIViewDoc(BaseSwaggerAPIViewDoc):
+    """
+    It is a Swagger doc for 'UserSettingsAPIView'
+    """
+    tags = [SwaggerTags.USER]
+
+    responses = {
+        status.HTTP_200_OK: openapi.Response(
+            'Ok.',
+            examples={'application/json': {}},
         ),
     }
 

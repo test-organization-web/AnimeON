@@ -101,22 +101,6 @@ class ChildGenreSerializer(serializers.ModelSerializer):
         fields = ['name']
 
 
-class ResponseDirectorSerializer(serializers.ModelSerializer):
-    anime = serializers.ListSerializer(child=ResponseAnimeListSerializer(), source='anime_set')
-
-    class Meta:
-        model = Director
-        fields = ['anime', 'full_name']
-
-
-class ResponseStudioSerializer(serializers.ModelSerializer):
-    anime = serializers.ListSerializer(child=ResponseAnimeListSerializer(), source='anime_set')
-
-    class Meta:
-        model = Studio
-        exclude = ['id']
-
-
 class ResponseAnimeSerializer(serializers.ModelSerializer):
     episodes = serializers.ListSerializer(child=ChildEpisodeSerializer(), source='episode_set')
     images = serializers.ListSerializer(child=ChildPreviewImageSerializer(),

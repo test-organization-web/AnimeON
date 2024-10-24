@@ -7,6 +7,7 @@ from django.db import models
 from django.conf import settings
 
 from apps.user.choices import UserAnimeChoices
+from apps.user.s3_path import user_avatar_save_path
 
 
 class User(PermissionsMixin, AbstractBaseUser):
@@ -48,6 +49,17 @@ class User(PermissionsMixin, AbstractBaseUser):
 
     def get_count_commented_anime(self):
         return self.comments.count()
+
+
+class UserSettings(models.Model):
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='settings', to_field='username'
+    )
+    avatar = models.ImageField(blank=True, null=True, upload_to=user_avatar_save_path)
+    telegram = models.CharField(max_length=255, blank=True, default='')
+
+    def __str__(self):
+        return f'{self.user} settings'
 
 
 class Group(BaseGroup):
