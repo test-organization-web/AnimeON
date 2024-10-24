@@ -3,65 +3,11 @@ from rest_framework import status
 
 from apps.core.swagger_views_docs import BaseSwaggerAPIViewDoc, SwaggerTags
 from apps.anime.serializers import (
-    ResponseDirectorSerializer, ResponseStudioSerializer, ResponseAnimeSerializer,
+    ResponseAnimeSerializer,
     ResponsePaginatedAnimeListSerializer, ResponsePostersSerializer, ResponseFiltersAnimeSerializer,
     ResponseAnimeRandomSerializer, ResponseAnimeEpisodeSerializer, ResponsePaginatedCommentAnimeListSerializer,
     ResponseAnimeArchSerializer, ResponseAnimeReactSerializer
 )
-
-
-class DirectorAPIViewDoc(BaseSwaggerAPIViewDoc):
-    """
-    It is a Swagger doc for 'DirectorAPIView'
-    """
-    tags = [SwaggerTags.ANIME]
-
-    responses = {
-        status.HTTP_200_OK: openapi.Response(
-            'Ok.',
-            ResponseDirectorSerializer,
-            examples={'application/json': {
-                "full_name": "<str: full_name>",
-                "url": "<str: url>",
-                "anime": [
-                    {
-                        "title": "<str: title>",
-                        "slug": "<str: slug>",
-                        "id": 1,
-                        "card_image": "<str: url>",
-                    }
-                ],
-            }},
-        ),
-    }
-
-
-class StudioAPIViewDoc(BaseSwaggerAPIViewDoc):
-    """
-    It is a Swagger doc for 'StudioAPIView'
-    """
-    tags = [SwaggerTags.ANIME]
-
-    responses = {
-        status.HTTP_200_OK: openapi.Response(
-            'Ok.',
-            ResponseStudioSerializer,
-            examples={'application/json': {
-                "anime": [
-                    {
-                        "title": "<str: title>",
-                        "slug": "<str: slug>",
-                        "id": 1,
-                        "card_image": "<str: url>",
-                    }
-                ],
-                "created": "<str: created>",
-                "name": "<str: name>",
-                "description": "<str: description>",
-                "country": "<str: country>"
-            }},
-        ),
-    }
 
 
 class AnimeAPIViewDoc(BaseSwaggerAPIViewDoc):

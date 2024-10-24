@@ -15,14 +15,14 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models import Prefetch
 
 from apps.anime.serializers import (
-    ResponseDirectorSerializer, ResponseStudioSerializer, ResponseAnimeSerializer, ResponseAnimeListSerializer,
+    ResponseAnimeSerializer, ResponseAnimeListSerializer,
     ResponsePostersSerializer, ResponseFiltersAnimeSerializer, ResponseAnimeRandomSerializer,
     ResponseAnimeEpisodeSerializer, ResponseCommentAnimeSerializer, ResponseAnimeArchSerializer,
     AnimeReactSerializer,
 )
 from apps.core.utils import swagger_auto_schema_wrapper
 from apps.anime.swagger_views_docs import (
-    DirectorAPIViewDoc, StudioAPIViewDoc, AnimeAPIViewDoc, AnimeListAPIViewDoc, AnimeSearchAPIViewDoc,
+    AnimeAPIViewDoc, AnimeListAPIViewDoc, AnimeSearchAPIViewDoc,
     AnimeTOP100APIViewDoc, PostersAnimeAPIViewDoc, FiltersAnimeAPIViewDoc,
     AnimeRandomAPIViewDoc, ResponseAnimeEpisodeAPIViewDoc, CommentAnimeAPIViewDoc,
     AnimeArchAPIViewDoc, AnimeReactAPIViewDoc
@@ -39,30 +39,6 @@ from apps.core.utils import validate_request_data
 
 
 logger = logging.getLogger()
-
-
-class DirectorAPIView(RetrieveAPIView):
-    queryset = Director.objects.all()
-    serializer_class = ResponseDirectorSerializer
-
-    @swagger_auto_schema_wrapper(
-        doc=DirectorAPIViewDoc,
-        operation_id='get_director',
-    )
-    def get(self, request, *args, **kwargs):
-        return super().get(request, *args, **kwargs)
-
-
-class StudioAPIView(RetrieveAPIView):
-    queryset = Studio.objects.all()
-    serializer_class = ResponseStudioSerializer
-
-    @swagger_auto_schema_wrapper(
-        doc=StudioAPIViewDoc,
-        operation_id='get_studio',
-    )
-    def get(self, request, *args, **kwargs):
-        return super().get(request, *args, **kwargs)
 
 
 class AnimeAPIView(RetrieveAPIView):
@@ -110,12 +86,12 @@ class AnimeListAPIView(ListAPIView):
         operation_id='get_anime_list',
     )
     def get(self, request, *args, **kwargs):
-        self.order_by = request.GET.get('order', '-created')
         return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
+        order_by = self.request.GET.get('order', '-created')
         try:
-            return super().get_queryset().order_by(self.order_by)
+            return super().get_queryset().order_by(order_by)
         except Exception as error:
             logger.warning(error)
             return super().get_queryset()
