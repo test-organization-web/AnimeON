@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ObjectDoesNotExist
 
 from rest_framework import serializers
 
@@ -40,7 +41,12 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ('username', 'count_viewed_anime', 'count_commented_anime', 'avatar')
 
     def get_avatar(self, obj):
-        return obj.settings.avatar.url if obj.settings else None
+        try:
+            if avatar := obj.settings.avatar:
+                return avatar.url
+            return None
+        except ObjectDoesNotExist:
+            return None
 
 
 class RequestUserSettingsSerializer(serializers.ModelSerializer):
