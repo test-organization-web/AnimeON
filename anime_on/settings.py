@@ -41,8 +41,12 @@ TESTING = "test" in sys.argv
 DEBUG_TOOLBAR_ENABLED = DEBUG and not TESTING
 
 ALLOWED_HOSTS = to_list(os.getenv('ALLOWED_HOSTS'))
+if ALLOWED_HOSTS and "*" not in ALLOWED_HOSTS:
+    CSRF_TRUSTED_ORIGINS = [f"https://{h}" for h in ALLOWED_HOSTS]
+
 CORS_ALLOWED_ORIGINS = to_list(os.getenv('CORS_ALLOWED_ORIGINS'))
 CORS_ALLOW_HEADERS = to_list(os.getenv('CORS_ALLOW_HEADERS'))
+
 
 # Application definition
 
@@ -90,7 +94,7 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
-    # 'django.middleware.csrf.CsrfViewMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',

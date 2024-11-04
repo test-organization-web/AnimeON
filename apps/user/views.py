@@ -69,7 +69,7 @@ class UserSettingsAPI(APIView):
                 serializer_data.update({
                     'avatar': self.request.FILES['avatar'],
                 })
-                UserSettings.objects.get_or_create(
+                UserSettings.objects.update_or_create(
                     user=self.request.user,
                     defaults=serializer_data
                 )
