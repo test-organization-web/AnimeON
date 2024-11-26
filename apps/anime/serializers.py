@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from django.http import QueryDict
+from django.template.defaultfilters import date as _date
 
 from apps.anime.models import (
     Director, Anime, Studio, Episode, PreviewImage, Genre, Voiceover, Poster, Arch, Reaction
@@ -124,14 +125,14 @@ class ResponseAnimeSerializer(serializers.ModelSerializer):
         exclude = ['updated', 'created', 'is_top']
 
     def get_start_date(self, obj: Anime):
-        start_date_str = obj.start_date.strftime('%d %B %Y')
+        start_date_str = _date(obj.start_date, 'd F Y')
         start_params = {
             'value': f'з {start_date_str}',
             'get_params': QueryDict(f'year_gte={obj.start_date.year}').urlencode(),
         }
         end_params = {}
         if obj.end_date:
-            end_date_str = obj.start_date.strftime('%d %B %Y')
+            end_date_str = _date(obj.end_date, 'd F Y')
             end_params = {
                 'value': f'no {end_date_str}',
                 'get_params': QueryDict(f'year_lte={obj.end_date.year}').urlencode(),
