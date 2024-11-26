@@ -328,9 +328,6 @@ class TOP100(Anime):
 
 @admin.register(TOP100)
 class TOP100Admin(OnlyChangePermissionMixin, admin.ModelAdmin):
-    list_filter = (
-        AnimeFilter,
-    )
 
     def get_queryset(self, request):
         return super().get_queryset(request).filter(is_top=True)
