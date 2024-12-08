@@ -7,7 +7,7 @@ from django.db import models
 from django.conf import settings
 
 from apps.user.choices import UserAnimeChoices
-from apps.user.s3_path import user_avatar_save_path
+from apps.user.s3_path import user_avatar_save_path, group_avatar_save_path
 
 
 class User(PermissionsMixin, AbstractBaseUser):
@@ -60,6 +60,16 @@ class UserSettings(models.Model):
 
     def __str__(self):
         return f'{self.user} settings'
+
+
+class GroupSettings(models.Model):
+    group = models.OneToOneField(
+        BaseGroup, on_delete=models.CASCADE, related_name='settings'
+    )
+    avatar = models.ImageField(blank=True, null=True, upload_to=group_avatar_save_path)
+
+    def __str__(self):
+        return f'{self.group} settings'
 
 
 class Group(BaseGroup):

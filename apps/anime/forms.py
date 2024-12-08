@@ -13,4 +13,4 @@ class AnimeAdminForm(forms.ModelForm):
 
     class Meta:
         model = Anime
-        fields = '__all__'
+        exclude = ['is_top']

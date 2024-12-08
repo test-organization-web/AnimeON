@@ -1,0 +1,19 @@
+{% extends "admin/submit_line.html" %}
+{% load static %}
+
+{% block submit-row %}
+	{{ block.super }}
+	
+	{% if original %}
+		{% if original.is_top %}
+			<input type="button" class="trigger button" data-modal-id="modal-comment-reset-top" value="Видалити з ТОП-100">
+			{% url 'admin:reset_top' original.id as url %}
+			{% include 'admin/includes/modal_confirmation.html' with url=url modal_id='reset-top' text_confirm='Ви дійсно хочете видалити аніме з ТОП-100?' %}
+		{% else %}
+			<input type="button" class="trigger button" data-modal-id="modal-comment-set-top" value="Додати в ТОП-100">
+			{% url 'admin:set_top' original.id as url %}
+			{% include 'admin/includes/modal_confirmation.html' with url=url modal_id='set-top' text_confirm='Ви дійсно хочете додати аніме в ТОП-100?' %}
+		{% endif %}
+	{% endif %}
+
+{% endblock %}

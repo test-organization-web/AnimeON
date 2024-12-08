@@ -5,13 +5,14 @@ from django_countries.fields import CountryField
 from apps.core.models import CreatedDateTimeMixin, UpdatedDateTimeMixin, VerifyMixin, OrderMixin
 from apps.anime.choices import (
     VoiceoverTypes, AnimeTypes, RatingTypes, SeasonTypes, VoiceoverStatuses, VoiceoverHistoryEvents,
-    AnimeStatuses, DayOfWeekChoices, ReactionChoices
+    AnimeStatuses, DayOfWeekChoices, ReactionChoices, AnimeHistoryEvents
 )
 from apps.anime.managers import AnimeManager, ReactionQuerySet
 from apps.anime.s3_path import (
     anime_preview_image_save_path, anime_background_image_save_path, anime_poster_image_save_path,
     anime_card_image_save_path, episode_preview_image_save_path,
 )
+from apps.anime.exception import ManyTOPAnimeException
 from apps.user.models import Group
 
 # Create your models here.
@@ -88,6 +89,37 @@ class Anime(CreatedDateTimeMixin, UpdatedDateTimeMixin, models.Model):
 
     def get_count_by_reaction(self, reaction: ReactionChoices.values) -> int:
         return self.reactions.filter(reaction=reaction).count()
+
+    def process_new_history_event(self, event: AnimeHistoryEvents, **kwargs) -> 'AnimeHistory':
+        history_record = self.anime_history.create(event=event, **kwargs)
+
+        return history_record
+
+    def set_top(self, user=None):
+        if not self.is_top:
+            count_top = Anime.objects.filter(is_top=True).count()
+            if count_top > settings.COUNT_TOP_ANIME:
+                raise ManyTOPAnimeException()
+            self.is_top = True
+            self.process_new_history_event(event=AnimeHistoryEvents.SET_TOP, user=user)
+            self.save(update_fields=['is_top'])
+
+    def reset_top(self, user=None):
+        if self.is_top:
+            self.is_top = False
+            self.process_new_history_event(event=AnimeHistoryEvents.RESET_TOP, user=user)
+            self.save(update_fields=['is_top'])
+
+
+class AnimeHistory(CreatedDateTimeMixin, models.Model):
+    anime = models.ForeignKey('Anime', on_delete=models.CASCADE, related_name='anime_history')
+    message = models.CharField(max_length=255, blank=True)
+    event = models.CharField(max_length=50, choices=AnimeHistoryEvents.choices)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
+
+    class Meta:
+        verbose_name = 'Anime history'
+        verbose_name_plural = 'Anime history'
 
 
 class Reaction(models.Model):

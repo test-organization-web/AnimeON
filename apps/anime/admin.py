@@ -13,13 +13,15 @@ from adminfilters.combo import RelatedFieldComboFilter, AllValuesComboFilter
 from rangefilter.filters import NumericRangeFilter
 
 from apps.anime.models import (
-    Anime, Episode, Director, Studio, PreviewImage, Voiceover, VoiceoverHistory, Poster, Genre, Arch
+    Anime, Episode, Director, Studio, PreviewImage, Voiceover, VoiceoverHistory, Poster, Genre, Arch,
+    AnimeHistory
 )
 from apps.core.admin import OnlyAddPermissionMixin, ReadOnlyPermissionsMixin, OnlyChangePermissionMixin
 from apps.anime.choices import VoiceoverHistoryEvents
 from apps.anime.forms import AnimeAdminForm
 from apps.core.utils import get_instance_or_ajax_redirect
 from apps.anime.admin_filters import AnimeFilter
+from apps.anime.exception import ManyTOPAnimeException
 
 # Register your models here.
 
@@ -76,14 +78,47 @@ class RelatedAnimeAdmin(OnlyAddPermissionMixin, TabularInlinePaginated):
     extra = 0
 
 
+class AnimeTOPMixin:
+    @method_decorator(require_POST)
+    @get_instance_or_ajax_redirect(error_message="Anime does not exist!",
+                                   redirect_url='admin:anime_anime_changelist')
+    def set_top(self, request, object_id, instance: Anime):
+        try:
+            instance.set_top()
+        except ManyTOPAnimeException as e:
+            return JsonResponse(data={'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        self.message_user(request, "The anime has been successfully update!",
+                          level=messages.SUCCESS)
+        return JsonResponse(data={
+            'redirectUrl': reverse('admin:anime_anime_change', args=(instance.id,))
+        })
+
+    @method_decorator(require_POST)
+    @get_instance_or_ajax_redirect(error_message="Anime does not exist!",
+                                   redirect_url='admin:anime_anime_changelist')
+    def reset_top(self, request, object_id, instance: Anime):
+        instance.reset_top()
+        self.message_user(request, "The anime has been successfully update!",
+                          level=messages.SUCCESS)
+        return JsonResponse(data={
+            'redirectUrl': reverse('admin:anime_anime_change', args=(instance.id,))
+        })
+
+
+class AnimeHistoryTabularInlinePaginated(ReadOnlyPermissionsMixin, TabularInlinePaginated):
+    model = AnimeHistory
+    extra = 0
+
+
 @admin.register(Anime)
-class AnimeAdmin(admin.ModelAdmin):
+class AnimeAdmin(AnimeTOPMixin, admin.ModelAdmin):
     form = AnimeAdminForm
     search_fields = ('title', )
     search_help_text = 'Search by Title'
     list_display = ['display_poster', 'title', 'display_count_episodes', 'display_type',
                     'display_season', 'year']
-    inlines = [EpisodeTabularInlinePaginated, PreviewImageTabularInlinePaginated, RelatedAnimeAdmin]
+    inlines = [EpisodeTabularInlinePaginated, PreviewImageTabularInlinePaginated, RelatedAnimeAdmin,
+               AnimeHistoryTabularInlinePaginated]
     list_filter = [
         ('genres', RelatedFieldComboFilter),
         ('studio', RelatedFieldComboFilter),
@@ -112,7 +147,20 @@ class AnimeAdmin(admin.ModelAdmin):
             '//cdn.jsdelivr.net/npm/js-cookie@3.0.1/dist/js.cookie.min.js',
             "admin/js/utils/modal.js",
             "admin/js/utils/add_modal.js",
+            'admin/js/utils/confirm_modal.js',
         )
+
+    def get_urls(self):
+        urls = super().get_urls()
+        my_urls = [
+            path('<str:object_id>/set-top/',
+                 self.admin_site.admin_view(self.set_top),
+                 name='set_top'),
+            path('<str:object_id>/reset-top/',
+                 self.admin_site.admin_view(self.reset_top),
+                 name='reset_top'),
+        ]
+        return my_urls + urls
 
     @admin.display(description='Poster', ordering='type')
     def display_poster(self, obj: Anime):
@@ -327,10 +375,39 @@ class TOP100(Anime):
 
 
 @admin.register(TOP100)
-class TOP100Admin(OnlyChangePermissionMixin, admin.ModelAdmin):
+class TOP100Admin(ReadOnlyPermissionsMixin, AnimeTOPMixin, admin.ModelAdmin):
+
+    class Media:
+        css = {
+            'all': (
+                "//code.jquery.com/ui/1.11.1/themes/smoothness/jquery-ui.css",
+                'admin/css/utils/modal.css',
+                'admin/css/buttons.css',
+            )
+        }
+        js = (
+            '//code.jquery.com/jquery-1.11.1.min.js',
+            '//code.jquery.com/ui/1.11.1/jquery-ui.min.js',
+            '//cdn.jsdelivr.net/npm/js-cookie@3.0.1/dist/js.cookie.min.js',
+            "admin/js/utils/modal.js",
+            "admin/js/utils/add_modal.js",
+            'admin/js/utils/confirm_modal.js',
+        )
 
     def get_queryset(self, request):
         return super().get_queryset(request).filter(is_top=True)
+
+    def get_urls(self):
+        urls = super().get_urls()
+        my_urls = [
+            path('<str:object_id>/set-top/',
+                 self.admin_site.admin_view(self.set_top),
+                 name='set_top'),
+            path('<str:object_id>/reset-top/',
+                 self.admin_site.admin_view(self.reset_top),
+                 name='reset_top'),
+        ]
+        return my_urls + urls
 
 
 @admin.register(Poster)

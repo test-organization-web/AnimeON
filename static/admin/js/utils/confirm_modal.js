@@ -4,7 +4,7 @@ django.jQuery(document).ready(function () {
     function addError(modalContent, error) {
         modalContent.addClass('errors');
         const list = modalContent.prepend('<ul class="errorlist"></ul>').find('ul');
-        list.append(`<li>This field is required.</li>`);
+        list.append(`<li>${error}</li>`);
     }
 
     function removeError(modalContent) {

@@ -2,6 +2,7 @@ from rest_framework import serializers
 
 from django.http import QueryDict
 from django.template.defaultfilters import date as _date
+from django.core.exceptions import ObjectDoesNotExist
 
 from apps.anime.models import (
     Director, Anime, Studio, Episode, PreviewImage, Genre, Voiceover, Poster, Arch, Reaction
@@ -72,16 +73,25 @@ class ResponseAnimeListSerializer(serializers.ModelSerializer):
 class ChildTeamSerializer(serializers.ModelSerializer):
     value = serializers.SerializerMethodField()
     get_params = serializers.SerializerMethodField()
+    avatar = serializers.SerializerMethodField()
 
     class Meta:
         model = Group
-        fields = ['value', 'get_params']
+        fields = ['value', 'get_params', 'avatar']
 
     def get_value(self, obj: Group):
         return obj.name
 
     def get_get_params(self, obj: Group):
         return QueryDict(f'voiceover={obj.id}').urlencode()
+
+    def get_avatar(self, obj: Group):
+        try:
+            if avatar := obj.settings.avatar:
+                return avatar.url
+            return None
+        except ObjectDoesNotExist:
+            return None
 
 
 class ChildEpisodeSerializer(serializers.ModelSerializer):

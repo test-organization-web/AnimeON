@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 
 
 class AnimeStatuses(models.TextChoices):
@@ -63,3 +64,8 @@ class DayOfWeekChoices(models.TextChoices):
 class ReactionChoices(models.TextChoices):
     LIKE = 'LIKE'
     DISLIKE = 'DISLIKE'
+
+
+class AnimeHistoryEvents(models.TextChoices):
+    SET_TOP = 'SET_TOP', 'Додано в ТОП'
+    RESET_TOP = 'RESET_TOP', 'Видалено з ТОП'

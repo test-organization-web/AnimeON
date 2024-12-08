@@ -16,9 +16,7 @@ class ResponseUserAnimeListSerializer(ResponseAnimeListSerializer):
 
     class Meta:
         model = UserAnime
-        fields = [
-            'action', 'anime'
-        ]
+        fields = ['action', 'anime']
 
 
 class ResponsePaginatedUserAnimeListSerializer(serializers.Serializer):
@@ -40,7 +38,7 @@ class UserSerializer(serializers.ModelSerializer):
         model = UserModel
         fields = ('username', 'count_viewed_anime', 'count_commented_anime', 'avatar')
 
-    def get_avatar(self, obj):
+    def get_avatar(self, obj: UserModel):
         try:
             if avatar := obj.settings.avatar:
                 return avatar.url
