@@ -160,11 +160,13 @@ class FiltersAnimeAPIView(GenericAPIView):
         genres = list((genre.id, genre.name) for genre in Genre.objects.all())
         studios = list((studio.id, studio.name) for studio in Studio.objects.all())
         voiceover = list((group.id, group.name) for group in Group.objects.all())
+        anime_countries = Anime.objects.all().only('country')
+        countries = list(set((anime.country.code, anime.country.name ) for anime in anime_countries))
         response = self.response_serializer({
             'directors': self.add_option_all(directors),
             'genres': self.add_option_all(genres),
             'studios': self.add_option_all(studios),
-            'countries': self.add_option_all(COUNTRIES),
+            'countries': self.add_option_all(countries),
             'voiceover': self.add_option_all(voiceover),
             'status': self.add_option_all(list(AnimeStatuses.choices)),
             'type': self.add_option_all(list(AnimeTypes.choices)),
