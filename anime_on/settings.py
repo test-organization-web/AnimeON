@@ -133,6 +133,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+
+                'apps.core.context_processors.project_settings',
             ],
             'builtins': ['apps.support.templatetags.support']
         },
@@ -323,3 +325,5 @@ if not SQS_QUEUE_ARN:
 SCHEDULER_RUN_TASK_ROLE_ARN = os.getenv('SCHEDULER_RUN_TASK_ROLE_ARN')
 if not SCHEDULER_RUN_TASK_ROLE_ARN:
     logger.error("'SCHEDULER_RUN_TASK_ROLE_ARN' is not defined. Async tasks schedules will be ignored")
+
+COUNT_TOP_ANIME = os.getenv("DEFAULT_FROM_EMAIL", 100)
