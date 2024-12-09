@@ -13,5 +13,5 @@ def user_avatar_save_path(instance, filename: str):
 def group_avatar_save_path(instance, filename: str):
     name = filename.split('.')[0]
     extension = get_extension(filename) or 'jpeg'
-    path = f'groups/{instance.user.username}/avatar/{name}.{extension}'
+    path = f'groups/{instance.group.name}/avatar/{name}.{extension}'
     return timezone.now().strftime(path)
