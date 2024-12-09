@@ -3,6 +3,7 @@ from rest_framework import serializers
 from django.http import QueryDict
 from django.template.defaultfilters import date as _date
 from django.core.exceptions import ObjectDoesNotExist
+from django.templatetags.static import static
 
 from apps.anime.models import (
     Director, Anime, Studio, Episode, PreviewImage, Genre, Voiceover, Poster, Arch, Reaction
@@ -89,9 +90,9 @@ class ChildTeamSerializer(serializers.ModelSerializer):
         try:
             if avatar := obj.settings.avatar:
                 return avatar.url
-            return None
+            return static('images/default_avatar.svg')
         except ObjectDoesNotExist:
-            return None
+            return static('images/default_avatar.svg')
 
 
 class ChildEpisodeSerializer(serializers.ModelSerializer):
@@ -282,11 +283,20 @@ class ResponseAnimeEpisodeSerializer(serializers.ModelSerializer):
 
 class ResponseCommentAnimeSerializer(serializers.ModelSerializer):
     username = serializers.CharField(source='user.username')
+    avatar = serializers.SerializerMethodField()
 
     class Meta:
         model = Comment
         fields = ('id', 'content_main', 'created', 'urlhash', 'has_reply', 'get_count_like',
-                  'get_count_dislike', 'username')
+                  'get_count_dislike', 'username', 'avatar')
+
+    def get_avatar(self, obj: Comment):
+        try:
+            if avatar := obj.user.settings.avatar:
+                return avatar.url
+            return static('images/default_avatar.svg')
+        except ObjectDoesNotExist:
+            return static('images/default_avatar.svg')
 
 
 class ResponsePaginatedCommentAnimeListSerializer(serializers.Serializer):

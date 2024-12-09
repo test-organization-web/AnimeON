@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
+from django.templatetags.static import static
 
 from rest_framework import serializers
 
@@ -42,9 +43,9 @@ class UserSerializer(serializers.ModelSerializer):
         try:
             if avatar := obj.settings.avatar:
                 return avatar.url
-            return None
+            return static('images/default_avatar.svg')
         except ObjectDoesNotExist:
-            return None
+            return static('images/default_avatar.svg')
 
 
 class RequestUserSettingsSerializer(serializers.ModelSerializer):
@@ -54,9 +55,19 @@ class RequestUserSettingsSerializer(serializers.ModelSerializer):
 
 
 class ResponseUserSettingsSerializer(serializers.ModelSerializer):
+    avatar = serializers.SerializerMethodField()
+
     class Meta:
         model = UserSettings
         exclude = ('user', 'id')
+
+    def get_avatar(self, obj: UserSettings):
+        try:
+            if avatar := obj.avatar:
+                return avatar.url
+            return static('images/default_avatar.svg')
+        except ObjectDoesNotExist:
+            return static('images/default_avatar.svg')
 
 
 class RequestUserAnimeSerializer(serializers.Serializer):
